@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Do You Really Wanna? · Your list &amp; stats</title>
+    <link rel="icon" href="../icons/icon-32.png" />
+    <link rel="stylesheet" href="../ui/base.css" />
+    <link rel="stylesheet" href="options.css" />
+    <script type="module" src="options.js"></script>
+  </head>
+  <body>
+    <header class="top wrap">
+      <span class="brand"><img src="../icons/icon-48.png" alt="" width="32" height="32" />Do You Really Wanna?</span>
+      <p class="muted">Give it a second thought.</p>
+    </header>
+
+    <main class="wrap">
+      <section class="card" aria-labelledby="list-heading">
+        <div class="card-head">
+          <h2 id="list-heading">Your list</h2>
+          <p class="muted">Before you open one of these, I'll ask if you really wanna. Nothing is blocked: "Yes" always lets you in.</p>
+        </div>
+
+        <form class="row" id="add-form">
+          <label class="visually-hidden" for="domain">Website</label>
+          <input class="input grow" id="domain" placeholder="e.g. youtube.com" autocomplete="off" spellcheck="false" />
+          <button class="btn btn-primary" type="submit">Add site</button>
+        </form>
+        <p class="error" id="add-error" role="alert" hidden></p>
+
+        <p class="warn" id="access-banner" hidden>
+          <span id="access-text"></span>
+          <button class="btn btn-quiet btn-small" id="grant-all" type="button">Allow access</button>
+        </p>
+
+        <ul class="sites" id="sites"></ul>
+        <p class="empty muted" id="empty" hidden>
+          Nothing here yet. Add the sites you open on autopilot, like <b>youtube.com</b> or <b>reddit.com</b>.
+          Tip: add <b>mail.google.com</b> for Gmail, not google.com, or Search and Docs get paused too.
+        </p>
+      </section>
+
+      <section class="card" aria-labelledby="stats-heading">
+        <div class="card-head">
+          <h2 id="stats-heading">Your numbers</h2>
+          <p class="muted">How often you gave it a second thought. Counted on this computer only.</p>
+        </div>
+
+        <div class="tiles">
+          <div class="tile">
+            <p class="tile-label">Turned back today</p>
+            <p class="tile-value" id="tile-today"></p>
+            <p class="tile-sub muted" id="tile-today-sub"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Last 7 days</p>
+            <p class="tile-value" id="tile-week"></p>
+            <p class="tile-sub muted" id="tile-week-sub"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">All time</p>
+            <p class="tile-value" id="tile-all"></p>
+            <p class="tile-sub muted" id="tile-all-sub"></p>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="stats-table-wrap">
+          <table class="table">
+            <caption class="visually-hidden">Turned back, out of times paused, per site</caption>
+            <thead>
+              <tr>
+                <th scope="col">Site</th>
+                <th scope="col">Today</th>
+                <th scope="col">Last 7 days</th>
+                <th scope="col">All time</th>
+              </tr>
+            </thead>
+            <tbody id="stats-rows"></tbody>
+          </table>
+          <p class="table-note muted">Turned back / paused. Closing the tab without answering counts as turning back.</p>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="settings-heading">
+        <div class="card-head">
+          <h2 id="settings-heading">Settings</h2>
+        </div>
+        <div class="settings">
+          <label class="setting" for="grace">
+            <span><b>After "Yes"</b>, don't ask again in that tab for</span>
+            <span class="setting-input"><input class="input number" id="grace" type="number" inputmode="numeric" /> minutes</span>
+          </label>
+          <label class="setting" for="countdown">
+            <span><b>After "No"</b>, close the tab after</span>
+            <span class="setting-input"><input class="input number" id="countdown" type="number" inputmode="numeric" /> seconds</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="data-heading">
+        <div class="card-head">
+          <h2 id="data-heading">Your data</h2>
+          <p class="muted">
+            Everything stays in this browser: no account, no servers, no analytics, no network requests at all.
+            To move to another computer, export a backup here and import it there.
+          </p>
+        </div>
+        <div class="row wrap-row">
+          <button class="btn btn-quiet" id="export" type="button">Export backup</button>
+          <button class="btn btn-quiet" id="import" type="button">Import backup</button>
+          <input type="file" id="import-file" accept="application/json,.json" hidden />
+          <button class="btn btn-link" id="clear-stats" type="button">Delete all stats</button>
+        </div>
+        <p class="status" id="data-status" role="status"></p>
+      </section>
+    </main>
+
+    <footer class="foot wrap muted">
+      <span>Version <span id="version"></span></span>
+      <span aria-hidden="true">·</span>
+      <span>Free and open source</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/matejmaricIA/doyoureallywanna" target="_blank" rel="noopener">Source code</a>
+    </footer>
+  </body>
+</html>

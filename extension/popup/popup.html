@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Do You Really Wanna?</title>
+    <link rel="stylesheet" href="../ui/base.css" />
+    <link rel="stylesheet" href="popup.css" />
+    <script type="module" src="popup.js"></script>
+  </head>
+  <body>
+    <header class="head">
+      <span class="brand"><img src="../icons/icon-32.png" alt="" width="20" height="20" />Do You Really Wanna?</span>
+    </header>
+
+    <main class="body">
+      <!-- Not a website (new tab, settings page, ...) -->
+      <section class="state" data-state="none" hidden>
+        <p class="title">Open a site you keep opening on autopilot,</p>
+        <p class="muted">then click me again to add it to your list.</p>
+      </section>
+
+      <!-- A website that isn't on the list -->
+      <form class="state" data-state="add" id="add-form" hidden>
+        <label class="title" for="domain">Ask me before opening</label>
+        <div class="row">
+          <input class="input" id="domain" name="domain" autocomplete="off" spellcheck="false" required />
+          <button class="btn btn-primary" type="submit" id="add">Add</button>
+        </div>
+        <p class="hint muted">Edit it to cover a whole site, e.g. <b>reddit.com</b> instead of <b>old.reddit.com</b>.</p>
+        <p class="error" id="add-error" role="alert" hidden></p>
+      </form>
+
+      <!-- A website that is on the list -->
+      <section class="state" data-state="listed" hidden>
+        <p class="title"><span class="site" id="listed-site"></span> is on your list.</p>
+        <p class="muted" id="listed-today"></p>
+        <p class="warn" id="listed-access" hidden>
+          <span>I can't pause it without access.</span>
+          <button class="btn btn-quiet btn-small" id="grant" type="button">Allow</button>
+        </p>
+        <button class="btn btn-link" id="remove" type="button">Remove from list</button>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <button class="btn btn-link" id="settings" type="button">Your list &amp; stats</button>
+    </footer>
+  </body>
+</html>

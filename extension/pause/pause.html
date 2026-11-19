@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Do you really wanna?</title>
+    <link rel="icon" href="../icons/icon-32.png" />
+    <link rel="stylesheet" href="../ui/base.css" />
+    <link rel="stylesheet" href="pause.css" />
+    <script type="module" src="pause.js"></script>
+  </head>
+  <body>
+    <main class="stage">
+      <p class="brand"><img src="../icons/icon-32.png" alt="" width="22" height="22" />Do You Really Wanna?</p>
+
+      <section class="state" data-state="ask" hidden>
+        <h1 class="question" id="question"></h1>
+        <p class="count" id="count"></p>
+        <div class="actions">
+          <button class="btn btn-primary btn-big" id="no" type="button">No, not now</button>
+          <button class="btn btn-quiet btn-big" id="yes" type="button">Yes, open it</button>
+        </div>
+        <p class="target" id="target"></p>
+      </section>
+
+      <section class="state" data-state="back" hidden aria-live="polite">
+        <h1 class="question" id="back-title"></h1>
+        <p class="lede" id="back-body"></p>
+        <p class="countdown" id="countdown"></p>
+        <div class="actions">
+          <button class="btn btn-quiet" id="go-back" type="button" hidden>Go back instead</button>
+          <button class="btn btn-quiet" id="close-now" type="button">Close now</button>
+        </div>
+      </section>
+
+      <section class="state" data-state="unknown" hidden>
+        <h1 class="question">Nothing to pause here.</h1>
+        <p class="lede">This site isn't on your list anymore.</p>
+        <div class="actions">
+          <a class="btn btn-quiet" id="continue" hidden></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Give it a second thought.</span>
+      <span aria-hidden="true">·</span>
+      <button class="btn btn-link" id="settings" type="button">Your list &amp; stats</button>
+    </footer>
+  </body>
+</html>

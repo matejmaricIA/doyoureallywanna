@@ -1,0 +1,112 @@
+body {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+.stage {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 48px 24px 24px;
+  align-self: center;
+}
+
+.stage > .brand {
+  margin-bottom: 40px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.question {
+  font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.question .site {
+  color: var(--accent);
+}
+
+.count,
+.lede {
+  margin-top: 14px;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.btn-big {
+  min-height: 52px;
+  padding: 0 26px;
+  font-size: 16px;
+}
+
+.target {
+  margin-top: 28px;
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.countdown {
+  margin-top: 32px;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown .num {
+  display: inline-block;
+  min-width: 1ch;
+  color: var(--accent);
+  animation: tick 1s ease-out;
+}
+
+@keyframes tick {
+  from {
+    opacity: 0.2;
+    transform: translateY(-3px);
+  }
+}
+
+.state:not([hidden]) {
+  animation: fade 220ms ease-out;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.foot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 24px 16px 28px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@media (max-width: 480px) {
+  .stage {
+    padding-top: 32px;
+  }
+
+  .actions .btn {
+    flex: 1 1 100%;
+  }
+}

@@ -1,0 +1,70 @@
+body {
+  width: 340px;
+  font-size: 14px;
+}
+
+.head {
+  padding: 14px 16px 0;
+}
+
+.head .brand {
+  font-size: 14px;
+}
+
+.body {
+  padding: 14px 16px 6px;
+}
+
+.state {
+  display: grid;
+  gap: 10px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.site {
+  color: var(--accent);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.row .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.hint {
+  font-size: 12px;
+}
+
+.hint b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.state .btn-link {
+  justify-self: start;
+  font-size: 13px;
+}
+
+.foot {
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+}
+
+.foot .btn-link {
+  font-size: 13px;
+}
