@@ -10,6 +10,23 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+### Changed
+
+- **"Your list & stats" redesigned.** It now looks like the pause page: one
+  column, no cards. At the top, today's numbers as one sentence ("You turned
+  back 9 of 14 times today.") with a tally of today's pauses, one stroke per
+  pause, and the last 7 days and all time underneath. The list and the
+  per-site stats table are merged: each site shows today's and the last
+  7 days' numbers next to it. The settings read as sentences with the
+  number inline. With an empty list the page opens with "What do you open
+  on autopilot?".
+- Light mode uses a white background instead of cream, on every page.
+
+### Removed
+
+- The per-site breakdown no longer shows all-time numbers, or sites that
+  were removed from the list. Both still count in the totals at the top.
+
 ## [0.1.0] - 2026-11-19
 
 The first version: the core "pause, don't block" loop, for daily use.

@@ -2,11 +2,11 @@
 
 import { buildBackup, parseBackup } from '../lib/backup.js';
 import { hasAccess, releaseAccess, requestAccess, syncRules } from '../lib/browser.js';
-import { plural } from '../lib/copy.js';
+import { plural, summaryLines } from '../lib/copy.js';
 import { dayKey, lastDays } from '../lib/dates.js';
 import { normalizeDomain } from '../lib/domains.js';
 import { LIMITS } from '../lib/settings.js';
-import { sumCounts } from '../lib/stats.js';
+import { sumCounts, tallyMarks } from '../lib/stats.js';
 import { addSite, clearStats, load, removeSite, replaceAll, saveSettings } from '../lib/store.js';
 
 /** @typedef {import('../lib/backup.js').Data} Data */
@@ -36,13 +36,66 @@ async function missingAccess(domains) {
   return domains.filter((_, i) => !checks[i]);
 }
 
+/** @typedef {import('../lib/stats.js').Counts} Counts */
+
+let firstRender = true;
+
 async function render() {
   const data = await load();
   const domains = Object.keys(data.sites).sort();
   const missing = await missingAccess(domains);
+  renderSummary(domains, data);
   renderList(domains, missing, data);
-  renderStats(domains, data);
   renderSettings(data);
+  firstRender = false;
+}
+
+/**
+ * Tally strokes in groups of five, turned back first.
+ * @param {Counts} counts
+ * @param {{ cap: number, big?: boolean, draw?: boolean }} options
+ */
+function tally(counts, { cap, big = false, draw = false }) {
+  const { marks, more } = tallyMarks(counts, cap);
+  const node = el('div', { class: big ? 'tally tally-big' : 'tally', 'aria-hidden': 'true' });
+  const step = Math.min(30, 700 / Math.max(1, marks.length));
+  for (let i = 0; i < marks.length; i += 5) {
+    const strokes = marks.slice(i, i + 5).map((kind, j) =>
+      el('i', { class: `is-${kind}`, style: `--delay: ${Math.round((i + j) * step)}ms` }),
+    );
+    node.append(el('span', { class: 'tally-group' }, ...strokes));
+  }
+  if (more) node.append(el('span', { class: 'tally-more' }, `+${more}`));
+  if (draw) node.classList.add('is-drawing');
+  return node;
+}
+
+/**
+ * "4 of 5", or "none" when there were no pauses.
+ * @param {Counts} counts
+ * @param {string} label  spoken after the numbers, shown on narrow screens
+ */
+function outOf(counts, label) {
+  const text = counts.paused ? `${counts.turnedBack} of ${counts.paused}` : 'none';
+  return el('span', { class: counts.paused ? 'num' : 'num is-zero' }, text, el('span', { class: 'cell-label' }, ` ${label}`));
+}
+
+/**
+ * @param {string[]} domains
+ * @param {Data} data
+ */
+function renderSummary(domains, data) {
+  const today = sumCounts(data.stats, { days: [dayKey()] });
+  const lines = summaryLines({
+    sites: domains.length,
+    today,
+    week: sumCounts(data.stats, { days: lastDays(7) }),
+    all: sumCounts(data.stats),
+  });
+  // Keep "9 of 14" together when the sentence wraps.
+  $('summary-title').textContent = lines.title.replace(/(\d+) of (\d+)/, '$1 of $2');
+  $('summary-body').textContent = lines.body;
+  $('summary-tally').replaceChildren(...(today.paused ? [tally(today, { cap: 60, big: true, draw: firstRender })] : []));
 }
 
 /**
@@ -51,81 +104,41 @@ async function render() {
  * @param {Data} data
  */
 function renderList(domains, missing, data) {
-  const today = dayKey();
+  const today = [dayKey()];
+  const week = lastDays(7);
   $('empty').hidden = domains.length > 0;
+  $('list-lede').hidden = domains.length === 0;
+  $('sites-grid').hidden = domains.length === 0;
+  $('sites-note').hidden = domains.length === 0;
   $('sites').replaceChildren(
     ...domains.map((domain) => {
-      const { paused } = sumCounts(data.stats, { days: [today], domain });
-      const row = el(
-        'li',
-        { class: 'site-row' },
-        el(
-          'div',
-          { class: 'site-main' },
-          el('span', { class: 'site-name' }, domain),
-          el('span', { class: 'site-sub' }, paused ? `Paused ${plural(paused, 'time')} today` : 'Not paused today'),
-        ),
-      );
+      const todayCounts = sumCounts(data.stats, { days: today, domain });
+      const main = el('div', { class: 'site-main' }, el('span', { class: 'site-name' }, domain));
       if (missing.includes(domain)) {
-        const allow = el('button', { class: 'btn btn-quiet btn-small', type: 'button' }, 'Allow');
+        const allow = el('button', { class: 'btn btn-link', type: 'button', 'aria-label': `Allow access to ${domain}` }, 'Allow');
         allow.addEventListener('click', () => requestAccess([domain]).then(render));
-        row.append(el('span', { class: 'warn' }, 'Needs access', allow));
+        main.append(el('span', { class: 'site-access' }, 'Needs access', allow));
       }
-      const remove = el('button', { class: 'btn btn-link', type: 'button', 'aria-label': `Remove ${domain}` }, 'Remove');
+      const remove = el('button', { class: 'btn btn-link site-remove', type: 'button', 'aria-label': `Remove ${domain}` }, 'Remove');
       remove.addEventListener('click', async () => {
         await removeSite(domain);
         await syncRules();
         await releaseAccess(domain, domains.filter((d) => d !== domain));
       });
-      row.append(remove);
-      return row;
+      return el(
+        'li',
+        { class: 'site' },
+        main,
+        el('div', { class: 'site-today' }, outOf(todayCounts, 'today'), tally(todayCounts, { cap: 20 })),
+        el('div', { class: 'site-week' }, outOf(sumCounts(data.stats, { days: week, domain }), 'in the last 7 days')),
+        remove,
+      );
     }),
   );
 
   $('access-banner').hidden = missing.length < 2;
   $('access-text').textContent = `${plural(missing.length, 'site')} on your list need access before I can pause them.`;
   $('grant-all').onclick = () => requestAccess(missing).then(render);
-}
-
-/**
- * @param {string[]} domains
- * @param {Data} data
- */
-function renderStats(domains, data) {
-  const today = [dayKey()];
-  const week = lastDays(7);
-  const tiles = /** @type {const} */ ([
-    ['today', today],
-    ['week', week],
-    ['all', null],
-  ]);
-  for (const [name, days] of tiles) {
-    const counts = sumCounts(data.stats, { days });
-    $(`tile-${name}`).textContent = String(counts.turnedBack);
-    $(`tile-${name}-sub`).textContent = `out of ${plural(counts.paused, 'pause')}`;
-  }
-
-  // Every site that has stats, even ones removed from the list since.
-  const sites = new Set(domains);
-  for (const perSite of Object.values(data.stats)) for (const site of Object.keys(perSite)) sites.add(site);
-  const rows = [...sites]
-    .map((domain) => ({
-      domain,
-      today: sumCounts(data.stats, { days: today, domain }),
-      week: sumCounts(data.stats, { days: week, domain }),
-      all: sumCounts(data.stats, { domain }),
-    }))
-    .filter((row) => row.all.paused > 0)
-    .sort((a, b) => b.all.paused - a.all.paused || a.domain.localeCompare(b.domain));
-
-  /** @param {import('../lib/stats.js').Counts} counts */
-  const cell = (counts) =>
-    el('td', {}, String(counts.turnedBack), el('span', { class: 'of' }, ` / ${counts.paused}`));
-
-  $('stats-table-wrap').hidden = rows.length === 0;
-  $('stats-rows').replaceChildren(
-    ...rows.map((row) => el('tr', {}, el('td', {}, row.domain), cell(row.today), cell(row.week), cell(row.all))),
-  );
 }
 
 /** @param {Data} data */

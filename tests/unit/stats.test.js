@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { dayKey, lastDays } from '../../extension/lib/dates.js';
-import { addEvent, pruneStats, sumCounts } from '../../extension/lib/stats.js';
+import { addEvent, pruneStats, sumCounts, tallyMarks } from '../../extension/lib/stats.js';
 
 describe('dates', () => {
   it('dayKey uses the local calendar date', () => {
@@ -51,5 +51,21 @@ describe('pruneStats', () => {
     const stats = { '2026-11-19': {}, '2026-11-17': {}, '2026-11-16': {} };
     assert.deepEqual(Object.keys(pruneStats(stats, '2026-11-19', 4)).sort(), ['2026-11-16', '2026-11-17', '2026-11-19']);
     assert.deepEqual(Object.keys(pruneStats(stats, '2026-11-19', 3)).sort(), ['2026-11-17', '2026-11-19']);
+  });
+});
+
+describe('tallyMarks', () => {
+  it('draws one mark per pause, turned-back ones first', () => {
+    assert.deepEqual(tallyMarks({ paused: 3, opened: 1, turnedBack: 2 }, 10), {
+      marks: ['back', 'back', 'opened'],
+      more: 0,
+    });
+    assert.deepEqual(tallyMarks({ paused: 0, opened: 0, turnedBack: 0 }, 10), { marks: [], more: 0 });
+  });
+  it('keeps the proportions past the cap and counts the rest', () => {
+    const { marks, more } = tallyMarks({ paused: 40, opened: 10, turnedBack: 30 }, 20);
+    assert.equal(marks.length, 20);
+    assert.equal(marks.filter((m) => m === 'back').length, 15);
+    assert.equal(more, 20);
   });
 });

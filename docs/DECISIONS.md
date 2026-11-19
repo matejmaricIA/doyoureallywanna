@@ -295,3 +295,32 @@ Every change is logged in `CHANGELOG.md` under *Unreleased*; releases get a
 `vX.Y.Z` tag. Decisions go here, plans and to-dos in `docs/ROADMAP.md`,
 do's and don'ts in `docs/PRINCIPLES.md`. Commits use Conventional Commits
 (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
+
+## D-019 · "Your list & stats" looks like the pause page
+
+*2026-11-19 · Accepted*
+
+**Context.** The first settings page was built from stock parts: cream
+background, rounded cards with soft shadows, three "big number" tiles and
+a stats table that repeated the list. It looked generic and said
+everything twice.
+
+**Decision.** One column, no cards, the same type as the pause page.
+Today's numbers lead as a sentence (`summaryLines` in `lib/copy.js`), with
+a tally under it: one stroke per pause, in groups of five, turned back in
+the accent color and opened anyway in grey (`tallyMarks` in
+`lib/stats.js`). The list carries the per-site numbers (today with a small
+tally, and the last 7 days), so there's no separate table. Settings are
+sentences with the number as an inline blank. The light theme is white
+instead of cream, for every page.
+
+**Why.** The pause page is the part of the extension people see most, and
+it works because it's one plain sentence. The settings page should sound
+and look like the same thing. A tally is how people count by hand; it
+shows the numbers without turning them into a score. It only ever shows
+today, so there's nothing that looks like a streak.
+
+**Consequences.** Per-site all-time numbers and rows for removed sites are
+gone from the page; they still count in the totals and are in the backup.
+The big tally draws itself once on load (off with reduced motion). Past
+60 strokes (20 per site) the tally keeps its proportions and shows "+n".

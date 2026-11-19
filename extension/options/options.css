@@ -1,75 +1,272 @@
-.wrap {
+/* "Your list & stats". One column, like the pause page: a big sentence at
+   the top, then plain sections. No cards. */
+
+.page {
   width: 100%;
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 48px 24px 40px;
 }
 
-.top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  padding-top: 40px;
-  padding-bottom: 24px;
+.page > .brand {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.top .brand {
-  align-self: center;
-  font-size: 22px;
-  letter-spacing: -0.02em;
+/* Today, in one sentence */
+
+.summary {
+  margin-top: 40px;
 }
 
-main.wrap {
-  display: grid;
-  gap: 20px;
+.summary-title {
+  max-width: 15em;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
-.card {
-  display: grid;
-  gap: 18px;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+.summary .tally {
+  margin-top: 28px;
 }
 
-.card-head {
-  display: grid;
-  gap: 4px;
-}
-
-.card-head h2 {
+.lede {
+  max-width: 34em;
+  margin-top: 16px;
   font-size: 18px;
-  letter-spacing: -0.01em;
+  color: var(--muted);
+  text-wrap: pretty;
 }
 
-.row {
+/* Tally: one stroke per pause, in groups of five. Turned back in the
+   accent color, opened anyway in grey. */
+
+.tally {
+  --w: 3px;
+  --h: 14px;
+  --gap: 3px;
   display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.wrap-row {
   flex-wrap: wrap;
-}
-
-.grow {
-  flex: 1;
-  min-width: 0;
-}
-
-.error {
-  font-size: 13px;
+  align-items: center;
+  gap: 6px calc(var(--gap) * 2.5);
   color: var(--accent);
 }
 
-.empty b,
-.empty {
+.tally-big {
+  --w: 5px;
+  --h: 34px;
+  --gap: 6px;
+  row-gap: 12px;
+}
+
+.tally-group {
+  display: flex;
+  gap: var(--gap);
+}
+
+.tally i {
+  display: block;
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--w);
+  background: currentColor;
+  transform-origin: bottom;
+}
+
+.tally i.is-opened {
+  background: var(--mark-off);
+}
+
+.tally-more {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tally-big .tally-more {
+  font-size: 16px;
+}
+
+/* The one moment of motion: the big tally draws itself on first load. */
+.tally.is-drawing i {
+  animation: stroke 240ms ease-out backwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes stroke {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* Sections */
+
+.section {
+  margin-top: 72px;
+}
+
+.section h2 {
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.section h2 + .muted {
+  margin-top: 4px;
+}
+
+.section > .muted:not(.note) {
+  max-width: 40em;
+}
+
+/* Inputs that sit on a line, like a blank in a sentence */
+
+.line-input {
+  min-width: 0;
+  height: 44px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 2px solid var(--line-strong);
+  border-radius: 0;
+  background: transparent;
+  font-size: 18px;
+}
+
+.line-input::placeholder {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+
+.line-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.add {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.add .line-input {
+  flex: 1;
+}
+
+.error {
+  margin-top: 10px;
   font-size: 14px;
+  color: var(--accent);
+}
+
+#access-banner {
+  margin-top: 20px;
+}
+
+/* The list, with today's and the week's numbers per site */
+
+.sites-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  column-gap: 32px;
+  margin-top: 32px;
+}
+
+.sites-head,
+.sites,
+.site {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.sites-head {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sites {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site {
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-main {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+}
+
+.site-name {
+  font-size: 17px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.site-access {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--warn);
+}
+
+.site-access .btn-link {
+  font-size: 13px;
+  color: var(--warn);
+}
+
+.site-today {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-today .num {
+  min-width: 4.6em;
+}
+
+.num {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.num.is-zero {
+  color: var(--muted);
+}
+
+.site-remove {
+  justify-self: end;
+}
+
+/* Spoken everywhere, shown only when the columns stack on narrow screens. */
+.cell-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.note {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.empty {
+  margin-top: 20px;
+  max-width: 40em;
 }
 
 .empty b {
@@ -77,159 +274,53 @@ main.wrap {
   font-weight: 600;
 }
 
-/* Site list */
-
-.sites {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--line);
-}
-
-.sites:empty {
-  display: none;
-}
-
-.site-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 2px;
-  border-bottom: 1px solid var(--line);
-}
-
-.site-main {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-}
-
-.site-name {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.site-sub {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.site-row .warn {
-  padding: 4px 6px 4px 10px;
-}
-
-/* Stats */
-
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.tile {
-  padding: 14px 16px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-
-.tile-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.tile-value {
-  margin-top: 2px;
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-
-.tile-sub {
-  font-size: 13px;
-}
-
-.table-wrap {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-
-.table th,
-.table td {
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--line);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.table th:first-child,
-.table td:first-child {
-  text-align: left;
-  padding-left: 2px;
-}
-
-.table th {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.table td:first-child {
-  font-weight: 600;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.table .of {
-  color: var(--muted);
-}
-
-.table-note {
-  margin-top: 10px;
-  font-size: 12px;
-}
-
-/* Settings */
+/* Settings, written as sentences */
 
 .settings {
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  margin-top: 20px;
+  font-size: 17px;
 }
 
 .setting {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px 16px;
+  line-height: 2;
 }
 
-.setting b {
-  font-weight: 600;
+.blank {
+  white-space: nowrap;
 }
 
-.setting-input {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-}
-
-.number {
-  width: 76px;
-  padding-right: 8px;
+.line-input.number {
+  width: 2.6em;
+  height: 36px;
+  margin: 0 4px;
   text-align: center;
+  font-size: 17px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  appearance: textfield;
+}
+
+.line-input.number::-webkit-inner-spin-button,
+.line-input.number::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Your data */
+
+.data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 20px;
 }
 
 .status {
-  font-size: 13px;
+  margin-top: 12px;
+  font-size: 14px;
   color: var(--muted);
 }
 
@@ -242,25 +333,78 @@ main.wrap {
 }
 
 .foot {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  padding-top: 28px;
-  padding-bottom: 40px;
+  margin-top: 80px;
   font-size: 13px;
+  color: var(--muted);
 }
 
-@media (max-width: 560px) {
-  .tiles {
-    grid-template-columns: 1fr;
+@media (max-width: 600px) {
+  .page {
+    padding-top: 32px;
   }
 
-  .card {
-    padding: 18px;
+  .section {
+    margin-top: 56px;
   }
 
-  .top {
-    padding-top: 24px;
+  .sites-grid,
+  .sites {
+    display: block;
+  }
+
+  .sites-head {
+    display: none;
+  }
+
+  .site {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'main remove'
+      'today today'
+      'week week';
+    row-gap: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sites .site:first-child {
+    border-top: 1px solid var(--line);
+  }
+
+  .site-main {
+    grid-area: main;
+  }
+
+  .site-remove {
+    grid-area: remove;
+  }
+
+  .site-today {
+    grid-area: today;
+  }
+
+  .site-week {
+    grid-area: week;
+  }
+
+  .site-today,
+  .site-week {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .site-today .num {
+    min-width: 0;
+  }
+
+  .cell-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+
+  .add .btn {
+    padding: 0 16px;
   }
 }

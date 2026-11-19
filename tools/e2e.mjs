@@ -114,6 +114,7 @@ try {
     options = await browser.attach(target.targetId);
     await options.settle();
     expect((await options.text('#empty'))?.includes('Nothing here yet') === true, 'empty state missing');
+    expectEqual(await options.text('#summary-title'), 'What do you open on autopilot?', 'empty-state summary');
   });
 
   await step('adds a site, normalizing what was typed', async () => {
@@ -219,7 +220,9 @@ try {
     expectEqual(today['distracting.test'], [4, 1], 'today [paused, opened]');
     // The page only re-renders when visible (requestAnimationFrame), like a person switching to it.
     await options.send('Page.bringToFront');
-    await waitUntil(async () => (await options.text('#tile-today')) === '3', { what: 'today tile to show 3' });
+    await waitUntil(async () => (await options.text('#summary-title'))?.replace(/\s/g, ' ') === 'You turned back 3 of 4 times today.', {
+      what: 'summary to show 3 of 4',
+    });
   });
 
   await step('asks again once the grace period runs out', async () => {

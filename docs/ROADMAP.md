@@ -76,6 +76,9 @@ in [DECISIONS.md](DECISIONS.md); what actually changed lives in
 
 ## Done
 
+- [x] Unreleased: "Your list & stats" redesigned to match the pause page
+      (today as a sentence, tallies, list and stats merged), white light
+      theme (D-019).
 - [x] v0.1.0: pause page, Yes with a 5-minute per-tab grace period, No with
       the "closing in 5…" countdown, same-site navigation never asks,
       popup, list & stats page, settings, JSON backup, per-site access,

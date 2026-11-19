@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { BACKUP_APP, SCHEMA, buildBackup, parseBackup } from '../../extension/lib/backup.js';
-import { PROMPTS, TURNED_BACK, ordinal, pick, plural, timesTodayLine } from '../../extension/lib/copy.js';
+import { PROMPTS, TURNED_BACK, ordinal, pick, plural, summaryLines, timesTodayLine } from '../../extension/lib/copy.js';
 import { DEFAULT_SETTINGS, sanitizeSettings } from '../../extension/lib/settings.js';
 
 describe('settings', () => {
@@ -84,5 +84,35 @@ describe('backup', () => {
     assert.deepEqual(Object.keys(parsed.data.sites), ['youtube.com']);
     assert.equal(parsed.data.settings.graceMinutes, 120);
     assert.deepEqual(parsed.data.stats, { '2026-11-19': { 'youtube.com': [3, 3] } });
+  });
+});
+
+describe('summaryLines', () => {
+  /** @param {number} paused @param {number} turnedBack */
+  const c = (paused, turnedBack) => ({ paused, opened: paused - turnedBack, turnedBack });
+  const none = c(0, 0);
+
+  it('invites you to add a site when there is nothing yet', () => {
+    assert.equal(summaryLines({ sites: 0, today: none, week: none, all: none }).title, 'What do you open on autopilot?');
+    assert.equal(summaryLines({ sites: 2, today: none, week: none, all: none }).title, 'Nothing paused yet.');
+  });
+  it('leads with today, then the last 7 days and all time', () => {
+    assert.deepEqual(summaryLines({ sites: 4, today: c(14, 9), week: c(132, 83), all: c(580, 362) }), {
+      title: 'You turned back 9 of 14 times today.',
+      body: "In the last 7 days it's 83 of 132, and 362 of 580 all time.",
+    });
+    assert.equal(summaryLines({ sites: 1, today: c(1, 0), week: c(1, 0), all: c(1, 0) }).title, 'You turned back 0 of 1 time today.');
+  });
+  it('never repeats the same numbers', () => {
+    assert.equal(summaryLines({ sites: 1, today: c(3, 2), week: c(3, 2), all: c(3, 2) }).body, "That's every pause so far.");
+    assert.equal(summaryLines({ sites: 1, today: c(3, 2), week: c(9, 5), all: c(9, 5) }).body, "In the last 7 days it's 5 of 9.");
+    assert.equal(summaryLines({ sites: 1, today: c(3, 2), week: c(3, 2), all: c(9, 5) }).body, "All time it's 5 of 9.");
+  });
+  it('still shows the week and all time on a day without pauses', () => {
+    assert.deepEqual(summaryLines({ sites: 1, today: none, week: c(8, 6), all: c(20, 11) }), {
+      title: 'No pauses yet today.',
+      body: 'In the last 7 days you turned back 6 of 8 times, and 11 of 20 all time.',
+    });
+    assert.equal(summaryLines({ sites: 1, today: none, week: none, all: c(20, 11) }).body, 'All time, you turned back 11 of 20 times.');
   });
 });

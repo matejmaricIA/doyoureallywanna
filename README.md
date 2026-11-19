@@ -67,7 +67,7 @@ had a second to think about *why* you were opening it.
 
 <table>
   <tr>
-    <td width="62%" valign="top"><img src="docs/images/settings.png" alt="Your list & stats page: the list of sites, turned-back numbers for today, the last 7 days and all time, settings, and backup buttons." /></td>
+    <td width="62%" valign="top"><img src="docs/images/settings.png" alt="Your list & stats page: You turned back 9 of 14 times today, with a tally of today's pauses; the list of sites with today's and the last 7 days' numbers; settings written as sentences; backup buttons." /></td>
     <td width="38%" valign="top"><img src="docs/images/popup.png" alt="Toolbar popup: Ask me before opening imdb.com, with an Add button." /></td>
   </tr>
   <tr>

@@ -67,3 +67,19 @@ export function sumCounts(stats, { days = null, domain = null } = {}) {
   }
   return { paused, opened, turnedBack: Math.max(0, paused - opened) };
 }
+
+/**
+ * One mark per pause for drawing a tally, turned-back ones first. Past
+ * `cap` the marks keep their proportions and the rest is counted in `more`.
+ * @param {Counts} counts
+ * @param {number} cap
+ * @returns {{ marks: ('back' | 'opened')[], more: number }}
+ */
+export function tallyMarks({ paused, turnedBack }, cap) {
+  const shown = Math.min(paused, cap);
+  const back = paused > cap ? Math.round((turnedBack / paused) * cap) : turnedBack;
+  return {
+    marks: [...Array(back).fill('back'), ...Array(shown - back).fill('opened')],
+    more: paused - shown,
+  };
+}

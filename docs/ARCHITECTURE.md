@@ -17,11 +17,12 @@ extension/                 ← load this folder in the browser; it's also what s
   lib/
     domains.js     pure   normalize input, match URLs to listed sites
     rules.js       pure   build declarativeNetRequest rules
-    stats.js       pure   add events, prune, sum counts
+    stats.js       pure   add events, prune, sum counts, tally marks
     dates.js       pure   local day keys
     settings.js    pure   defaults, limits, sanitizing
     backup.js      pure   build / validate the JSON backup
-    copy.js        pure   every question and message the extension shows
+    copy.js        pure   every question and message the extension shows,
+                          and the summary sentence on "Your list & stats"
     store.js       chrome storage.local reads/writes, under a Web Lock
     browser.js     chrome rules sync, grace periods, site access
 assets/icon.svg            the icon source

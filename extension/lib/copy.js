@@ -51,3 +51,42 @@ export function timesTodayLine(count) {
 export function plural(n, one, many = `${one}s`) {
   return `${n} ${n === 1 ? one : many}`;
 }
+
+/** @typedef {import('./stats.js').Counts} Counts */
+
+/** @param {Counts} counts */
+const outOf = ({ turnedBack, paused }) => `${turnedBack} of ${paused}`;
+
+/** @param {Counts} counts */
+const outOfTimes = (counts) => `${outOf(counts)} ${counts.paused === 1 ? 'time' : 'times'}`;
+
+/**
+ * The big sentence at the top of "Your list & stats", and the line under it.
+ * Counts nest: today is part of the last 7 days, which is part of all time.
+ * @param {{ sites: number, today: Counts, week: Counts, all: Counts }} n
+ * @returns {{ title: string, body: string }}
+ */
+export function summaryLines({ sites, today, week, all }) {
+  if (all.paused === 0) {
+    return sites === 0
+      ? {
+          title: 'What do you open on autopilot?',
+          body: 'Add a site below and I\'ll ask before it opens. Nothing is blocked: "Yes" always lets you in.',
+        }
+      : { title: 'Nothing paused yet.', body: 'I\'ll ask the next time you open a site on your list.' };
+  }
+  const allTime = all.paused > week.paused ? `, and ${outOf(all)} all time.` : '.';
+  if (today.paused > 0) {
+    let body = "That's every pause so far.";
+    if (all.paused > today.paused) {
+      body = week.paused > today.paused ? `In the last 7 days it's ${outOf(week)}${allTime}` : `All time it's ${outOf(all)}.`;
+    }
+    return { title: `You turned back ${outOfTimes(today)} today.`, body };
+  }
+  return {
+    title: 'No pauses yet today.',
+    body: week.paused > 0
+      ? `In the last 7 days you turned back ${outOfTimes(week)}${allTime}`
+      : `All time, you turned back ${outOfTimes(all)}.`,
+  };
+}
