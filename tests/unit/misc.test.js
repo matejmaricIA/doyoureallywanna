@@ -75,7 +75,7 @@ describe('backup', () => {
         sites: { 'https://www.YouTube.com/': { added: 5 }, 'javascript:alert(1)': {}, localhost: {} },
         settings: { graceMinutes: 9999 },
         stats: {
-          '2026-11-19': { 'youtube.com': [3, 7], 'bad host': [1, 0], 'imdb.com': [-1, 0] },
+          '2026-11-19': { 'youtube.com': [3, 7], 'bad host': [1, 0], 'facebook.com': [-1, 0] },
           yesterday: { 'reddit.com': [1, 0] },
         },
       }),

@@ -19,15 +19,15 @@ describe('addEvent', () => {
     let stats = addEvent(empty, 'reddit.com', 'paused', '2026-11-19');
     stats = addEvent(stats, 'reddit.com', 'paused', '2026-11-19');
     stats = addEvent(stats, 'reddit.com', 'opened', '2026-11-19');
-    stats = addEvent(stats, 'imdb.com', 'paused', '2026-11-19');
-    assert.deepEqual(stats, { '2026-11-19': { 'reddit.com': [2, 1], 'imdb.com': [1, 0] } });
+    stats = addEvent(stats, 'facebook.com', 'paused', '2026-11-19');
+    assert.deepEqual(stats, { '2026-11-19': { 'reddit.com': [2, 1], 'facebook.com': [1, 0] } });
     assert.deepEqual(empty, {});
   });
 });
 
 describe('sumCounts', () => {
   const stats = {
-    '2026-11-19': { 'reddit.com': [5, 1], 'imdb.com': [2, 2] },
+    '2026-11-19': { 'reddit.com': [5, 1], 'facebook.com': [2, 2] },
     '2026-11-18': { 'reddit.com': [3, 0] },
     '2026-10-01': { 'reddit.com': [10, 4] },
   };

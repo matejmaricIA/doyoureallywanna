@@ -14,7 +14,7 @@ in [DECISIONS.md](DECISIONS.md); what actually changed lives in
       Domains and counts only, never URLs. Keep 14 days.
 - [ ] When a domain crosses a threshold (e.g. 8+ opens on 3 of the last 7
       days), the next time it's opened show the pause page in "suggestion"
-      mode: "I noticed you open imdb.com a lot. Do you open it out of habit?"
+      mode: "I noticed you open facebook.com a lot. Do you open it out of habit?"
       → **Add it to my list** / **It's fine, don't ask again** / **Just let me in**.
 - [ ] "Don't ask again" list, editable on the settings page.
 - [ ] Turning suggestions off deletes the collected counts and gives the

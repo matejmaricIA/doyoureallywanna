@@ -265,9 +265,9 @@ try {
     const backup = {
       app: 'do-you-really-wanna',
       schema: 1,
-      sites: { 'distracting.test': { added: 1 }, 'imdb.com': { added: 2 } },
+      sites: { 'distracting.test': { added: 1 }, 'facebook.com': { added: 2 } },
       settings: { graceMinutes: 10, countdownSeconds: 5 },
-      stats: { '2026-01-01': { 'imdb.com': [3, 1] } },
+      stats: { '2026-01-01': { 'facebook.com': [3, 1] } },
     };
     await options.evaluate(`(() => {
       window.confirm = () => true;
@@ -280,7 +280,7 @@ try {
     })()`);
     await waitUntil(async () => (await options.text('#data-status')) === 'Backup imported.', { what: 'import status' });
     expectEqual((await options.evaluate('chrome.declarativeNetRequest.getDynamicRules()')).length, 2, 'rule count');
-    await waitUntil(async () => (await options.text('#sites'))?.includes('Needs access'), { what: '"Needs access" on imdb.com' });
+    await waitUntil(async () => (await options.text('#sites'))?.includes('Needs access'), { what: '"Needs access" on facebook.com' });
     expectEqual(await options.evaluate(`document.getElementById('grace').value`), '10', 'imported setting');
   });
 

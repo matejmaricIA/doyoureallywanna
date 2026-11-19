@@ -20,7 +20,7 @@
 
 You know the move. You're supposed to be doing something else, or you meant
 to get up from the computer, and your hands have already opened YouTube,
-Reddit, Letterboxd or your inbox. You're not looking for anything. You just
+Reddit, Instagram or Gmail. You're not looking for anything. You just
 scroll.
 
 Blockers don't fit, because you actually *need* those sites sometimes.
@@ -68,7 +68,7 @@ had a second to think about *why* you were opening it.
 <table>
   <tr>
     <td width="62%" valign="top"><img src="docs/images/settings.png" alt="Your list & stats page: You turned back 9 of 14 times today, with a tally of today's pauses; the list of sites with today's and the last 7 days' numbers; settings written as sentences; backup buttons." /></td>
-    <td width="38%" valign="top"><img src="docs/images/popup.png" alt="Toolbar popup: Ask me before opening imdb.com, with an Add button." /></td>
+    <td width="38%" valign="top"><img src="docs/images/popup.png" alt="Toolbar popup: Ask me before opening facebook.com, with an Add button." /></td>
   </tr>
   <tr>
     <td align="center"><sub>Your list &amp; stats</sub></td>

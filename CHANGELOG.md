@@ -21,6 +21,8 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   number inline. With an empty list the page opens with "What do you open
   on autopilot?".
 - Light mode uses a white background instead of cream, on every page.
+- README, screenshots and tests use everyday sites as examples (Instagram,
+  Gmail, Facebook) instead of Letterboxd and IMDb.
 
 ### Removed
 

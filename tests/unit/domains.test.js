@@ -14,8 +14,8 @@ describe('normalizeDomain', () => {
     ['reddit.com', 'reddit.com'],
     ['  Reddit.COM  ', 'reddit.com'],
     ['https://www.youtube.com/watch?v=abc', 'youtube.com'],
-    ['www.letterboxd.com/film/x/', 'letterboxd.com'],
-    ['http://user:pass@imdb.com:8080/title', 'imdb.com'],
+    ['www.instagram.com/explore/', 'instagram.com'],
+    ['http://user:pass@facebook.com:8080/groups', 'facebook.com'],
     ['mail.google.com', 'mail.google.com'],
     ['https://mail.google.com/mail/u/0/#inbox', 'mail.google.com'],
     ['*.reddit.com', 'reddit.com'],
@@ -81,7 +81,7 @@ describe('findSiteForUrl', () => {
     assert.equal(findSiteForUrl('https://old.reddit.com/', list), 'reddit.com');
   });
   it('returns null when nothing matches', () => {
-    assert.equal(findSiteForUrl('https://letterboxd.com/', list), null);
+    assert.equal(findSiteForUrl('https://instagram.com/', list), null);
     assert.equal(findSiteForUrl('edge://newtab/', list), null);
   });
 });

@@ -10,7 +10,7 @@ import { launch, sleep, waitUntil } from './lib/cdp.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const out = path.join(root, 'docs', 'images');
 
-const DEMO_SITES = ['youtube.com', 'reddit.com', 'letterboxd.com', 'mail.google.com'];
+const DEMO_SITES = ['youtube.com', 'reddit.com', 'instagram.com', 'mail.google.com'];
 
 // A copy of the extension with access to the demo sites already granted,
 // so the screenshots don't show "Needs access". No site is ever visited.
@@ -25,8 +25,8 @@ writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 function demoStats() {
   let seed = 7;
   const random = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  const typical = { 'youtube.com': 7, 'reddit.com': 5, 'letterboxd.com': 3, 'mail.google.com': 6 };
-  const opensShare = { 'youtube.com': 0.3, 'reddit.com': 0.25, 'letterboxd.com': 0.2, 'mail.google.com': 0.7 };
+  const typical = { 'youtube.com': 7, 'reddit.com': 5, 'instagram.com': 3, 'mail.google.com': 6 };
+  const opensShare = { 'youtube.com': 0.3, 'reddit.com': 0.25, 'instagram.com': 0.2, 'mail.google.com': 0.7 };
   /** @type {Record<string, Record<string, [number, number]>>} */
   const stats = {};
   const now = new Date();
@@ -40,7 +40,7 @@ function demoStats() {
     }
   }
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  stats[today] = { 'youtube.com': [5, 1], 'reddit.com': [3, 1], 'letterboxd.com': [2, 0], 'mail.google.com': [4, 3] };
+  stats[today] = { 'youtube.com': [5, 1], 'reddit.com': [3, 1], 'instagram.com': [2, 0], 'mail.google.com': [4, 3] };
   return stats;
 }
 
@@ -115,7 +115,7 @@ try {
   });
 
   await capture('turned-back.png', {
-    url: `${base}/pause/pause.html#https://letterboxd.com/`,
+    url: `${base}/pause/pause.html#https://instagram.com/`,
     width: 960,
     height: 600,
     random: [0, 0.2],
@@ -130,7 +130,7 @@ try {
     width: 340,
     height: 200,
     fullPage: true,
-    before: `Object.defineProperty(chrome.tabs, 'query', { value: async () => [{ id: 1, url: 'https://www.imdb.com/title/tt0111161/' }] });`,
+    before: `Object.defineProperty(chrome.tabs, 'query', { value: async () => [{ id: 1, url: 'https://www.facebook.com/' }] });`,
   });
 } finally {
   await browser.close();
