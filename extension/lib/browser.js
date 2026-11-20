@@ -5,11 +5,24 @@ import { hostMatches, originPatternFor } from './domains.js';
 import { buildGraceRule, buildRedirectRules } from './rules.js';
 
 export const PAUSE_PAGE = 'pause/pause.html';
+export const SUGGEST_PAGE = 'pause/suggestion.html';
 export const GRACE_ALARM = 'grace';
+
+/** What suggestions need: seeing which pages open (D-020). */
+const SUGGEST_PERMISSION = { permissions: ['webNavigation'] };
 
 /** The pause page's full URL. */
 export function pauseUrl() {
   return chrome.runtime.getURL(PAUSE_PAGE);
+}
+
+/**
+ * The suggestion page for an open of `url`. Unlike the pause page it isn't
+ * web-accessible, so only the extension itself can open it.
+ * @param {string} url
+ */
+export function suggestUrl(url) {
+  return `${chrome.runtime.getURL(SUGGEST_PAGE)}#${url}`;
 }
 
 /**
@@ -111,5 +124,24 @@ export async function releaseAccess(domain, stillListed) {
     await chrome.permissions.remove({ origins: [originPatternFor(domain)] });
   } catch {
     // Not granted in the first place, or already gone. Nothing to give back.
+  }
+}
+
+/** Can suggestions see which pages open? */
+export function hasSuggestPermission() {
+  return chrome.permissions.contains(SUGGEST_PERMISSION);
+}
+
+/** Ask for what suggestions need. Must be called from a click. */
+export function requestSuggestPermission() {
+  return chrome.permissions.request(SUGGEST_PERMISSION);
+}
+
+/** Give it back when suggestions are turned off. */
+export async function releaseSuggestPermission() {
+  try {
+    await chrome.permissions.remove(SUGGEST_PERMISSION);
+  } catch {
+    // Not granted, or declared as required (the browser test's copy).
   }
 }

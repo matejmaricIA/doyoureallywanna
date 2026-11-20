@@ -1,13 +1,32 @@
-// "Your list & stats": manage the list, see the numbers, settings, backup.
+// "Your list & stats": manage the list, see the numbers, settings,
+// suggestions, backup.
 
 import { buildBackup, parseBackup } from '../lib/backup.js';
-import { hasAccess, releaseAccess, requestAccess, syncRules } from '../lib/browser.js';
-import { plural, summaryLines } from '../lib/copy.js';
+import {
+  hasAccess,
+  hasSuggestPermission,
+  releaseAccess,
+  releaseSuggestPermission,
+  requestAccess,
+  requestSuggestPermission,
+  syncRules,
+} from '../lib/browser.js';
+import { SUGGESTIONS_DENIED, SUGGESTIONS_NOTE, plural, summaryLines } from '../lib/copy.js';
 import { dayKey, lastDays } from '../lib/dates.js';
 import { normalizeDomain } from '../lib/domains.js';
 import { LIMITS } from '../lib/settings.js';
 import { sumCounts, tallyMarks } from '../lib/stats.js';
-import { addSite, clearStats, load, removeSite, replaceAll, saveSettings } from '../lib/store.js';
+import {
+  addQuiet,
+  addSite,
+  clearStats,
+  load,
+  removeQuiet,
+  removeSite,
+  replaceAll,
+  saveSettings,
+  setSuggestions,
+} from '../lib/store.js';
 
 /** @typedef {import('../lib/backup.js').Data} Data */
 
@@ -39,14 +58,19 @@ async function missingAccess(domains) {
 /** @typedef {import('../lib/stats.js').Counts} Counts */
 
 let firstRender = true;
+let renders = 0;
 
 async function render() {
+  const generation = ++renders;
   const data = await load();
   const domains = Object.keys(data.sites).sort();
-  const missing = await missingAccess(domains);
+  const [missing, canSuggest] = await Promise.all([missingAccess(domains), hasSuggestPermission()]);
+  // A newer render started meanwhile (storage and permissions change together); let it win.
+  if (generation !== renders) return;
   renderSummary(domains, data);
   renderList(domains, missing, data);
   renderSettings(data);
+  renderSuggestions(data, canSuggest);
   firstRender = false;
 }
 
@@ -159,6 +183,68 @@ function renderSettings(data) {
   }
 }
 
+/**
+ * The switch, and the "don't ask again" list (shown while suggestions are
+ * on, or when it has something in it).
+ * @param {Data} data
+ * @param {boolean} canSuggest  the browser has granted what suggestions need
+ */
+function renderSuggestions(data, canSuggest) {
+  const on = data.settings.suggestions;
+  /** @type {HTMLInputElement} */ ($('suggest-switch')).checked = on;
+  $('suggest-permission').hidden = !on || canSuggest;
+
+  const quiet = Object.keys(data.quiet).sort();
+  $('quiet-block').hidden = !on && quiet.length === 0;
+  $('quiet-empty').hidden = quiet.length > 0;
+  $('quiet-list').replaceChildren(
+    ...quiet.map((domain) => {
+      const remove = el('button', { class: 'btn btn-link', type: 'button', 'aria-label': `Suggest ${domain} again` }, 'Remove');
+      remove.addEventListener('click', () => removeQuiet(domain));
+      return el('li', {}, el('span', { class: 'site-name' }, domain), remove);
+    }),
+  );
+}
+
+$('suggest-note').textContent = SUGGESTIONS_NOTE;
+
+$('suggest-switch').addEventListener('change', async (event) => {
+  const input = /** @type {HTMLInputElement} */ (event.target);
+  $('suggest-error').hidden = true;
+  if (input.checked) {
+    // Ask right away, while the click still counts as one.
+    const granted = await requestSuggestPermission().catch(() => false);
+    if (!granted) {
+      input.checked = false;
+      $('suggest-error').textContent = SUGGESTIONS_DENIED;
+      $('suggest-error').hidden = false;
+      return;
+    }
+    await setSuggestions(true);
+  } else {
+    // Deletes every count, then gives the permission back.
+    await setSuggestions(false);
+    await releaseSuggestPermission();
+  }
+});
+
+$('suggest-allow').addEventListener('click', () => requestSuggestPermission().then(render, render));
+
+$('quiet-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const input = /** @type {HTMLInputElement} */ ($('quiet-domain'));
+  const error = $('quiet-error');
+  const domain = normalizeDomain(input.value);
+  if (!domain) {
+    error.textContent = 'That doesn\'t look like a website. Try something like "github.com".';
+    error.hidden = false;
+    return;
+  }
+  error.hidden = true;
+  input.value = '';
+  await addQuiet(domain);
+});
+
 $('add-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const input = /** @type {HTMLInputElement} */ ($('domain'));
@@ -205,6 +291,8 @@ $('import-file').addEventListener('change', async (event) => {
   if (!confirm(`Replace your current list, settings and stats with this backup (${plural(count, 'site')})?`)) return;
   await replaceAll(result.data);
   await syncRules();
+  // A backup with suggestions on asks for the permission on this page ("Allow").
+  if (!result.data.settings.suggestions) await releaseSuggestPermission();
   setStatus('Backup imported.');
 });
 

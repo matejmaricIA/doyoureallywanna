@@ -5,7 +5,7 @@
 // "Turned back" is derived: paused - openedAnyway (closing the pause tab
 // without answering counts as turning back, which is what it is).
 
-import { lastDays } from './dates.js';
+import { dateOfKey, lastDays } from './dates.js';
 
 /** Days of per-day detail we keep. Older days are dropped. */
 export const KEEP_DAYS = 400;
@@ -29,16 +29,17 @@ export function addEvent(stats, domain, kind, day) {
 }
 
 /**
- * Drop days older than `keepDays` (counting today).
- * @param {Stats} stats
+ * Drop days older than `keepDays` (counting today). Works for anything
+ * keyed by day, so the suggestion counts use it too.
+ * @template T
+ * @param {Record<string, T>} stats
  * @param {string} today
  * @param {number} [keepDays]
- * @returns {Stats}
+ * @returns {Record<string, T>}
  */
 export function pruneStats(stats, today, keepDays = KEEP_DAYS) {
-  const [y, m, d] = today.split('-').map(Number);
-  const oldest = lastDays(keepDays, new Date(y, m - 1, d)).at(-1) ?? today;
-  /** @type {Stats} */
+  const oldest = lastDays(keepDays, dateOfKey(today)).at(-1) ?? today;
+  /** @type {Record<string, T>} */
   const next = {};
   for (const [day, value] of Object.entries(stats)) {
     if (day >= oldest) next[day] = value;

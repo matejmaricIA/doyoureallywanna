@@ -7,40 +7,10 @@ import { dayKey } from '../lib/dates.js';
 import { displayUrl, findSiteForUrl } from '../lib/domains.js';
 import { sumCounts } from '../lib/stats.js';
 import { load, recordEvent } from '../lib/store.js';
-
-/** @param {string} id */
-const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
-
-/** The URL we're pausing, from after the "#". Only http(s) is accepted. */
-function readTarget() {
-  const raw = location.hash.slice(1);
-  if (!raw) return null;
-  try {
-    const url = new URL(raw);
-    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
-  } catch {
-    return null;
-  }
-}
-
-/** @param {'ask' | 'back' | 'unknown'} name */
-function show(name) {
-  for (const section of document.querySelectorAll('.state')) {
-    /** @type {HTMLElement} */ (section).hidden = /** @type {HTMLElement} */ (section).dataset.state !== name;
-  }
-}
-
-/** Fill the question, with the site name highlighted. @param {string} site */
-function renderQuestion(site) {
-  const [before, after = ''] = pick(PROMPTS).split('{site}');
-  const name = document.createElement('span');
-  name.className = 'site';
-  name.textContent = site;
-  $('question').replaceChildren(before, name, after);
-}
+import { $, fillSentence, readTarget, show, showUnknown, wireFooter } from './common.js';
 
 async function start() {
-  $('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
+  wireFooter();
 
   const target = readTarget();
   const data = await load();
@@ -56,7 +26,7 @@ async function start() {
   const today = sumCounts(stats, { days: [dayKey()], domain: site });
 
   document.title = `Do you really wanna? · ${site}`;
-  renderQuestion(site);
+  fillSentence($('question'), pick(PROMPTS), site);
   $('count').textContent = timesTodayLine(today.paused);
   $('target').textContent = displayUrl(target);
   $('target').title = target;
@@ -127,17 +97,6 @@ async function closeTab() {
   const tabsInWindow = await chrome.tabs.query({ windowId: tab.windowId });
   if (tabsInWindow.length <= 1) await chrome.tabs.create({ windowId: tab.windowId });
   await chrome.tabs.remove(tab.id);
-}
-
-/** @param {string | null} target */
-function showUnknown(target) {
-  if (target) {
-    const link = /** @type {HTMLAnchorElement} */ ($('continue'));
-    link.href = target;
-    link.textContent = `Continue to ${displayUrl(target, 40)}`;
-    link.hidden = false;
-  }
-  show('unknown');
 }
 
 // The browser may prerender a page while you're still typing the address.

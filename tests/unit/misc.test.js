@@ -1,26 +1,36 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { BACKUP_APP, SCHEMA, buildBackup, parseBackup } from '../../extension/lib/backup.js';
-import { PROMPTS, TURNED_BACK, ordinal, pick, plural, summaryLines, timesTodayLine } from '../../extension/lib/copy.js';
+import { PROMPTS, SUGGESTION, TURNED_BACK, ordinal, pick, plural, summaryLines, timesTodayLine } from '../../extension/lib/copy.js';
 import { DEFAULT_SETTINGS, sanitizeSettings } from '../../extension/lib/settings.js';
 
 describe('settings', () => {
   it('fills in defaults', () => {
     assert.deepEqual(sanitizeSettings(undefined), DEFAULT_SETTINGS);
-    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5 });
+    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5, suggestions: false });
   });
   it('clamps and rounds', () => {
-    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30 });
-    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3 });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30, suggestions: false });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3, suggestions: false });
   });
   it('ignores junk', () => {
     assert.deepEqual(sanitizeSettings({ graceMinutes: 'soon', countdownSeconds: null }), DEFAULT_SETTINGS);
+  });
+  it('suggestions are off unless explicitly on', () => {
+    assert.equal(DEFAULT_SETTINGS.suggestions, false);
+    assert.equal(sanitizeSettings({ suggestions: true }).suggestions, true);
+    assert.equal(sanitizeSettings({ suggestions: 'yes' }).suggestions, false);
+    assert.equal(sanitizeSettings({ suggestions: 1 }).suggestions, false);
   });
 });
 
 describe('copy', () => {
   it('every prompt names the site exactly once', () => {
     for (const prompt of PROMPTS) assert.equal(prompt.split('{site}').length, 2, prompt);
+  });
+  it('the suggestion names the site once, and gives the real threshold', () => {
+    for (const key of ['title', 'noticed', 'noAccess']) assert.equal(SUGGESTION[key].split('{site}').length, 2, key);
+    assert.equal(SUGGESTION.why, 'You opened it 8 or more times a day on 3 of the last 7 days.');
   });
   it('every turned-back message has a title and body', () => {
     for (const message of TURNED_BACK) assert.ok(message.title && message.body);
@@ -47,8 +57,9 @@ describe('copy', () => {
 describe('backup', () => {
   const data = {
     sites: { 'reddit.com': { added: 1700000000000 } },
-    settings: { graceMinutes: 10, countdownSeconds: 3 },
+    settings: { graceMinutes: 10, countdownSeconds: 3, suggestions: true },
     stats: { '2026-11-19': { 'reddit.com': [4, 1] } },
+    quiet: { 'github.com': { added: 1700000000001 } },
   };
 
   it('round-trips', () => {
@@ -61,10 +72,35 @@ describe('backup', () => {
     assert.deepEqual(parsed.data, data);
   });
 
+  it('never includes the suggestion counts', () => {
+    const backup = buildBackup({ ...data, opens: { '2026-11-19': { 'youtube.com': 9 } }, suggestedOn: '2026-11-19' }, '0.2.0');
+    assert.deepEqual(Object.keys(backup).sort(), ['app', 'exportedAt', 'quiet', 'schema', 'settings', 'sites', 'stats', 'version']);
+  });
+
+  it('still imports schema 1 backups (no "don\'t ask again" list, suggestions off)', () => {
+    assert.equal(SCHEMA, 2);
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: BACKUP_APP,
+        schema: 1,
+        version: '0.1.0',
+        sites: { 'reddit.com': { added: 1700000000000 } },
+        settings: { graceMinutes: 10, countdownSeconds: 3 },
+        stats: { '2026-11-19': { 'reddit.com': [4, 1] } },
+      }),
+    );
+    assert.ok(parsed.ok);
+    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, suggestions: false }, quiet: {} });
+  });
+
   it('rejects files that are not ours', () => {
     assert.equal(parseBackup('not json').ok, false);
     assert.equal(parseBackup('{"hello":"world"}').ok, false);
-    assert.equal(parseBackup(JSON.stringify({ app: BACKUP_APP, schema: 99 })).ok, false);
+    assert.equal(parseBackup(JSON.stringify({ app: BACKUP_APP })).ok, false);
+    assert.equal(parseBackup(JSON.stringify({ app: BACKUP_APP, schema: 0 })).ok, false);
+    const newer = parseBackup(JSON.stringify({ app: BACKUP_APP, schema: 99 }));
+    assert.equal(newer.ok, false);
+    assert.match(newer.ok ? '' : newer.error, /newer version/);
   });
 
   it('cleans up anything suspicious instead of trusting it', () => {
@@ -73,7 +109,8 @@ describe('backup', () => {
         app: BACKUP_APP,
         schema: SCHEMA,
         sites: { 'https://www.YouTube.com/': { added: 5 }, 'javascript:alert(1)': {}, localhost: {} },
-        settings: { graceMinutes: 9999 },
+        settings: { graceMinutes: 9999, suggestions: 'yes' },
+        quiet: { 'https://www.GitHub.com/x': { added: 'soon' }, 'not a site': {} },
         stats: {
           '2026-11-19': { 'youtube.com': [3, 7], 'bad host': [1, 0], 'facebook.com': [-1, 0] },
           yesterday: { 'reddit.com': [1, 0] },
@@ -83,6 +120,9 @@ describe('backup', () => {
     assert.ok(parsed.ok);
     assert.deepEqual(Object.keys(parsed.data.sites), ['youtube.com']);
     assert.equal(parsed.data.settings.graceMinutes, 120);
+    assert.equal(parsed.data.settings.suggestions, false);
+    assert.deepEqual(Object.keys(parsed.data.quiet), ['github.com']);
+    assert.ok(parsed.data.quiet['github.com'].added > 0);
     assert.deepEqual(parsed.data.stats, { '2026-11-19': { 'youtube.com': [3, 3] } });
   });
 });

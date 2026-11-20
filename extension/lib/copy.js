@@ -2,6 +2,8 @@
 // who scolds. Every prompt must be answerable with the two buttons
 // ("No, not now" / "Yes, open it").
 
+import { BUSY_DAYS, KEEP_DAYS, OPENS_PER_DAY, WINDOW_DAYS } from './suggest.js';
+
 export const PROMPTS = [
   'Do you really wanna open {site} right now?',
   'Do you really need {site} right now?',
@@ -19,6 +21,32 @@ export const TURNED_BACK = [
   { title: 'Second thoughts add up.', body: 'Back to what you were doing.' },
   { title: 'Okay.', body: 'Take a breath. Then back to it.' },
 ];
+
+/**
+ * The suggestion page (D-021): a site that isn't on the list, opened a lot.
+ * It's an offer, not a verdict: all three answers are fine, and "Just let
+ * me in" is as big and as close as the other two.
+ */
+export const SUGGESTION = Object.freeze({
+  title: 'Out of habit? · {site}',
+  noticed: 'I noticed you open {site} a lot.',
+  question: 'Do you open it out of habit?',
+  why: `You opened it ${OPENS_PER_DAY} or more times a day on ${BUSY_DAYS} of the last ${WINDOW_DAYS} days.`,
+  add: 'Add it to my list',
+  quiet: "It's fine, don't ask again",
+  letIn: 'Just let me in',
+  noAccess: "I can't pause {site} without access, so I didn't add it.",
+  nothing: 'Nothing to suggest here.',
+});
+
+/** Next to the switch on "Your list & stats": the browser's warning, and what's actually kept. */
+export const SUGGESTIONS_NOTE =
+  'Your browser will warn that this can "read your browsing history", because it lets me see which pages open. ' +
+  'What I keep is one number per site per day: how often you opened a site that isn\'t on your list by typing it, ' +
+  `from a bookmark or from the new tab page. Kept for ${KEEP_DAYS} days. No addresses, no page titles, no times, ` +
+  'nothing from private windows. Turning this off deletes it.';
+
+export const SUGGESTIONS_DENIED = "Without that permission I can't notice anything, so suggestions stay off.";
 
 /**
  * @template T

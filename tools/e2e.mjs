@@ -1,5 +1,5 @@
 // End-to-end smoke test: loads the real extension into a throwaway headless
-// Edge/Chrome profile and walks through the whole flow against two local
+// Edge/Chrome profile and walks through the whole flow against a few local
 // test sites. Nothing touches the internet: *.test hosts resolve to a tiny
 // server on 127.0.0.1.
 //
@@ -10,6 +10,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { lastDays } from '../extension/lib/dates.js';
 import { launch, sleep, waitUntil } from './lib/cdp.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -25,8 +26,9 @@ const server = http.createServer((req, res) => {
       <a id="same" href="/next">same site</a>
       <a id="newtab" href="/popout" target="_blank">same site, new tab</a>`);
   } else {
-    res.end(`<!doctype html><title>work ${req.url}</title>
-      <h1>A work site</h1>
+    res.end(`<!doctype html><title>${host} ${req.url}</title>
+      <h1>Some other site</h1>
+      <a id="same" href="/next">same site</a>
       <a id="away" href="http://distracting.test:${port}/from-work">a distracting link</a>`);
   }
 });
@@ -34,16 +36,21 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undef
 const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
 const SITE = `http://distracting.test:${port}`;
 const WORK = `http://work.test:${port}`;
+const HABIT = `http://habit.test:${port}`; // not on the list, opened a lot
+const OFTEN = `http://often.test:${port}`; // the same, but you say "don't ask again"
 
-// --- A copy of the extension with access to the test site pre-granted -------
-// (In real use the browser asks you when you add a site. A test can't click
-// that browser prompt, so the copy declares the access up front.)
+// --- A copy of the extension with its permissions pre-granted ---------------
+// (In real use the browser asks you when you add a site, and when you turn
+// on suggestions. A test can't click those browser prompts, so the copy
+// declares the access to the test sites, and webNavigation, up front.)
 
 const extDir = mkdtempSync(path.join(os.tmpdir(), 'dyrw-ext-'));
 cpSync(path.join(root, 'extension'), extDir, { recursive: true });
 const manifestPath = path.join(extDir, 'manifest.json');
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-manifest.host_permissions = ['*://*.distracting.test/*'];
+manifest.host_permissions = ['*://*.distracting.test/*', '*://*.habit.test/*'];
+manifest.permissions = [...manifest.permissions, ...manifest.optional_permissions];
+delete manifest.optional_permissions;
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
 const browser = await launch({
@@ -282,6 +289,206 @@ try {
     expectEqual((await options.evaluate('chrome.declarativeNetRequest.getDynamicRules()')).length, 2, 'rule count');
     await waitUntil(async () => (await options.text('#sites'))?.includes('Needs access'), { what: '"Needs access" on facebook.com' });
     expectEqual(await options.evaluate(`document.getElementById('grace').value`), '10', 'imported setting');
+  });
+
+  // --- Suggestions (opt-in) ---------------------------------------------------
+
+  const suggestPrefix = `${base}/pause/suggestion.html#`;
+  const [today, yesterday, twoDaysAgo] = lastDays(3);
+  /** @param {string[]} keys */
+  const stored = (keys) => options.evaluate(`chrome.storage.local.get(${JSON.stringify(keys)})`);
+  /** @param {object} values */
+  const store = (values) => options.evaluate(`chrome.storage.local.set(${JSON.stringify(values)})`);
+  /** @param {string} site */
+  const opensToday = async (site) => (await stored(['opens'])).opens?.[today]?.[site] ?? 0;
+  /** @param {string} site  seven opens today and eight on two earlier days: one more qualifies */
+  const almostAHabit = async (site) => {
+    const { opens = {} } = await stored(['opens']);
+    for (const [day, count] of [[today, 7], [yesterday, 8], [twoDaysAgo, 9]]) (opens[day] ??= {})[site] = count;
+    await store({ opens });
+  };
+  /**
+   * Open a page the way a person would: typed in the address bar, from a bookmark, ...
+   * @param {import('./lib/cdp.mjs').Page} page @param {string} url @param {string} [transitionType]
+   */
+  const open = async (page, url, transitionType = 'typed') => {
+    // A person opens things in the tab they're looking at (and hidden tabs never paint).
+    await page.send('Page.bringToFront');
+    await page.send('Page.navigate', { url, transitionType });
+    // The suggestion page may replace the site while it's still settling.
+    await page.settle().catch((error) => {
+      if (!/navigated or closed/.test(error.message)) throw error;
+    });
+  };
+  /** @param {import('./lib/cdp.mjs').Page} page @param {string} target */
+  const waitForSuggestion = async (page, target) => {
+    await waitForUrl(page, `${suggestPrefix}${target}`);
+    await waitUntil(() => page.evaluate(`!!document.querySelector('[data-state=suggest]:not([hidden])')`), {
+      what: 'the suggestion',
+    });
+  };
+
+  const tabS = await browser.newPage();
+  await step('suggestions are off by default, and nothing is counted', async () => {
+    expectEqual(await options.evaluate(`document.getElementById('suggest-switch').checked`), false, 'switch');
+    await open(tabS, `${HABIT}/before`);
+    await sleep(300);
+    expectEqual((await stored(['opens'])).opens, undefined, 'stored counts');
+  });
+
+  await step('turning suggestions on asks for the permission and shows the "don\'t ask again" list', async () => {
+    await options.click('#suggest-switch');
+    await waitUntil(async () => (await stored(['settings'])).settings?.suggestions === true, { what: 'switch saved' });
+    await options.send('Page.bringToFront');
+    await waitUntil(() => options.evaluate(`!document.getElementById('quiet-block').hidden`), { what: 'quiet list' });
+    expectEqual(await options.evaluate(`document.getElementById('suggest-permission').hidden`), true, 'permission note hidden');
+  });
+
+  await step('counts opens by typing, bookmark and address bar, but not links, reloads, back or searches', async () => {
+    await open(tabS, `${HABIT}/one`);
+    await waitUntil(async () => (await opensToday('habit.test')) === 1, { what: 'first typed open counted' });
+    await tabS.click('#same');
+    await waitForUrl(tabS, `${HABIT}/next`);
+    await tabS.send('Page.reload');
+    await tabS.settle();
+    await tabS.evaluate('history.back()');
+    await waitForUrl(tabS, `${HABIT}/one`);
+    await open(tabS, `${HABIT}/search?q=x`, 'generated');
+    await open(tabS, `${HABIT}/form`, 'form_submit');
+    await open(tabS, `${HABIT}/bookmark`, 'auto_bookmark');
+    await waitUntil(async () => (await opensToday('habit.test')) >= 2, { what: 'bookmark open counted' });
+    await open(tabS, `${HABIT}/address-bar`, 'address_bar');
+    await waitUntil(async () => (await opensToday('habit.test')) >= 3, { what: 'address-bar open counted' });
+    await sleep(300);
+    const all = await options.evaluate('chrome.storage.local.get(null)');
+    expectEqual(all.opens, { [today]: { 'habit.test': 3 } }, 'counts: one number per site per day, only impulse opens');
+    expectEqual(all.suggestedOn, undefined, 'suggestedOn');
+  });
+
+  await step('never counts sites on the list', async () => {
+    await open(tabS, `${SITE}/listed`);
+    await waitForPause(tabS, `${SITE}/listed`);
+    await open(tabS, `${HABIT}/after-listed`);
+    await waitUntil(async () => (await opensToday('habit.test')) === 4, { what: 'next open counted' });
+    expectEqual(Object.keys((await stored(['opens'])).opens[today]), ['habit.test'], 'sites counted today');
+  });
+
+  await step('a site opened a lot gets the suggestion, which resets its counts', async () => {
+    await almostAHabit('habit.test');
+    await open(tabS, `${HABIT}/often`);
+    await waitForSuggestion(tabS, `${HABIT}/often`);
+    const question = (await tabS.text('#question'))?.replace(/\s+/g, ' ');
+    expectEqual(question, 'I noticed you open habit.test a lot. Do you open it out of habit?', 'question');
+    const sizes = await tabS.evaluate(
+      `['add', 'quiet', 'let-in'].map((id) => { const b = document.getElementById(id).getBoundingClientRect(); return [Math.round(b.width), Math.round(b.height)]; })`,
+    );
+    expect(sizes.every(([w, h]) => w === sizes[0][0] && h === sizes[0][1]), `buttons should be the same size: ${JSON.stringify(sizes)}`);
+    const { opens, suggestedOn } = await stored(['opens', 'suggestedOn']);
+    expectEqual(suggestedOn, today, 'suggestedOn');
+    expect(!JSON.stringify(opens ?? {}).includes('habit.test'), `habit.test counts should be gone: ${JSON.stringify(opens)}`);
+  });
+
+  await step('"Just let me in" goes back to the site, without counting or asking again', async () => {
+    await tabS.click('#let-in');
+    await waitForUrl(tabS, `${HABIT}/often`);
+    await sleep(500);
+    expectEqual(await tabS.url(), `${HABIT}/often`, 'URL after settling');
+    expectEqual(await opensToday('habit.test'), 0, 'opens after going back');
+  });
+
+  const tabO = await browser.newPage();
+  await step('shows at most one suggestion a day', async () => {
+    await almostAHabit('often.test');
+    await open(tabO, `${OFTEN}/a`);
+    await waitUntil(async () => (await opensToday('often.test')) === 8, { what: 'open counted' });
+    await sleep(300);
+    expectEqual(await tabO.url(), `${OFTEN}/a`, 'no second suggestion today');
+    // Pretend the last suggestion was yesterday.
+    await store({ suggestedOn: yesterday });
+    await open(tabO, `${OFTEN}/b`);
+    await waitForSuggestion(tabO, `${OFTEN}/b`);
+  });
+
+  await step('"It\'s fine, don\'t ask again" lets you in and never counts the site again', async () => {
+    await tabO.click('#quiet');
+    await waitForUrl(tabO, `${OFTEN}/b`);
+    expectEqual(Object.keys((await stored(['quiet'])).quiet ?? {}), ['often.test'], '"don\'t ask again" list');
+    await open(tabO, `${OFTEN}/c`);
+    await sleep(400);
+    expectEqual(await opensToday('often.test'), 0, 'opens of a site on the "don\'t ask again" list');
+    expectEqual(await tabO.url(), `${OFTEN}/c`, 'URL');
+  });
+
+  await step('"Add it to my list" adds the site the way the popup does, and lets you in this once', async () => {
+    await almostAHabit('habit.test');
+    await store({ suggestedOn: yesterday });
+    await open(tabS, `${HABIT}/add`);
+    await waitForSuggestion(tabS, `${HABIT}/add`);
+    await tabS.click('#add');
+    await waitForUrl(tabS, `${HABIT}/add`);
+    expect(Object.keys((await stored(['sites'])).sites).includes('habit.test'), 'habit.test should be on the list');
+    const rules = await options.evaluate('chrome.declarativeNetRequest.getDynamicRules()');
+    expect(rules.some((rule) => rule.condition.requestDomains[0] === 'habit.test'), 'habit.test should have a rule');
+    expect(!JSON.stringify((await stored(['opens'])).opens ?? {}).includes('habit.test'), 'habit.test counts should be gone');
+    // Another tab asks, like for any listed site.
+    const tabH = await browser.newPage();
+    await open(tabH, `${HABIT}/next-time`);
+    await waitForPause(tabH, `${HABIT}/next-time`);
+  });
+
+  await step('the "don\'t ask again" list can be edited on the settings page', async () => {
+    await options.send('Page.bringToFront');
+    await waitUntil(async () => (await options.text('#quiet-list'))?.includes('often.test'), { what: 'often.test listed' });
+    await options.click('#quiet-list button');
+    await waitUntil(async () => Object.keys((await stored(['quiet'])).quiet).length === 0, { what: 'often.test removed' });
+    await options.evaluate(`document.getElementById('quiet-domain').value = 'https://www.Example.org/page'`);
+    await options.click('#quiet-form button[type=submit]');
+    await waitUntil(async () => Object.keys((await stored(['quiet'])).quiet).join() === 'example.org', { what: 'example.org added' });
+    await waitUntil(async () => (await options.text('#quiet-list'))?.includes('example.org'), { what: 'example.org shown' });
+  });
+
+  await step('the backup carries the switch and the "don\'t ask again" list, never the counts', async () => {
+    await almostAHabit('counted.test');
+    const text = await options.evaluate(`new Promise((resolve) => {
+      const click = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () {
+        HTMLAnchorElement.prototype.click = click;
+        fetch(this.href).then((r) => r.text()).then(resolve);
+      };
+      document.getElementById('export').click();
+    })`);
+    const backup = JSON.parse(text);
+    expectEqual(backup.schema, 2, 'schema');
+    expectEqual(backup.settings.suggestions, true, 'switch in the backup');
+    expectEqual(Object.keys(backup.quiet), ['example.org'], '"don\'t ask again" list in the backup');
+    expect(!('opens' in backup) && !('suggestedOn' in backup) && !text.includes('counted.test'), 'counts must not be in the backup');
+
+    await options.evaluate(`(() => {
+      const file = new File([${JSON.stringify(text)}], 'backup.json', { type: 'application/json' });
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      const input = document.getElementById('import-file');
+      input.files = transfer.files;
+      input.dispatchEvent(new Event('change'));
+    })()`);
+    await waitUntil(async () => (await stored(['opens'])).opens === undefined, { what: 'counts cleared by the import' });
+    const after = await stored(['settings', 'quiet']);
+    expectEqual(after.settings.suggestions, true, 'switch after import');
+    expectEqual(Object.keys(after.quiet), ['example.org'], '"don\'t ask again" list after import');
+  });
+
+  await step('turning suggestions off deletes every count and stops counting', async () => {
+    await almostAHabit('counted.test');
+    await store({ suggestedOn: today });
+    await options.click('#suggest-switch');
+    await waitUntil(async () => (await stored(['settings'])).settings.suggestions === false, { what: 'switch off' });
+    const after = await stored(['opens', 'suggestedOn', 'quiet']);
+    expectEqual(after.opens, undefined, 'counts');
+    expectEqual(after.suggestedOn, undefined, 'suggestedOn');
+    expectEqual(Object.keys(after.quiet), ['example.org'], 'the "don\'t ask again" list stays');
+    await open(tabO, `${OFTEN}/off`);
+    await sleep(400);
+    expectEqual((await stored(['opens'])).opens, undefined, 'counts after an open while off');
   });
 
   await step('no errors were thrown on any page', async () => {

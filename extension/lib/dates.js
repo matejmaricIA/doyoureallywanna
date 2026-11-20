@@ -13,6 +13,16 @@ export function dayKey(date = new Date()) {
 }
 
 /**
+ * The local date a day key stands for (midnight).
+ * @param {string} key  YYYY-MM-DD
+ * @returns {Date}
+ */
+export function dateOfKey(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/**
  * The last `n` day keys, today first.
  * @param {number} n
  * @param {Date} [from]

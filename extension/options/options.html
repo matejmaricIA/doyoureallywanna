@@ -67,6 +67,34 @@
         </div>
       </section>
 
+      <section class="section" aria-labelledby="suggest-heading">
+        <h2 id="suggest-heading">Suggestions</h2>
+        <label class="switch-setting" for="suggest-switch">
+          <input class="switch" id="suggest-switch" type="checkbox" role="switch" />
+          <span>Tell me when a site that isn't on my list looks like a habit.</span>
+        </label>
+        <p class="muted suggest-note" id="suggest-note"></p>
+        <p class="error" id="suggest-error" role="alert" hidden></p>
+        <p class="warn" id="suggest-permission" hidden>
+          <span>Suggestions are on, but the browser hasn't allowed them yet.</span>
+          <button class="btn btn-quiet btn-small" id="suggest-allow" type="button">Allow</button>
+        </p>
+
+        <div class="quiet" id="quiet-block" hidden>
+          <p class="quiet-lede">I won't suggest these:</p>
+          <ul class="quiet-list" id="quiet-list"></ul>
+          <p class="muted quiet-empty" id="quiet-empty">
+            Nothing yet. When you answer "It's fine, don't ask again", the site goes here.
+          </p>
+          <form class="add" id="quiet-form">
+            <label class="visually-hidden" for="quiet-domain">Website to never suggest</label>
+            <input class="line-input" id="quiet-domain" placeholder="e.g. github.com" autocomplete="off" spellcheck="false" />
+            <button class="btn btn-quiet" type="submit">Don't suggest it</button>
+          </form>
+          <p class="error" id="quiet-error" role="alert" hidden></p>
+        </div>
+      </section>
+
       <section class="section" aria-labelledby="data-heading">
         <h2 id="data-heading">Your data</h2>
         <p class="muted">

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Do You Really Wanna?</title>
+    <link rel="icon" href="../icons/icon-32.png" />
+    <link rel="stylesheet" href="../ui/base.css" />
+    <link rel="stylesheet" href="pause.css" />
+    <script type="module" src="suggestion.js"></script>
+  </head>
+  <body>
+    <main class="stage">
+      <p class="brand"><img src="../icons/icon-32.png" alt="" width="22" height="22" />Do You Really Wanna?</p>
+
+      <!-- The wording is in lib/copy.js (SUGGESTION). -->
+      <section class="state" data-state="suggest" hidden>
+        <h1 class="question is-long" id="question"></h1>
+        <p class="count" id="why"></p>
+        <div class="actions is-stacked">
+          <button class="btn btn-primary btn-big" id="add" type="button"></button>
+          <button class="btn btn-quiet btn-big" id="quiet" type="button"></button>
+          <button class="btn btn-quiet btn-big" id="let-in" type="button"></button>
+        </div>
+        <p class="error" id="error" role="alert" hidden></p>
+        <p class="target" id="target"></p>
+      </section>
+
+      <section class="state" data-state="unknown" hidden>
+        <h1 class="question" id="nothing"></h1>
+        <div class="actions">
+          <a class="btn btn-quiet" id="continue" hidden></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Give it a second thought.</span>
+      <span aria-hidden="true">·</span>
+      <button class="btn btn-link" id="settings" type="button">Your list &amp; stats</button>
+    </footer>
+  </body>
+</html>

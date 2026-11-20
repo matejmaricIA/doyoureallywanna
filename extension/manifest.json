@@ -6,6 +6,7 @@
   "description": "A gentle pause before the sites you open on autopilot. Nothing is blocked, and nothing ever leaves your computer.",
   "minimum_chrome_version": "110",
   "permissions": ["declarativeNetRequestWithHostAccess", "storage", "alarms", "activeTab"],
+  "optional_permissions": ["webNavigation"],
   "optional_host_permissions": ["*://*/*"],
   "background": {
     "service_worker": "background.js",

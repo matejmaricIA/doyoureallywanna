@@ -1,17 +1,22 @@
-// Export / import of everything the extension stores, as a plain JSON file
-// the user saves and loads themselves. Import is strict: anything that
-// doesn't look right is dropped or rejected, never trusted.
+// Export / import of what the user set up and what the list counted, as a
+// plain JSON file the user saves and loads themselves. Import is strict:
+// anything that doesn't look right is dropped or rejected, never trusted.
+//
+// Schema 2 (v0.2) added the "don't ask again" list (`quiet`) and the
+// suggestions switch (in `settings`). Schema 1 backups still import.
+// The suggestion counts are never in a backup (D-023).
 
 import { normalizeDomain } from './domains.js';
 import { sanitizeSettings } from './settings.js';
 
 export const BACKUP_APP = 'do-you-really-wanna';
-export const SCHEMA = 1;
+export const SCHEMA = 2;
+const READABLE = [1, 2];
 
 /** @typedef {import('./settings.js').Settings} Settings */
 /** @typedef {import('./stats.js').Stats} Stats */
 /** @typedef {Record<string, { added: number }>} Sites */
-/** @typedef {{ sites: Sites, settings: Settings, stats: Stats }} Data */
+/** @typedef {{ sites: Sites, settings: Settings, stats: Stats, quiet: Sites }} Data */
 
 /**
  * @param {Data} data
@@ -27,6 +32,7 @@ export function buildBackup(data, version, now = new Date()) {
     sites: data.sites,
     settings: data.settings,
     stats: data.stats,
+    quiet: data.quiet,
   };
 }
 
@@ -44,19 +50,10 @@ export function parseBackup(text) {
   if (!raw || typeof raw !== 'object' || raw.app !== BACKUP_APP) {
     return { ok: false, error: "That file isn't a Do You Really Wanna? backup." };
   }
-  if (raw.schema !== SCHEMA) {
-    return { ok: false, error: 'That backup is from a newer version. Update the extension first.' };
-  }
-
-  /** @type {Sites} */
-  const sites = {};
-  if (raw.sites && typeof raw.sites === 'object') {
-    for (const [key, value] of Object.entries(raw.sites)) {
-      const domain = normalizeDomain(key);
-      if (!domain) continue;
-      const added = Number(value?.added);
-      sites[domain] = { added: Number.isFinite(added) && added > 0 ? added : Date.now() };
-    }
+  if (!READABLE.includes(raw.schema)) {
+    return typeof raw.schema === 'number' && raw.schema > SCHEMA
+      ? { ok: false, error: 'That backup is from a newer version. Update the extension first.' }
+      : { ok: false, error: "That file isn't a Do You Really Wanna? backup." };
   }
 
   /** @type {Stats} */
@@ -75,7 +72,24 @@ export function parseBackup(text) {
     }
   }
 
-  return { ok: true, data: { sites, settings: sanitizeSettings(raw.settings), stats } };
+  return {
+    ok: true,
+    data: { sites: toSites(raw.sites), settings: sanitizeSettings(raw.settings), stats, quiet: toSites(raw.quiet) },
+  };
+}
+
+/** A list of sites ("your list", "don't ask again"), cleaned. @param {unknown} value @returns {Sites} */
+function toSites(value) {
+  /** @type {Sites} */
+  const sites = {};
+  if (!value || typeof value !== 'object') return sites;
+  for (const [key, entry] of Object.entries(value)) {
+    const domain = normalizeDomain(key);
+    if (!domain) continue;
+    const added = Number(entry?.added);
+    sites[domain] = { added: Number.isFinite(added) && added > 0 ? added : Date.now() };
+  }
+  return sites;
 }
 
 /** @param {unknown} value */

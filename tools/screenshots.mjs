@@ -12,13 +12,16 @@ const out = path.join(root, 'docs', 'images');
 
 const DEMO_SITES = ['youtube.com', 'reddit.com', 'instagram.com', 'mail.google.com'];
 
-// A copy of the extension with access to the demo sites already granted,
-// so the screenshots don't show "Needs access". No site is ever visited.
+// A copy of the extension with access to the demo sites, and suggestions'
+// permission, already granted, so the screenshots don't show "Needs access"
+// or "Allow". No site is ever visited.
 const extDir = mkdtempSync(path.join(os.tmpdir(), 'dyrw-shots-'));
 cpSync(path.join(root, 'extension'), extDir, { recursive: true });
 const manifestPath = path.join(extDir, 'manifest.json');
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 manifest.host_permissions = DEMO_SITES.map((site) => `*://*.${site}/*`);
+manifest.permissions = [...manifest.permissions, ...manifest.optional_permissions];
+delete manifest.optional_permissions;
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
 /** Deterministic demo stats for the last 30 days. */
@@ -61,10 +64,11 @@ try {
   await options.settle();
   const added = Date.now() - 12 * 86_400_000;
   await options.evaluate(`chrome.storage.local.set(${JSON.stringify({
-    schema: 1,
+    schema: 2,
     sites: Object.fromEntries(DEMO_SITES.map((site, i) => [site, { added: added + i * 1000 }])),
-    settings: { graceMinutes: 5, countdownSeconds: 5 },
+    settings: { graceMinutes: 5, countdownSeconds: 5, suggestions: true },
     stats: demoStats(),
+    quiet: { 'github.com': { added: added + 5000 }, 'wikipedia.org': { added: added + 6000 } },
   })})`);
 
   /**
@@ -123,6 +127,12 @@ try {
       await page.click('#no');
       await sleep(150);
     },
+  });
+
+  await capture('suggestion.png', {
+    url: `${base}/pause/suggestion.html#https://www.facebook.com/`,
+    width: 960,
+    height: 680,
   });
 
   await capture('popup.png', {
