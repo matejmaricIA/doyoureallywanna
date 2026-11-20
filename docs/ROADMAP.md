@@ -5,40 +5,20 @@ What's done, what's next, and what's just an idea. Finished items move to
 in [DECISIONS.md](DECISIONS.md); what actually changed lives in
 [CHANGELOG.md](../CHANGELOG.md).
 
-## Next: release v0.2
+## Still to hand-test from v0.2
 
-Smart suggestions are built (D-020 to D-023), pass the browser test, and
-were hand-tested in Edge on 2026-11-20 (the ticked items below).
+v0.2.0 was hand-tested in Edge on 2026-11-20: the permission prompts,
+counting right after allowing and after the worker slept, the real address
+bar, new tab page tiles and favorites, the three answers, InPrivate, and
+importing a backup. Not checked yet:
 
-- [x] Turning suggestions on shows the browser's real prompt ("Read your
-      browsing history"); saying no leaves the switch off with the note.
-- [x] Right after allowing, without restarting the browser, typing an
-      unlisted site counts it (the listener is added on
-      `permissions.onAdded`).
-- [x] After the worker has gone to sleep (30 s idle), a typed open still
-      counts.
-- [x] Turning suggestions off gives the permission back: the extension's
-      details page no longer lists "Read your browsing history".
-- [x] What the real address bar reports: a typed address, an autocompleted
-      one, a history suggestion, "paste and go" count; a search doesn't.
-- [x] A tile on Edge's new tab page and a favorite count.
+- [ ] Opening a few new tabs in Edge (Ctrl+T) doesn't add `ntp.msn.com`
+      to the counts (fixed just before the release; the browser test
+      caught it).
 - [ ] Prerender: type a site you visit a lot slowly, so the browser
       prerenders it, then press Enter. Does it count? (DevTools turns
       prerendering off, so the test can't tell, D-020.)
-- [x] The suggestion page on a real site: the flash of the site, and
-      "Just let me in" bringing it back.
-- [x] "Add it to my list" shows the real per-site prompt; saying no keeps
-      you on the page with the message.
-- [x] With the extension allowed in InPrivate, InPrivate opens aren't
-      counted.
-- [x] Importing a backup with suggestions on shows "Allow" on the settings
-      page, and "Allow" shows the prompt.
-- [ ] Opening a few new tabs in Edge (Ctrl+T) doesn't add `ntp.msn.com`
-      to the counts (fixed after the first hand-test; the browser test
-      caught it).
-- [ ] The same in Chrome, especially the new tab page tiles.
-- [ ] Version bump to 0.2.0 (manifest + package.json), CHANGELOG section,
-      `v0.2.0` tag.
+- [ ] Suggestions in Chrome, especially the new tab page tiles.
 
 ## Before the first store release
 
@@ -110,16 +90,16 @@ were hand-tested in Edge on 2026-11-20 (the ticked items below).
 
 ## Done
 
-- [x] Unreleased (v0.2): opt-in smart suggestions (D-020 to D-023): a
+- [x] v0.2.0: opt-in smart suggestions (D-020 to D-023): a
       switch on "Your list & stats" that asks for `webNavigation`;
       per-day counts of impulse opens (typed, bookmark, new tab page) of
       sites not on the list, kept 7 days; the suggestion page at 8+ opens
       on 3 of the last 7 days, at most once a day, with "Add it to my
       list" / "It's fine, don't ask again" / "Just let me in"; an editable
       "don't ask again" list; turning it off deletes the counts and gives
-      the permission back; backup schema 2; browser tests and a
-      screenshot.
-- [x] Unreleased: "Your list & stats" redesigned to match the pause page
+      the permission back; backup schema 2; browser tests, a screenshot,
+      hand-tested in Edge.
+- [x] v0.2.0: "Your list & stats" redesigned to match the pause page
       (today as a sentence, tallies, list and stats merged), white light
       theme (D-019).
 - [x] v0.1.0: pause page, Yes with a 5-minute per-tab grace period, No with

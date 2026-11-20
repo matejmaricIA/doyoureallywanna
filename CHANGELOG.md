@@ -10,6 +10,11 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-20
+
+Opt-in smart suggestions, and a "Your list & stats" page that looks like
+the pause page.
+
 ### Added
 
 - **Smart suggestions (opt-in).** A new "Suggestions" switch on "Your list
@@ -46,10 +51,6 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   the pause page and the suggestion page.
 - PRINCIPLES.md: "nothing runs unless…" and "no browsing history" now say
   what changes while suggestions are on (D-020).
-- The note next to the suggestions switch is two sentences: the browser's
-  "browsing history" warning, and that all that is stored (locally) is a
-  per-site daily count.
-
 - **"Your list & stats" redesigned.** It now looks like the pause page: one
   column, no cards. At the top, today's numbers as one sentence ("You turned
   back 9 of 14 times today.") with a tally of today's pauses, one stroke per
@@ -104,5 +105,6 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/matejmaricIA/doyoureallywanna/releases/tag/v0.1.0
