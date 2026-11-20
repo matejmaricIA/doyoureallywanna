@@ -20,6 +20,24 @@ importing a backup. Not checked yet:
       prerendering off, so the test can't tell, D-020.)
 - [ ] Suggestions in Chrome, especially the new tab page tiles.
 
+## Firefox (D-029)
+
+The extension runs in Firefox 140+ and passes `npm run test:e2e:firefox`
+(tested in Firefox 160 on 2026-11-20). Still to do:
+
+- [ ] Hand-test in a real Firefox window: the per-site permission prompt
+      (Firefox shows its own doorhanger), the popup, the toolbar icon's
+      theme color, and "No" on the last tab of a window.
+- [ ] Suggestions in Firefox: do typing, a bookmark or a new tab page
+      tile report `typed` / `auto_bookmark` / `from_address_bar` the way
+      `isImpulseOpen` expects? Firefox's new tab page is `about:newtab`,
+      so it's never counted. If it doesn't fit, hide suggestions there.
+- [ ] Firefox for Android: try it (DNR and popups work there).
+- [ ] Publish to Firefox Add-ons (free). The gecko ID in the manifest is
+      permanent once published. Run Mozilla's add-ons linter on the zip
+      first (AMO runs it on upload anyway).
+- [ ] Say "and Firefox" in the README and store links once it's listed.
+
 ## Before the first store release
 
 - [ ] Final name check (D-002): search Chrome Web Store and Edge Add-ons.
@@ -52,14 +70,12 @@ importing a backup. Not checked yet:
 - [ ] Small charts on the settings page (last 30 days, turned back vs
       opened).
 - [ ] Import: choose between "replace" and "merge".
-- [ ] Firefox port (MV3 differences: `browser.*`, background scripts,
-      `declarativeNetRequest` differences to check).
 - [ ] Translations (strings already live in one place: `lib/copy.js`, plus
       the HTML).
 - [ ] Keyboard shortcuts on the pause page (N / Y).
 - [ ] CONTRIBUTING.md and issue templates once there are outside contributors.
-- [ ] GitHub Actions: run `npm test` on every push (the e2e test needs a
-      browser; Chrome is available on the runners).
+- [ ] GitHub Actions: run `npm test` on every push (the e2e tests need a
+      browser; Chrome and Firefox are available on the runners).
 
 ## Ideas, unsorted (not promises)
 

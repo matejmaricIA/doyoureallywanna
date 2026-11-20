@@ -16,13 +16,22 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   Light / Dark" on the settings page. Until now the pages could only follow
   the browser. Pages wait for your colors before they're drawn, so there's
   no flash of the wrong ones.
+- **Firefox support, for testing.** The extension now also runs in
+  Firefox 140 and newer, unchanged: the pause, "Yes", "No", the grace
+  period and the counts all work the same. It isn't on Firefox Add-ons
+  yet, and suggestions haven't been tried there.
+- `npm run test:e2e:firefox`: an end-to-end test in headless Firefox over
+  WebDriver BiDi (`tools/lib/bidi.mjs`), no dependencies. Set `FIREFOX=`
+  to choose the binary.
 
 ### Changed
 
 - **The fermata is drawn like a pen line**: an even stroke, a little
   lopsided, with an oval dot, instead of the clean engraved arc. The 16 px
   toolbar icon keeps its sharp small drawing.
-- Needs Edge or Chrome 123 or newer (was 110).
+- Needs Edge or Chrome 123 or newer (was 110): the light/dark colors use
+  `light-dark()`, and one manifest now names a background script for
+  Firefox next to the service worker.
 
 ## [0.3.0] - 2026-11-20
 
