@@ -50,6 +50,11 @@ had a second to think about *why* you were opening it.
   all time, per site.
 - **Changes the question** now and then, so it doesn't fade into the
   background.
+- **Can suggest sites for your list, if you want.** Turn on suggestions
+  and it notices sites you open a lot by typing them, from a bookmark or
+  from the new tab page. When one looks like a habit, it asks once:
+  **Add it to my list**, **It's fine, don't ask again**, or **Just let me
+  in**. Off by default.
 - **Moves with you without a cloud.** Export a backup file, import it on
   your other computer.
 - Light and dark mode.
@@ -65,9 +70,14 @@ had a second to think about *why* you were opening it.
   </tr>
 </table>
 
+<p align="center">
+  <img src="docs/images/suggestion.png" alt="The suggestion page: I noticed you open facebook.com a lot. Do you open it out of habit? You opened it 8 or more times a day on 3 of the last 7 days. Three buttons of the same size: Add it to my list / It's fine, don't ask again / Just let me in." width="620" /><br />
+  <sub>With suggestions on: a site you keep opening that isn't on your list yet</sub>
+</p>
+
 <table>
   <tr>
-    <td width="62%" valign="top"><img src="docs/images/settings.png" alt="Your list & stats page: You turned back 9 of 14 times today, with a tally of today's pauses; the list of sites with today's and the last 7 days' numbers; settings written as sentences; backup buttons." /></td>
+    <td width="62%" valign="top"><img src="docs/images/settings.png" alt="Your list & stats page: You turned back 9 of 14 times today, with a tally of today's pauses; the list of sites with today's and the last 7 days' numbers; settings written as sentences; the suggestions switch with what it keeps, and the list of sites never suggested; backup buttons." /></td>
     <td width="38%" valign="top"><img src="docs/images/popup.png" alt="Toolbar popup: Ask me before opening facebook.com, with an Add button." /></td>
   </tr>
   <tr>
@@ -84,9 +94,13 @@ This is the point, not a footnote.
   at all: no servers, no accounts, no analytics, no crash reports. It doesn't
   even use the browser's sync storage, because that goes through
   Google's/Microsoft's servers.
-- **It doesn't keep a history.** It stores your list, two settings, and per
-  day, per listed site, two numbers (times asked, times opened anyway).
+- **It doesn't keep a history.** It stores your list, your settings, and
+  per day, per listed site, two numbers (times asked, times opened anyway).
   No web addresses, no page titles, no times of day.
+- **Suggestions are opt-in.** Only if you turn them on does it see which
+  pages open (your browser will warn about "browsing history"). Even then
+  it keeps one number per site per day, for 14 days, never in a backup, and
+  turning them off deletes it all.
 - **It only asks for access to the sites you add**, one at a time, when you
   add them, and gives the access back when you remove them. It never runs
   code inside the pages you visit.
@@ -102,8 +116,9 @@ Nothing runs in the background. The browser's own rule engine
 (`declarativeNetRequest`) decides when to show the question. That happens
 inside the browser's network code, not in a script. The extension's code
 only runs when you're actually opening a listed site, clicking its icon, or
-looking at your stats. No timers, no polling, no scripts injected into
-pages. The whole extension is about 35 KB zipped.
+looking at your stats. With suggestions on, it also wakes for a moment when
+a page opens, to count it. No timers, no polling, no scripts injected into
+pages. The whole extension is about 45 KB zipped.
 
 ## Install
 

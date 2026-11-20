@@ -8,8 +8,10 @@ behind each choice is in [DECISIONS.md](DECISIONS.md).
 ```
 extension/                 ← load this folder in the browser; it's also what ships
   manifest.json
-  background.js            service worker: install/update + grace-period alarm, nothing else
-  pause/                   the page shown instead of a listed site
+  background.js            service worker: install/update, grace-period alarm, and (only
+                           with suggestions on) counting impulse opens
+  pause/                   the page shown instead of a listed site (pause.html), and the
+                           suggestion page (suggestion.html), sharing common.js and pause.css
   popup/                   toolbar popup: add the current site / see today's numbers
   options/                 "Your list & stats": list, numbers, settings, backup
   ui/base.css              shared colors (light + dark), buttons, inputs
@@ -20,11 +22,12 @@ extension/                 ← load this folder in the browser; it's also what s
     stats.js       pure   add events, prune, sum counts, tally marks
     dates.js       pure   local day keys
     settings.js    pure   defaults, limits, sanitizing
+    suggest.js     pure   suggestions: which opens count, counting, the threshold
     backup.js      pure   build / validate the JSON backup
     copy.js        pure   every question and message the extension shows,
                           and the summary sentence on "Your list & stats"
     store.js       chrome storage.local reads/writes, under a Web Lock
-    browser.js     chrome rules sync, grace periods, site access
+    browser.js     chrome rules sync, grace periods, site access, suggestions' permission
 assets/icon.svg            the icon source
 tests/unit/                node:test tests for the pure modules
 tools/                     dev tooling (never shipped): e2e test, screenshots, icons, packaging
@@ -40,12 +43,20 @@ unchanged.
 
 ```js
 {
-  schema: 1,
+  schema: 2,
   sites: { "reddit.com": { added: 1763548800000 } },        // when it was added
-  settings: { graceMinutes: 5, countdownSeconds: 5 },
-  stats: { "2026-11-19": { "reddit.com": [6, 2] } }        // [paused, openedAnyway] per local day
+  settings: { graceMinutes: 5, countdownSeconds: 5, suggestions: false },
+  stats: { "2026-11-19": { "reddit.com": [6, 2] } },       // [paused, openedAnyway] per local day
+  quiet: { "github.com": { added: 1763635200000 } },        // "don't ask again": never suggested
+
+  // Only while suggestions are on. Turning them off deletes both. Never in a backup.
+  opens: { "2026-11-20": { "youtube.com": 9 } },            // impulse opens per local day, 14 days
+  suggestedOn: "2026-11-20"                                // the day the last suggestion was shown
 }
 ```
+
+Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
+(D-023). Nothing is migrated: missing keys mean empty / off.
 
 `chrome.storage.session` (gone when the browser restarts):
 
@@ -82,9 +93,43 @@ unchanged.
 **Adding a site** (popup or settings page)
 
 1. Normalize the input (`domains.js`), save it, rebuild all redirect rules
-   (`syncRules`, one atomic update under a Web Lock).
+   (`syncRules`, one atomic update under a Web Lock). Any suggestion counts
+   for it are dropped.
 2. Ask the browser for `*://*.<site>/*`. In the popup, if you say no, the
    site is removed again.
+
+**Turning suggestions on and off** (settings page, D-020)
+
+1. On: ask the browser for `webNavigation` (it warns "Read your browsing
+   history"), then save `settings.suggestions = true`. If you say no, the
+   switch goes back off.
+2. Off: save `false`, delete `opens` and `suggestedOn`, give the
+   permission back.
+
+**Counting an open** (only while suggestions are on)
+
+1. `background.js` listens to `webNavigation.onCommitted` for http(s)
+   pages. The listener is added at the top level whenever the API exists,
+   and on `permissions.onAdded`.
+2. `isImpulseOpen` drops everything but the main frame opened by typing, a
+   bookmark or the new tab page (no links, reloads, back/forward, searches,
+   client redirects, prerenders). No storage is read for those.
+3. Private-window tabs are skipped (`tabs.get`). Then, under the storage
+   lock, `recordImpulseOpen` skips sites covered by the list or the
+   "don't ask again" list, adds one to today's count, drops days older
+   than 14, and checks the threshold (D-021).
+
+**A suggestion** (D-021, D-022)
+
+1. The open that makes a site qualify (8+ opens on 3 of the last 7 days),
+   if no suggestion was shown today: its counts are reset, `suggestedOn`
+   is set to today, and the worker sends the tab to
+   `pause/suggestion.html#<url>` with `tabs.update`. That page isn't
+   web-accessible.
+2. **Add it to my list**: ask for access to the site, add it like the popup,
+   add a grace rule for this tab, go back to the site.
+3. **It's fine, don't ask again**: add it to `quiet`, go back.
+4. **Just let me in**: go back. Going back is never counted.
 
 ## Permissions
 
@@ -95,6 +140,7 @@ unchanged.
 | `alarms` | ending the "Yes" grace period | none |
 | `activeTab` | the popup can see which site you're on when you click it | none |
 | optional `*://*/*` | requested one site at a time (`*://*.reddit.com/*`) when you add it | per-site prompt |
+| optional `webNavigation` | suggestions: seeing which sites you open by typing, bookmark or new tab page; requested when you turn them on | "Read your browsing history", at that moment |
 
 ## Testing
 
@@ -102,6 +148,8 @@ unchanged.
 - `npm run test:e2e`: loads a copy of `extension/` into a temporary headless
   Edge/Chrome profile over the DevTools protocol (`tools/lib/cdp.mjs`) and
   walks through every flow above against local fake sites. The copy
-  pre-grants access to the fake site, because a test can't click the
-  browser's permission prompt.
+  pre-grants access to the fake sites and declares `webNavigation` up
+  front, because a test can't click the browser's permission prompts.
+  DevTools' `Page.navigate` takes a `transitionType`, which is how the
+  test opens pages "by typing", "from a bookmark" or "from the address bar".
 - `npm run check`: both.

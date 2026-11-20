@@ -65,7 +65,7 @@ Both run the same MV3 extension unchanged.
 
 ## D-004 · The browser does the pausing (declarativeNetRequest), not our code
 
-*2026-11-19 · Accepted*
+*2026-11-19 · Accepted · narrowed by D-020 for opt-in suggestions*
 
 **Decision.** For each listed site there is one `declarativeNetRequest`
 dynamic rule that redirects top-level page loads (`main_frame`) to our
@@ -244,7 +244,7 @@ on "No" adds a beat of friction to the reflex without hiding the choice.
 
 ## D-015 · Smart suggestions come next, opt-in
 
-*2026-11-19 · Accepted*
+*2026-11-19 · Accepted · built in D-020 to D-023*
 
 **Decision.** "I noticed you open imdb.com a lot. Is it a distraction?" is
 planned for v0.2, and it will be **opt-in**, with its permission requested
@@ -324,3 +324,168 @@ today, so there's nothing that looks like a streak.
 gone from the page; they still count in the totals and are in the backup.
 The big tally draws itself once on load (off with reduced motion). Past
 60 strokes (20 per site) the tally keeps its proportions and shows "+n".
+
+## D-020 · Suggestions notice impulse opens with `webNavigation` (opt-in)
+
+*2026-11-20 · Accepted*
+
+**Context.** D-015 planned opt-in suggestions: "I noticed you open
+youtube.com a lot." Noticing means seeing which sites open, including the
+ones that aren't on the list. D-004 ruled out `webNavigation` listeners,
+and PRINCIPLES.md said "Nothing runs unless the user is doing something
+with a listed site".
+
+**Decision.**
+
+- A switch on "Your list & stats", off by default. Turning it on asks for
+  the optional `webNavigation` permission. Turning it off deletes every
+  count and gives the permission back.
+- While it's on, the service worker listens to `webNavigation.onCommitted`
+  with a URL filter for `http`/`https`. The listener is registered at the
+  top level whenever the API exists (it only exists while the permission is
+  granted), and again on `permissions.onAdded` for a worker that's already
+  running.
+- Only impulse opens count (`isImpulseOpen` in `lib/suggest.js`): typed in
+  the address bar, including autocomplete (`typed`, or `link` with the
+  `from_address_bar` qualifier), a bookmark or a tile on the new tab page
+  (`auto_bookmark`). Not link clicks, reloads, form submits, searches
+  (`generated`, `keyword`), start pages, back/forward (`forward_back`),
+  client-side redirects (`client_redirect`), frames or prerenders. A server
+  redirect (http → https, or to www.) is one commit with the
+  `server_redirect` qualifier: it's the same open, counted for the site it
+  lands on.
+- What's stored: `opens: { day: { host: count } }` for 14 days, plus
+  `suggestedOn` (the day of the last suggestion, D-021). Hosts are
+  normalized like the list (D-013): `www.` dropped, no Public Suffix List.
+  Sites on the list, sites on the "don't ask again" list (both with their
+  subdomains) and tabs in private windows are never counted.
+
+What Edge 157 reported, measured with a throwaway extension over the
+DevTools protocol:
+
+| Opened by | `transitionType` | qualifiers |
+| --- | --- | --- |
+| typing (DevTools `typed`) | `typed` | |
+| the address bar (DevTools `address_bar`) | `link` | `from_address_bar` |
+| a bookmark | `auto_bookmark` | |
+| a link clicked on Edge's new tab page (ntp.msn.com) | `auto_bookmark` | |
+| a link | `link` | |
+| a search / a keyword | `generated` / `keyword` | |
+| a reload, a form submit | `reload`, `form_submit` | |
+| back/forward | (the entry's own type) | `forward_back` |
+| JavaScript `location.replace`, meta refresh | `link` | `client_redirect` |
+| typing an address that redirects (302) | `typed` | `server_redirect` |
+| startup (DevTools `auto_toplevel`) | `start_page` | |
+
+**Why.** The transition type is first known at `onCommitted`, and
+`webNavigation` is the narrowest API that has it (`history` would also let
+us read and delete the browser's history). Only impulse opens count
+because they're the reflex the extension is about. A link is following
+something; typing a site's name is reaching for it.
+
+**Consequences.**
+
+- The browser warns "Read your browsing history" when you turn it on. The
+  settings page says so, and says what's actually kept.
+- While it's on, the worker wakes for every http(s) page commit, iframes
+  included (URL filters can't tell frames apart). Anything that isn't an
+  impulse open is dropped before storage is touched.
+- This narrows D-004 ("no `webNavigation` listeners") and the principle
+  "Nothing runs unless the user is doing something with a listed site",
+  for suggestions only, and only while they're on. PRINCIPLES.md is updated.
+- Every link on Edge's new tab page is reported as a bookmark open,
+  including the MSN news feed, so feed clicks count toward msn.com.
+- Subdomains count on their own: `music.youtube.com` and `youtube.com` are
+  two sites.
+- Chrome isn't checked yet (not installed where this was built). Chromium's
+  new tab page opens tiles as `auto_bookmark` too; to be hand-tested.
+- DevTools turns prerendering off, so it's unverified whether pressing Enter
+  on an address the browser already prerendered fires `onCommitted`. If it
+  doesn't, those opens just aren't counted.
+
+## D-021 · When a site is suggested, and what each answer does
+
+*2026-11-20 · Accepted*
+
+**Decision.**
+
+- A site qualifies at **8 or more opens on at least 3 of the last 7 days**
+  (today included). The numbers are constants in `lib/suggest.js`. The
+  open that makes it qualify shows the suggestion.
+- **At most one suggestion a day**, across all sites (`suggestedOn`).
+- **Showing a suggestion resets that site's counts.** So it can only come
+  back if fresh opens qualify again: three days later at the earliest.
+  Closing the tab without answering works the same as "Just let me in".
+- The page asks "I noticed you open {site} a lot. Do you open it out of
+  habit?", and says why: 8 or more times a day on 3 of the last 7 days.
+  Three answers, stacked, all the same size:
+  - **Add it to my list** asks for access to the site (the click is a user
+    gesture on an extension page) and adds it the way the popup does. This
+    one open goes through like a "Yes", with the normal grace period, and
+    isn't counted in the stats; the list asks from the next time on. If
+    access is refused, nothing is added and the page says so.
+  - **It's fine, don't ask again** puts the site on the "don't ask again"
+    list (it covers subdomains, like the list), drops its counts, and lets
+    you in. The list is editable on the settings page.
+  - **Just let me in** lets you in.
+- "Add it to my list" is the filled button but nothing has focus, so a
+  reflexive Enter doesn't add anything.
+
+**Why.** Agreed with the author on 2026-11-20. Resetting on show needs no
+snooze timer and no extra data: it asks again only if the habit carries on.
+Asking "do you really wanna?" a second after someone agreed to add the
+site would feel like a trick. One suggestion a day keeps it an occasional
+offer, not a stream of questions.
+
+## D-022 · Showing the suggestion without access to the site
+
+*2026-11-20 · Accepted*
+
+**Context.** Listed sites are paused by `declarativeNetRequest` redirects,
+which only work on sites we have access to (D-005). We don't have access to
+sites that aren't on the list, and the transition type isn't known before
+the page commits anyway.
+
+**Decision.**
+
+- From `onCommitted`, the worker sends the tab to the suggestion page with
+  `chrome.tabs.update`.
+- The suggestion page is its own page, `pause/suggestion.html`, with the
+  pause page's look (`pause.css`, shared helpers in `pause/common.js`). It
+  is **not** web-accessible, unlike the pause page (D-016): only the
+  extension can open it, so a website can't make the extension claim
+  something about your habits.
+- Every answer goes back (`history.back()`) to the page that already
+  opened, which usually comes straight from the back/forward cache. If
+  there's nothing to go back to, it loads the address instead. Back/forward
+  is never counted (D-020), so this can't loop.
+
+**Consequences.**
+
+- The site starts to show before the suggestion replaces it: about
+  70–100 ms in headless Edge on a local test site, with the worker awake or
+  asleep. Only on the one open a day (at most) that shows a suggestion;
+  every other open is just counted.
+- The site has loaded in the background, so it may have started a video
+  for a moment, and it's in the tab's history.
+- The suggestion page stays in the tab's history as a forward entry.
+
+## D-023 · Backup schema 2
+
+*2026-11-20 · Accepted*
+
+**Decision.** The backup's `schema` goes from 1 to 2. Schema 2 adds the
+"don't ask again" list (`quiet`) and the suggestions switch
+(`settings.suggestions`). The suggestion counts are never in a backup, and
+importing a backup deletes the counts on this computer. Schema-1 backups
+still import (suggestions off, empty "don't ask again" list); anything else
+is rejected. Importing a backup with suggestions on can't grant the
+permission by itself, so the settings page shows "Allow" until you click
+it; importing one with suggestions off gives the permission back.
+
+**Why.** The switch and the list are things you set up, so they should
+move with you. The counts are a short-lived record of what you opened,
+and a backup file may end up anywhere.
+
+**Consequences.** `chrome.storage.local` also says `schema: 2` now. No
+migration: the new keys are simply missing until they're used.

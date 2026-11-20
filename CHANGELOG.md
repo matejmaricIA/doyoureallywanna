@@ -10,7 +10,42 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+### Added
+
+- **Smart suggestions (opt-in).** A new "Suggestions" switch on "Your list
+  & stats", off by default. Turning it on asks the browser for permission
+  to see which pages open (the browser calls it "read your browsing
+  history", and the page says so, along with what's actually kept). While
+  it's on, the extension counts how often you open sites that aren't on
+  your list by typing them, from a bookmark or from the new tab page: one
+  number per site per day, kept for 14 days. Links, reloads, back/forward,
+  searches and private windows are never counted.
+- **The suggestion page.** When a site is opened 8 or more times a day on
+  3 of the last 7 days, the next such open shows "I noticed you open
+  facebook.com a lot. Do you open it out of habit?" with three answers of
+  the same size: **Add it to my list** (asks for access and adds it; this
+  one open goes through), **It's fine, don't ask again** and **Just let me
+  in**. At most one suggestion a day, and a suggested site's counts start
+  over.
+- **"Don't ask again" list** on "Your list & stats": the sites that are
+  never suggested. Add and remove them there.
+- Turning suggestions off deletes every count right away and gives the
+  permission back.
+- Browser tests for suggestions (typed, bookmark and address-bar opens
+  against links, reloads, back and searches; the three answers; the switch;
+  the backup), and a screenshot of the suggestion page.
+
 ### Changed
+
+- **Backups are schema 2.** They now include the suggestions switch and the
+  "don't ask again" list, but never the suggestion counts. Schema-1
+  backups still import. Importing a backup deletes the suggestion counts
+  on this computer.
+- Adding a site to the list drops any suggestion counts for it.
+- The pause page's shared helpers moved to `pause/common.js`, used by both
+  the pause page and the suggestion page.
+- PRINCIPLES.md: "nothing runs unless…" and "no browsing history" now say
+  what changes while suggestions are on (D-020).
 
 - **"Your list & stats" redesigned.** It now looks like the pause page: one
   column, no cards. At the top, today's numbers as one sentence ("You turned

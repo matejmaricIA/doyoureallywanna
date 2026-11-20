@@ -5,20 +5,39 @@ What's done, what's next, and what's just an idea. Finished items move to
 in [DECISIONS.md](DECISIONS.md); what actually changed lives in
 [CHANGELOG.md](../CHANGELOG.md).
 
-## Next: v0.2 · Smart suggestions (opt-in)
+## Next: release v0.2
 
-- [ ] "Suggestions" switch on the settings page, off by default. Turning it
-      on asks for the `webNavigation` permission (optional permission).
-- [ ] Count opens per domain per day for sites *not* on the list, only
-      opens that look like impulse (typed, bookmark, new tab; not links).
-      Domains and counts only, never URLs. Keep 14 days.
-- [ ] When a domain crosses a threshold (e.g. 8+ opens on 3 of the last 7
-      days), the next time it's opened show the pause page in "suggestion"
-      mode: "I noticed you open facebook.com a lot. Do you open it out of habit?"
-      → **Add it to my list** / **It's fine, don't ask again** / **Just let me in**.
-- [ ] "Don't ask again" list, editable on the settings page.
-- [ ] Turning suggestions off deletes the collected counts and gives the
-      permission back.
+Smart suggestions are built (D-020 to D-023) and pass the browser test.
+What a test can't check, to try by hand in Edge (and Chrome) before
+tagging v0.2.0:
+
+- [ ] Turning suggestions on shows the browser's real prompt ("Read your
+      browsing history"); saying no leaves the switch off with the note.
+- [ ] Right after allowing, without restarting the browser, typing an
+      unlisted site counts it (the listener is added on
+      `permissions.onAdded`). Check in the service worker's DevTools:
+      `chrome.storage.local.get('opens')`.
+- [ ] After the worker has gone to sleep (30 s idle), a typed open still
+      counts.
+- [ ] Turning suggestions off gives the permission back: the extension's
+      details page no longer lists "Read your browsing history".
+- [ ] What the real address bar reports: a typed address, an autocompleted
+      one, a history suggestion, "paste and go", a search (must not count).
+- [ ] A tile on Edge's new tab page and on Chrome's new tab page counts;
+      a bookmark from the favorites bar and from the menu counts.
+- [ ] Prerender: type a site you visit a lot slowly, so the browser
+      prerenders it, then press Enter. Does it count? (DevTools turns
+      prerendering off, so the test can't tell, D-020.)
+- [ ] The suggestion page on a real, heavy site: how visible is the flash
+      of the site, and does "Just let me in" bring it back instantly?
+- [ ] "Add it to my list" shows the real per-site prompt; saying no keeps
+      you on the page with the message.
+- [ ] With the extension allowed in InPrivate, InPrivate opens aren't
+      counted.
+- [ ] Importing a backup with suggestions on shows "Allow" on the settings
+      page, and "Allow" shows the prompt.
+- [ ] Version bump to 0.2.0 (manifest + package.json), CHANGELOG section,
+      `v0.2.0` tag.
 
 ## Before the first store release
 
@@ -73,9 +92,29 @@ in [DECISIONS.md](DECISIONS.md); what actually changed lives in
   browser's extension settings.
 - A site that's on the list but lacks access isn't paused. The settings
   page shows "Needs access" for those.
+- Suggestions: the site starts to show for a moment (about 0.1 s) before
+  the suggestion replaces it, because there's no access to sites that
+  aren't on the list (D-022). It only happens on the open that shows a
+  suggestion, at most once a day.
+- Suggestions count each subdomain on its own (`music.youtube.com` and
+  `youtube.com` are two sites), because there's no Public Suffix List
+  (D-013).
+- Suggestions: every link on Edge's new tab page counts as an impulse open,
+  including the MSN news feed (Edge reports them like bookmarks).
+- Suggestions: address-bar opens of a page the browser had already
+  prerendered may not be counted (unverified, D-020).
 
 ## Done
 
+- [x] Unreleased (v0.2): opt-in smart suggestions (D-020 to D-023): a
+      switch on "Your list & stats" that asks for `webNavigation`;
+      per-day counts of impulse opens (typed, bookmark, new tab page) of
+      sites not on the list, kept 14 days; the suggestion page at 8+ opens
+      on 3 of the last 7 days, at most once a day, with "Add it to my
+      list" / "It's fine, don't ask again" / "Just let me in"; an editable
+      "don't ask again" list; turning it off deletes the counts and gives
+      the permission back; backup schema 2; browser tests and a
+      screenshot.
 - [x] Unreleased: "Your list & stats" redesigned to match the pause page
       (today as a sentence, tallies, list and stats merged), white light
       theme (D-019).

@@ -14,7 +14,9 @@ one of these, the idea loses. Changing a principle needs a decision in
 - **Ask for as little access as possible**, as late as possible: per site,
   when the site is added. Give it back when it's removed.
 - **Let the browser do the work.** Event-driven only. Nothing runs unless
-  the user is doing something with a listed site.
+  the user is doing something with a listed site, or has turned on
+  suggestions: then the extension also wakes briefly when a page opens, to
+  count it (D-020). Off by default, and off means off.
 - **Be kind.** Talk like a friend who asks, not a parent who scolds.
 - **Stay small and readable.** The code on GitHub is exactly the code that
   runs. Anyone should be able to read the whole thing in an afternoon.
@@ -32,7 +34,9 @@ one of these, the idea loses. Changing a principle needs a decision in
 - **No telemetry of any kind**, even anonymous, even opt-in.
 - **No `chrome.storage.sync`.** It goes through Google's/Microsoft's servers.
 - **No browsing history.** Never store URLs, page titles or times of
-  individual visits. Per-day counts per listed site, that's it.
+  individual visits. Per-day counts per listed site, that's it. With
+  suggestions on, also per-day counts of impulse opens per site, kept for
+  14 days, never in a backup, and deleted when suggestions are turned off.
 - **No content scripts on every site.** No code of ours inside the pages
   people visit.
 - **No polling, intervals or timers in the background.**
