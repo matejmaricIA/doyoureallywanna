@@ -12,11 +12,6 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ### Added
 
-- **Color themes.** Pick one on the settings page: Dusk (the default, a
-  soft blue-violet), Tide, Sage, Clay, or Ember.
-  Each comes in light and dark, and recolors every page, the tab icon and
-  the toolbar icon. The theme is saved with your other settings and
-  included in backups.
 - **Light or dark, your choice.** "Light or dark: Same as my browser /
   Light / Dark" on the settings page. Until now the pages could only follow
   the browser. Pages wait for your colors before they're drawn, so there's
@@ -24,16 +19,33 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ### Changed
 
+- **The fermata is drawn like a pen line**: an even stroke, a little
+  lopsided, with an oval dot, instead of the clean engraved arc. The 16 px
+  toolbar icon keeps its sharp small drawing.
+- Needs Edge or Chrome 123 or newer (was 110).
+
+## [0.3.0] - 2026-11-20
+
+A new icon, the fermata, and five color themes to choose from.
+
+### Added
+
+- **Color themes.** Pick one on the settings page: Dusk (the default, a
+  soft blue-violet), Tide, Sage, Clay, or Ember.
+  Each comes in light and dark, and recolors every page, the tab icon and
+  the toolbar icon. The theme is saved with your other settings and
+  included in backups.
+
+### Changed
+
 - **New icon: a fermata**, the musical sign for a pause that lasts as long
-  as you like, in place of the question mark on an orange tile. It's
-  drawn like a pen line, a little lopsided, as a flat mark on a
-  transparent background, with its own sharp drawing for the 16 px
-  toolbar size. Next to the name on every page it's drawn in the
+  as you like, in place of the question mark on an orange tile. It's a
+  flat mark on a transparent background, with its own drawing for the
+  16 px toolbar size. Next to the name on every page it's drawn in the
   theme's accent.
 - The default colors are calmer: Dusk, a soft blue-violet, instead of
   orange.
 - The suggestion page (v0.2.0) uses the new icon and follows the theme too.
-- Needs Edge or Chrome 123 or newer (was 110).
 
 ## [0.2.0] - 2026-11-20
 
@@ -130,6 +142,7 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/matejmaricIA/doyoureallywanna/releases/tag/v0.1.0
