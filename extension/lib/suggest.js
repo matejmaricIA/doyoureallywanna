@@ -21,6 +21,14 @@ export const WINDOW_DAYS = 7;
 /** Days of counts we keep: only the ones the check above reads. */
 export const KEEP_DAYS = WINDOW_DAYS;
 
+/**
+ * The browser's own pages that happen to be websites. Edge's new tab page
+ * lives on ntp.msn.com and reloads itself in a way Edge reports like a
+ * bookmark open, so every new tab would count. These are never counted.
+ * (Links clicked *on* the new tab page still count, for where they go.)
+ */
+export const BROWSER_PAGES = ['ntp.msn.com', 'ntp.msn.cn'];
+
 /** @typedef {Record<string, Record<string, number>>} Opens */
 
 /**
@@ -37,12 +45,15 @@ export const KEEP_DAYS = WINDOW_DAYS;
  * Was this page opened on impulse? Typed in the address bar (including
  * autocomplete), a bookmark, or a tile on the new tab page, which browsers
  * report as a bookmark. Not link clicks, reloads, back/forward, form
- * submits, searches, client-side redirects, prerenders or frames.
- * A server redirect (http → https, or to www.) is still the same open.
+ * submits, searches, client-side redirects, prerenders, frames, or the
+ * browser's own new tab page. A server redirect (http → https, or to
+ * www.) is still the same open.
  * @param {Commit} commit
  */
 export function isImpulseOpen({ frameId, url, transitionType, transitionQualifiers = [], documentLifecycle }) {
-  if (frameId !== 0 || documentLifecycle === 'prerender' || !hostOf(url)) return false;
+  if (frameId !== 0 || documentLifecycle === 'prerender') return false;
+  const host = hostOf(url);
+  if (!host || isCovered(host, BROWSER_PAGES)) return false;
   if (transitionQualifiers.includes('forward_back') || transitionQualifiers.includes('client_redirect')) return false;
   if (transitionType === 'typed' || transitionType === 'auto_bookmark') return true;
   return transitionType === 'link' && transitionQualifiers.includes('from_address_bar');

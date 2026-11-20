@@ -113,7 +113,8 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
    and on `permissions.onAdded`.
 2. `isImpulseOpen` drops everything but the main frame opened by typing, a
    bookmark or the new tab page (no links, reloads, back/forward, searches,
-   client redirects, prerenders). No storage is read for those.
+   client redirects, prerenders, and never Edge's new tab page itself). No
+   storage is read for those.
 3. Private-window tabs are skipped (`tabs.get`). Then, under the storage
    lock, `recordImpulseOpen` skips sites covered by the list or the
    "don't ask again" list, adds one to today's count, drops days older

@@ -33,6 +33,9 @@ were hand-tested in Edge on 2026-11-20 (the ticked items below).
       counted.
 - [x] Importing a backup with suggestions on shows "Allow" on the settings
       page, and "Allow" shows the prompt.
+- [ ] Opening a few new tabs in Edge (Ctrl+T) doesn't add `ntp.msn.com`
+      to the counts (fixed after the first hand-test; the browser test
+      caught it).
 - [ ] The same in Chrome, especially the new tab page tiles.
 - [ ] Version bump to 0.2.0 (manifest + package.json), CHANGELOG section,
       `v0.2.0` tag.
@@ -99,6 +102,9 @@ were hand-tested in Edge on 2026-11-20 (the ticked items below).
   (D-013).
 - Suggestions: every link on Edge's new tab page counts as an impulse open,
   including the MSN news feed (Edge reports them like bookmarks).
+- Suggestions: Edge's new tab page itself is recognized by its host
+  (`ntp.msn.com`, `ntp.msn.cn`). If Edge ever moves it, new tabs would
+  start counting until the list is updated.
 - Suggestions: address-bar opens of a page the browser had already
   prerendered may not be counted (unverified, D-020).
 

@@ -46,6 +46,13 @@ describe('isImpulseOpen', () => {
     assert.equal(isImpulseOpen(commit({ transitionType: 'link', transitionQualifiers: ['client_redirect'] })), false);
     assert.equal(isImpulseOpen(commit({ transitionQualifiers: ['client_redirect', 'from_address_bar'] })), false);
   });
+  it("ignores Edge's new tab page loading itself, but not links clicked on it", () => {
+    const ntp = 'https://ntp.msn.com/edge/ntp?locale=en-US&title=New+tab&dsp=1&sp=Bing';
+    assert.equal(isImpulseOpen(commit({ url: ntp, transitionType: 'auto_bookmark', transitionQualifiers: [] })), false);
+    assert.equal(isImpulseOpen(commit({ url: ntp })), false);
+    assert.equal(isImpulseOpen(commit({ url: 'https://ntp.msn.cn/edge/ntp', transitionType: 'auto_bookmark' })), false);
+    assert.equal(isImpulseOpen(commit({ url: 'https://www.msn.com/en-us/news/', transitionType: 'auto_bookmark' })), true);
+  });
   it('ignores frames, prerenders and anything that is not http(s)', () => {
     assert.equal(isImpulseOpen(commit({ frameId: 3 })), false);
     assert.equal(isImpulseOpen(commit({ documentLifecycle: 'prerender' })), false);

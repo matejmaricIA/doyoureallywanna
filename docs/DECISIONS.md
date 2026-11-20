@@ -350,7 +350,8 @@ with a listed site".
   `from_address_bar` qualifier), a bookmark or a tile on the new tab page
   (`auto_bookmark`). Not link clicks, reloads, form submits, searches
   (`generated`, `keyword`), start pages, back/forward (`forward_back`),
-  client-side redirects (`client_redirect`), frames or prerenders. A server
+  client-side redirects (`client_redirect`), frames, prerenders, or Edge's
+  own new tab page (`BROWSER_PAGES`: `ntp.msn.com`, `ntp.msn.cn`). A server
   redirect (http → https, or to www.) is one commit with the
   `server_redirect` qualifier: it's the same open, counted for the site it
   lands on.
@@ -378,6 +379,7 @@ DevTools protocol:
 | JavaScript `location.replace`, meta refresh | `link` | `client_redirect` |
 | typing an address that redirects (302) | `typed` | `server_redirect` |
 | startup (DevTools `auto_toplevel`) | `start_page` | |
+| Edge's new tab page opening (`ntp.msn.com/edge/ntp`) | `link`, then `auto_bookmark` as it reloads itself | |
 
 **Why.** The transition type is first known at `onCommitted`, and
 `webNavigation` is the narrowest API that has it (`history` would also let
@@ -397,6 +399,11 @@ something; typing a site's name is reaching for it.
   for suggestions only, and only while they're on. PRINCIPLES.md is updated.
 - Every link on Edge's new tab page is reported as a bookmark open,
   including the MSN news feed, so feed clicks count toward msn.com.
+- Edge's new tab page is itself a web page and reloads itself in a way
+  Edge also reports as a bookmark open, so without an exception every new
+  tab would count toward `ntp.msn.com`. The browser test caught it. Its
+  hosts are listed in `BROWSER_PAGES` and never counted; if Edge moves its
+  new tab page, that list needs the new host.
 - Subdomains count on their own: `music.youtube.com` and `youtube.com` are
   two sites.
 - Chrome isn't checked yet (not installed where this was built). Chromium's
