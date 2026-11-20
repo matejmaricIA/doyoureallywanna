@@ -635,3 +635,27 @@ it. Pages appear a few milliseconds later than before. If reading storage
 ever fails, the page still shows, in the default theme and the browser's
 light/dark. The toolbar icon doesn't change with light/dark; it's already
 made to read on both.
+
+## D-028 · The fermata is drawn like a pen line
+
+*2026-11-20 · Accepted*
+
+**Context.** The fermata (D-024) shipped as a clean, engraved arc, like
+printed sheet music. Next to the plain type of the pages it looked exact
+but impersonal. Three hand-drawn versions were compared with it on the
+real pages and toolbars: brush (thick-thin, lifting off to a point), pen
+(an even line) and ink (heavy and squat).
+
+**Decision.** `assets/icon.svg` is the pen version: an even stroke with a
+little pressure, slightly lopsided, and an oval dot. It's a
+variable-width stroke turned into a filled outline, so it's still one flat
+shape in `currentColor`. 16 px keeps `assets/icon-small.svg`, the
+pixel-tuned drawing, because pen detail doesn't survive 16 pixels.
+
+**Why.** It reads as made by a person, which suits a friend asking
+"really?", while staying quiet next to the name. The brush version had
+more character but pulled more attention; ink was the heaviest.
+
+**Consequences.** The outline is about 3 KB of path data; it's edited as a
+drawing, not by hand. Small sizes and the stores' icons change with it
+when `npm run icons` runs.

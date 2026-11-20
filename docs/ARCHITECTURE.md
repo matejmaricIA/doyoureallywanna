@@ -35,7 +35,7 @@ extension/                 ← load this folder in the browser; it's also what s
     store.js       chrome storage.local reads/writes, under a Web Lock
     browser.js     chrome rules sync, grace periods, site access, suggestions' permission,
                           toolbar icon color
-assets/icon.svg            the icon source (a fermata), for 32 px and up
+assets/icon.svg            the icon source (a fermata, drawn like a pen line), for 32 px and up
 assets/icon-small.svg      the same, redrawn on the 16 px grid
 tests/unit/                node:test tests for the pure modules
 tools/                     dev tooling (never shipped): e2e test, screenshots, icons, packaging

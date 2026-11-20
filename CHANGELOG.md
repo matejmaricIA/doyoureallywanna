@@ -25,9 +25,10 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 ### Changed
 
 - **New icon: a fermata**, the musical sign for a pause that lasts as long
-  as you like, in place of the question mark on an orange tile. It's a
-  flat mark on a transparent background, with its own drawing for the
-  16 px toolbar size. Next to the name on every page it's drawn in the
+  as you like, in place of the question mark on an orange tile. It's
+  drawn like a pen line, a little lopsided, as a flat mark on a
+  transparent background, with its own sharp drawing for the 16 px
+  toolbar size. Next to the name on every page it's drawn in the
   theme's accent.
 - The default colors are calmer: Dusk, a soft blue-violet, instead of
   orange.
