@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- A fermata: the musical sign for a pause that lasts as long as you like.
+       Drawn in currentColor; tools/icons.mjs renders it in each theme's color.
+       Used for 32 px and up. 16 px uses icon-small.svg. -->
+  <path fill="currentColor" d="M2.5 24C2.5 12.6 8.6 4.5 16 4.5S29.5 12.6 29.5 24a1.65 1.65 0 0 1-3.3 0C26.2 15.5 21.6 10 16 10S5.8 15.5 5.8 24a1.65 1.65 0 0 1-3.3 0Z"/>
+  <circle cx="16" cy="21" r="4" fill="currentColor"/>
+</svg>

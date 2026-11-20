@@ -32,6 +32,10 @@ in [DECISIONS.md](DECISIONS.md); what actually changed lives in
       shows no permission warnings (ARCHITECTURE.md's table says none).
 - [ ] Hand-test on a slow machine / many tabs to confirm there's no
       noticeable cost.
+- [ ] Hand-test the toolbar icon's theme color after a browser restart, in
+      Edge and Chrome (D-021). If it falls back to Tide, decide whether
+      that's acceptable.
+- [ ] 440×280 promo tile with the fermata.
 - [ ] Publish to Edge Add-ons (free) and Chrome Web Store ($5 one-time
       developer fee).
 - [ ] Add `homepage_url` to the manifest and store links to the README.
@@ -73,9 +77,15 @@ in [DECISIONS.md](DECISIONS.md); what actually changed lives in
   browser's extension settings.
 - A site that's on the list but lacks access isn't paused. The settings
   page shows "Needs access" for those.
+- With a theme other than Tide, a page can flash Tide's colors for a
+  moment while it loads (D-021).
+- The stores and the extensions page always show the Tide icon; only the
+  toolbar icon follows the theme.
 
 ## Done
 
+- [x] Unreleased: new icon, a fermata (D-020). Five color themes, Tide by
+      default, picked on the settings page (D-021).
 - [x] Unreleased: "Your list & stats" redesigned to match the pause page
       (today as a sentence, tallies, list and stats merged), white light
       theme (D-019).

@@ -8,24 +8,30 @@ behind each choice is in [DECISIONS.md](DECISIONS.md).
 ```
 extension/                 ← load this folder in the browser; it's also what ships
   manifest.json
-  background.js            service worker: install/update + grace-period alarm, nothing else
+  background.js            service worker: install/update (rules, toolbar icon) + grace-period alarm, nothing else
   pause/                   the page shown instead of a listed site
   popup/                   toolbar popup: add the current site / see today's numbers
   options/                 "Your list & stats": list, numbers, settings, backup
-  ui/base.css              shared colors (light + dark), buttons, inputs
-  icons/                   PNGs rendered from assets/icon.svg
+  ui/base.css              shared colors (five themes, each light + dark), buttons, inputs
+  ui/theme.js              loaded first by every page: applies the color theme, colors the toolbar icon
+  icons/                   rendered by `npm run icons` from assets/:
+                             icon-{16,32,48,128}.png  default theme (manifest, stores)
+                             <theme>-{16,32}.png      toolbar + tab icon per theme
+                             mark.svg                 the drawing, used as a CSS mask for the page logo
   lib/
     domains.js     pure   normalize input, match URLs to listed sites
     rules.js       pure   build declarativeNetRequest rules
     stats.js       pure   add events, prune, sum counts, tally marks
     dates.js       pure   local day keys
     settings.js    pure   defaults, limits, sanitizing
+    themes.js      pure   the color themes, their toolbar icon colors and files
     backup.js      pure   build / validate the JSON backup
     copy.js        pure   every question and message the extension shows,
                           and the summary sentence on "Your list & stats"
     store.js       chrome storage.local reads/writes, under a Web Lock
     browser.js     chrome rules sync, grace periods, site access
-assets/icon.svg            the icon source
+assets/icon.svg            the icon source (a fermata), for 32 px and up
+assets/icon-small.svg      the same, redrawn on the 16 px grid
 tests/unit/                node:test tests for the pure modules
 tools/                     dev tooling (never shipped): e2e test, screenshots, icons, packaging
 docs/                      decisions, roadmap, principles, this file, images
@@ -42,7 +48,7 @@ unchanged.
 {
   schema: 1,
   sites: { "reddit.com": { added: 1763548800000 } },        // when it was added
-  settings: { graceMinutes: 5, countdownSeconds: 5 },
+  settings: { graceMinutes: 5, countdownSeconds: 5, theme: "tide" },
   stats: { "2026-11-19": { "reddit.com": [6, 2] } }        // [paused, openedAnyway] per local day
 }
 ```
@@ -85,6 +91,17 @@ unchanged.
    (`syncRules`, one atomic update under a Web Lock).
 2. Ask the browser for `*://*.<site>/*`. In the popup, if you say no, the
    site is removed again.
+
+**Changing the color theme** (settings page)
+
+1. The choice is saved to `settings.theme`.
+2. `ui/theme.js` on every open page sees the storage change, sets
+   `data-theme` on `<html>` (which switches the CSS tokens in `base.css`),
+   points the tab icon at `icons/<theme>-32.png`, and calls
+   `chrome.action.setIcon` with `icons/<theme>-{16,32}.png`.
+3. Every page does step 2 when it opens too, and `background.js` does it on
+   install/update, so the toolbar icon is right even if the browser forgets
+   it after a restart. Nothing runs at browser start (D-021).
 
 ## Permissions
 

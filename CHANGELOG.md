@@ -10,7 +10,22 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+### Added
+
+- **Color themes.** Pick one on the settings page: Tide (the new default,
+  a grey blue-green), Sage, Clay, Dusk, or Ember (the original orange).
+  Each comes in light and dark, and recolors every page, the tab icon and
+  the toolbar icon. The theme is saved with your other settings and
+  included in backups.
+
 ### Changed
+
+- **New icon: a fermata**, the musical sign for a pause that lasts as long
+  as you like, in place of the question mark on an orange tile. It's a
+  flat mark on a transparent background, with its own drawing for the
+  16 px toolbar size. Next to the name on every page it's drawn in the
+  theme's accent.
+- The default colors are calmer: Tide instead of orange.
 
 - **"Your list & stats" redesigned.** It now looks like the pause page: one
   column, no cards. At the top, today's numbers as one sentence ("You turned

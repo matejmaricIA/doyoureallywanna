@@ -7,14 +7,18 @@ import { DEFAULT_SETTINGS, sanitizeSettings } from '../../extension/lib/settings
 describe('settings', () => {
   it('fills in defaults', () => {
     assert.deepEqual(sanitizeSettings(undefined), DEFAULT_SETTINGS);
-    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5 });
+    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5, theme: 'tide' });
   });
   it('clamps and rounds', () => {
-    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30 });
-    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3 });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30, theme: 'tide' });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3, theme: 'tide' });
   });
   it('ignores junk', () => {
-    assert.deepEqual(sanitizeSettings({ graceMinutes: 'soon', countdownSeconds: null }), DEFAULT_SETTINGS);
+    assert.deepEqual(sanitizeSettings({ graceMinutes: 'soon', countdownSeconds: null, theme: 'neon' }), DEFAULT_SETTINGS);
+    assert.equal(sanitizeSettings({ theme: { key: 'sage' } }).theme, 'tide');
+  });
+  it('keeps a known theme', () => {
+    assert.equal(sanitizeSettings({ theme: 'dusk' }).theme, 'dusk');
   });
 });
 
@@ -47,7 +51,7 @@ describe('copy', () => {
 describe('backup', () => {
   const data = {
     sites: { 'reddit.com': { added: 1700000000000 } },
-    settings: { graceMinutes: 10, countdownSeconds: 3 },
+    settings: { graceMinutes: 10, countdownSeconds: 3, theme: 'sage' },
     stats: { '2026-11-19': { 'reddit.com': [4, 1] } },
   };
 

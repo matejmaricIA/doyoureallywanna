@@ -3,6 +3,65 @@
 
 :root {
   color-scheme: light dark;
+  --warn: #8a5300;
+  --warn-soft: #fcefd3;
+  --radius-sm: 10px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Color themes, picked on the settings page (lib/themes.js, ui/theme.js).
+   Every theme sets the same tokens, in light and in dark. Tide is the
+   default, so it also applies before ui/theme.js has run. Accents are
+   4.8:1 on white and 7:1 on the dark background; Ember keeps the original
+   orange as it was. Greys and the dark background carry a faint tint of
+   the accent. */
+
+:root,
+[data-theme="tide"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #192225;
+  --muted: #57666a;
+  --line: #e2e7e9;
+  --line-strong: #b6c0c2;
+  --mark-off: #cdd6d8;
+  --accent: #397b8a;
+}
+
+[data-theme="sage"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #1b221e;
+  --muted: #5b675e;
+  --line: #e3e7e4;
+  --line-strong: #b8c0ba;
+  --mark-off: #cfd6d1;
+  --accent: #4e7c5e;
+}
+
+[data-theme="clay"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #261f1b;
+  --muted: #6d605a;
+  --line: #eae5e3;
+  --line-strong: #c5bcb7;
+  --mark-off: #dad2cf;
+  --accent: #a4613e;
+}
+
+[data-theme="dusk"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #1f2027;
+  --muted: #61626f;
+  --line: #e5e6ea;
+  --line-strong: #bcbdc5;
+  --mark-off: #d3d3db;
+  --accent: #6c6da5;
+}
+
+[data-theme="ember"] {
   --bg: #ffffff;
   --surface: #ffffff;
   --ink: #1d1f23;
@@ -11,14 +70,60 @@
   --line-strong: #c3c2bd;
   --mark-off: #d4d3cf;
   --accent: #d9480f;
-  --warn: #8a5300;
-  --warn-soft: #fcefd3;
-  --radius-sm: 10px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --warn: #f3b75c;
+    --warn-soft: #33270f;
+  }
+
+  :root,
+  [data-theme="tide"] {
+    --bg: #0d1416;
+    --surface: #131b1d;
+    --ink: #e7ecee;
+    --muted: #9aa7ab;
+    --line: #2a3234;
+    --line-strong: #495254;
+    --mark-off: #434c4e;
+    --accent: #72a7b4;
+  }
+
+  [data-theme="sage"] {
+    --bg: #0f1410;
+    --surface: #151b17;
+    --ink: #e8ece9;
+    --muted: #9da8a0;
+    --line: #2c322e;
+    --line-strong: #4b524d;
+    --mark-off: #454c47;
+    --accent: #80a88d;
+  }
+
+  [data-theme="clay"] {
+    --bg: #17110e;
+    --surface: #1e1815;
+    --ink: #efeae8;
+    --muted: #aea29c;
+    --line: #362f2b;
+    --line-strong: #564e4a;
+    --mark-off: #504945;
+    --accent: #cd9172;
+  }
+
+  [data-theme="dusk"] {
+    --bg: #121218;
+    --surface: #18191f;
+    --ink: #eaebef;
+    --muted: #a3a4af;
+    --line: #2f3036;
+    --line-strong: #4e4f56;
+    --mark-off: #494a51;
+    --accent: #989bcc;
+  }
+
+  [data-theme="ember"] {
     --bg: #141517;
     --surface: #1c1e21;
     --ink: #ececea;
@@ -27,8 +132,6 @@
     --line-strong: #4a4e55;
     --mark-off: #464a51;
     --accent: #ff7b3f;
-    --warn: #f3b75c;
-    --warn-soft: #33270f;
   }
 }
 
@@ -162,8 +265,13 @@ input {
   letter-spacing: -0.01em;
 }
 
-.brand img {
-  display: block;
+/* The fermata, in the page's accent color (icons/mark.svg is assets/icon.svg). */
+.logo {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  background: var(--accent);
+  mask: url(../icons/mark.svg) center / contain no-repeat;
 }
 
 .muted {

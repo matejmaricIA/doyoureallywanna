@@ -52,7 +52,8 @@ had a second to think about *why* you were opening it.
   background.
 - **Moves with you without a cloud.** Export a backup file, import it on
   your other computer.
-- Light and dark mode.
+- **Five calm color themes**, each in light and dark: Tide, Sage, Clay,
+  Dusk, and Ember (the original orange).
 
 <table>
   <tr>
@@ -84,7 +85,7 @@ This is the point, not a footnote.
   at all: no servers, no accounts, no analytics, no crash reports. It doesn't
   even use the browser's sync storage, because that goes through
   Google's/Microsoft's servers.
-- **It doesn't keep a history.** It stores your list, two settings, and per
+- **It doesn't keep a history.** It stores your list, your settings, and per
   day, per listed site, two numbers (times asked, times opened anyway).
   No web addresses, no page titles, no times of day.
 - **It only asks for access to the sites you add**, one at a time, when you
@@ -103,7 +104,7 @@ Nothing runs in the background. The browser's own rule engine
 inside the browser's network code, not in a script. The extension's code
 only runs when you're actually opening a listed site, clicking its icon, or
 looking at your stats. No timers, no polling, no scripts injected into
-pages. The whole extension is about 35 KB zipped.
+pages. The whole extension is about 40 KB zipped.
 
 ## Install
 
@@ -133,7 +134,7 @@ first via the puzzle-piece menu), click **Add**.
 - **It asks when a site opens, not while you use it.** A tab that's already
   open stays open. That's on purpose: the moment that matters is the one
   where you reach for it.
-- **Both settings are adjustable:** how long "Yes" lasts in a tab (1-120
+- **The timings are adjustable:** how long "Yes" lasts in a tab (1-120
   minutes) and how long the "closing in…" countdown is (0-30 seconds).
 
 ## How it works
@@ -155,7 +156,7 @@ npm test               # unit tests
 npm run test:e2e       # loads the real extension into headless Edge/Chrome and clicks through every flow
 npm run check          # both
 npm run screenshots    # regenerates the images in this README
-npm run icons          # renders assets/icon.svg to the PNG icons
+npm run icons          # renders the icon to PNGs, in every theme's color
 npm run package        # builds dist/do-you-really-wanna-<version>.zip for the stores
 ```
 

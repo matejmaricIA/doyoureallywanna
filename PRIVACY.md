@@ -1,6 +1,6 @@
 # Privacy policy
 
-*Do You Really Wanna?* · last updated 2026-11-19
+*Do You Really Wanna?* · last updated 2026-11-20
 
 **Short version: nothing you do with this extension ever leaves your
 computer.**
@@ -10,7 +10,7 @@ computer.**
 Only in your browser's local extension storage, on your computer:
 
 - **Your list**: the sites you added (e.g. `reddit.com`) and when you added them.
-- **Your settings**: the two numbers on the settings page.
+- **Your settings**: the two numbers and the color theme on the settings page.
 - **Your numbers**: for each day and each site on your list, how many times
   it asked and how many times you opened the site anyway. Kept for about
   400 days, then deleted automatically.

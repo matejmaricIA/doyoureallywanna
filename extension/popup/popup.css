@@ -11,6 +11,11 @@ body {
   font-size: 14px;
 }
 
+.head .logo {
+  width: 20px;
+  height: 20px;
+}
+
 .body {
   padding: 14px 16px 6px;
 }

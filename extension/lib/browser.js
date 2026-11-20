@@ -3,6 +3,7 @@
 
 import { hostMatches, originPatternFor } from './domains.js';
 import { buildGraceRule, buildRedirectRules } from './rules.js';
+import { toolbarIconPaths } from './themes.js';
 
 export const PAUSE_PAGE = 'pause/pause.html';
 export const GRACE_ALARM = 'grace';
@@ -35,6 +36,16 @@ export function syncRules() {
       addRules: buildRedirectRules(Object.keys(sites), pauseUrl()),
     });
   });
+}
+
+/**
+ * Color the toolbar icon to match the theme. Every page calls this when it
+ * opens (ui/theme.js), so if the browser ever forgets the icon, it's back
+ * the next time the extension does anything.
+ * @param {string} theme
+ */
+export function setToolbarTheme(theme) {
+  return chrome.action.setIcon({ path: toolbarIconPaths(theme) });
 }
 
 /**

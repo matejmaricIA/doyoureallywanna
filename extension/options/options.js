@@ -2,12 +2,13 @@
 
 import { buildBackup, parseBackup } from '../lib/backup.js';
 import { hasAccess, releaseAccess, requestAccess, syncRules } from '../lib/browser.js';
-import { plural, summaryLines } from '../lib/copy.js';
+import { THEME_NAMES, plural, summaryLines } from '../lib/copy.js';
 import { dayKey, lastDays } from '../lib/dates.js';
 import { normalizeDomain } from '../lib/domains.js';
 import { LIMITS } from '../lib/settings.js';
 import { sumCounts, tallyMarks } from '../lib/stats.js';
 import { addSite, clearStats, load, removeSite, replaceAll, saveSettings } from '../lib/store.js';
+import { THEMES } from '../lib/themes.js';
 
 /** @typedef {import('../lib/backup.js').Data} Data */
 
@@ -157,7 +158,20 @@ function renderSettings(data) {
       input.value = String(saved[key]);
     };
   }
+  for (const input of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name=theme]'))) {
+    input.checked = input.value === data.settings.theme;
+  }
 }
+
+// Color themes: each name next to the icon in that theme's colors.
+// Picking one recolors every open page (ui/theme.js) and the toolbar icon.
+$('themes').append(
+  ...THEMES.map(({ key }) => {
+    const input = el('input', { class: 'visually-hidden', type: 'radio', name: 'theme', value: key });
+    input.addEventListener('change', () => saveSettings({ theme: key }));
+    return el('label', { class: 'theme', 'data-theme': key }, input, el('span', { class: 'logo', 'aria-hidden': 'true' }), THEME_NAMES[key]);
+  }),
+);
 
 $('add-form').addEventListener('submit', async (event) => {
   event.preventDefault();
