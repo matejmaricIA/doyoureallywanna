@@ -99,7 +99,7 @@ This is the point, not a footnote.
   No web addresses, no page titles, no times of day.
 - **Suggestions are opt-in.** Only if you turn them on does it see which
   pages open (your browser will warn about "browsing history"). Even then
-  it keeps one number per site per day, for 14 days, never in a backup, and
+  it keeps one number per site per day, for 7 days, never in a backup, and
   turning them off deletes it all.
 - **It only asks for access to the sites you add**, one at a time, when you
   add them, and gives the access back when you remove them. It never runs

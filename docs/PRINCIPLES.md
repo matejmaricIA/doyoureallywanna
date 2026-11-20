@@ -36,7 +36,7 @@ one of these, the idea loses. Changing a principle needs a decision in
 - **No browsing history.** Never store URLs, page titles or times of
   individual visits. Per-day counts per listed site, that's it. With
   suggestions on, also per-day counts of impulse opens per site, kept for
-  14 days, never in a backup, and deleted when suggestions are turned off.
+  7 days, never in a backup, and deleted when suggestions are turned off.
 - **No content scripts on every site.** No code of ours inside the pages
   people visit.
 - **No polling, intervals or timers in the background.**

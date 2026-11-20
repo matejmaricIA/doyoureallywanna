@@ -2,7 +2,7 @@
 // who scolds. Every prompt must be answerable with the two buttons
 // ("No, not now" / "Yes, open it").
 
-import { BUSY_DAYS, KEEP_DAYS, OPENS_PER_DAY, WINDOW_DAYS } from './suggest.js';
+import { BUSY_DAYS, OPENS_PER_DAY, WINDOW_DAYS } from './suggest.js';
 
 export const PROMPTS = [
   'Do you really wanna open {site} right now?',
@@ -38,13 +38,6 @@ export const SUGGESTION = Object.freeze({
   noAccess: "I can't pause {site} without access, so I didn't add it.",
   nothing: 'Nothing to suggest here.',
 });
-
-/** Next to the switch on "Your list & stats": the browser's warning, and what's actually kept. */
-export const SUGGESTIONS_NOTE =
-  'Your browser will warn that this can "read your browsing history", because it lets me see which pages open. ' +
-  'What I keep is one number per site per day: how often you opened a site that isn\'t on your list by typing it, ' +
-  `from a bookmark or from the new tab page. Kept for ${KEEP_DAYS} days. No addresses, no page titles, no times, ` +
-  'nothing from private windows. Turning this off deletes it.';
 
 export const SUGGESTIONS_DENIED = "Without that permission I can't notice anything, so suggestions stay off.";
 

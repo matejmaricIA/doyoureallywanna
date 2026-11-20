@@ -7,35 +7,33 @@ in [DECISIONS.md](DECISIONS.md); what actually changed lives in
 
 ## Next: release v0.2
 
-Smart suggestions are built (D-020 to D-023) and pass the browser test.
-What a test can't check, to try by hand in Edge (and Chrome) before
-tagging v0.2.0:
+Smart suggestions are built (D-020 to D-023), pass the browser test, and
+were hand-tested in Edge on 2026-11-20 (the ticked items below).
 
-- [ ] Turning suggestions on shows the browser's real prompt ("Read your
+- [x] Turning suggestions on shows the browser's real prompt ("Read your
       browsing history"); saying no leaves the switch off with the note.
-- [ ] Right after allowing, without restarting the browser, typing an
+- [x] Right after allowing, without restarting the browser, typing an
       unlisted site counts it (the listener is added on
-      `permissions.onAdded`). Check in the service worker's DevTools:
-      `chrome.storage.local.get('opens')`.
-- [ ] After the worker has gone to sleep (30 s idle), a typed open still
+      `permissions.onAdded`).
+- [x] After the worker has gone to sleep (30 s idle), a typed open still
       counts.
-- [ ] Turning suggestions off gives the permission back: the extension's
+- [x] Turning suggestions off gives the permission back: the extension's
       details page no longer lists "Read your browsing history".
-- [ ] What the real address bar reports: a typed address, an autocompleted
-      one, a history suggestion, "paste and go", a search (must not count).
-- [ ] A tile on Edge's new tab page and on Chrome's new tab page counts;
-      a bookmark from the favorites bar and from the menu counts.
+- [x] What the real address bar reports: a typed address, an autocompleted
+      one, a history suggestion, "paste and go" count; a search doesn't.
+- [x] A tile on Edge's new tab page and a favorite count.
 - [ ] Prerender: type a site you visit a lot slowly, so the browser
       prerenders it, then press Enter. Does it count? (DevTools turns
       prerendering off, so the test can't tell, D-020.)
-- [ ] The suggestion page on a real, heavy site: how visible is the flash
-      of the site, and does "Just let me in" bring it back instantly?
-- [ ] "Add it to my list" shows the real per-site prompt; saying no keeps
+- [x] The suggestion page on a real site: the flash of the site, and
+      "Just let me in" bringing it back.
+- [x] "Add it to my list" shows the real per-site prompt; saying no keeps
       you on the page with the message.
-- [ ] With the extension allowed in InPrivate, InPrivate opens aren't
+- [x] With the extension allowed in InPrivate, InPrivate opens aren't
       counted.
-- [ ] Importing a backup with suggestions on shows "Allow" on the settings
+- [x] Importing a backup with suggestions on shows "Allow" on the settings
       page, and "Allow" shows the prompt.
+- [ ] The same in Chrome, especially the new tab page tiles.
 - [ ] Version bump to 0.2.0 (manifest + package.json), CHANGELOG section,
       `v0.2.0` tag.
 
@@ -109,7 +107,7 @@ tagging v0.2.0:
 - [x] Unreleased (v0.2): opt-in smart suggestions (D-020 to D-023): a
       switch on "Your list & stats" that asks for `webNavigation`;
       per-day counts of impulse opens (typed, bookmark, new tab page) of
-      sites not on the list, kept 14 days; the suggestion page at 8+ opens
+      sites not on the list, kept 7 days; the suggestion page at 8+ opens
       on 3 of the last 7 days, at most once a day, with "Add it to my
       list" / "It's fine, don't ask again" / "Just let me in"; an editable
       "don't ask again" list; turning it off deletes the counts and gives

@@ -37,7 +37,7 @@ stats". Then, and only then:
   of the page, not its title, not the time. Links you click, reloads and
   searches aren't counted at all, and neither is anything in private
   (InPrivate / Incognito) windows.
-- The numbers are kept for 14 days, then deleted automatically. When a
+- The numbers are kept for 7 days, then deleted automatically. When a
   suggestion is shown, that site's numbers are deleted.
 - Sites on your list and on your "don't ask again" list are never counted.
 - These numbers are never put in a backup and never leave your computer.

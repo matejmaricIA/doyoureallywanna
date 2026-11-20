@@ -18,7 +18,7 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   history", and the page says so, along with what's actually kept). While
   it's on, the extension counts how often you open sites that aren't on
   your list by typing them, from a bookmark or from the new tab page: one
-  number per site per day, kept for 14 days. Links, reloads, back/forward,
+  number per site per day, kept for 7 days. Links, reloads, back/forward,
   searches and private windows are never counted.
 - **The suggestion page.** When a site is opened 8 or more times a day on
   3 of the last 7 days, the next such open shows "I noticed you open
@@ -46,6 +46,8 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   the pause page and the suggestion page.
 - PRINCIPLES.md: "nothing runs unless…" and "no browsing history" now say
   what changes while suggestions are on (D-020).
+- The note next to the suggestions switch is two sentences: the browser's
+  "browsing history" warning, and that only a per-site daily count is kept.
 
 - **"Your list & stats" redesigned.** It now looks like the pause page: one
   column, no cards. At the top, today's numbers as one sentence ("You turned

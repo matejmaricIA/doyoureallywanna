@@ -135,9 +135,9 @@ describe('recordOpen', () => {
     assert.equal(result.opens[today][site], 8);
     assert.equal(recordOpen({ opens: almost, suggestedOn: '2026-11-19' }, site, today).suggest, true);
   });
-  it(`keeps ${KEEP_DAYS} days`, () => {
-    assert.equal(KEEP_DAYS, 14);
-    const old = { '2026-11-07': { [site]: 1 }, '2026-11-06': { [site]: 1 } };
-    assert.deepEqual(Object.keys(recordOpen({ opens: old }, 'a.com', today).opens).sort(), ['2026-11-07', today]);
+  it('keeps only the days the threshold reads', () => {
+    assert.equal(KEEP_DAYS, WINDOW_DAYS);
+    const old = { '2026-11-14': { [site]: 1 }, '2026-11-13': { [site]: 1 } };
+    assert.deepEqual(Object.keys(recordOpen({ opens: old }, 'a.com', today).opens).sort(), ['2026-11-14', today]);
   });
 });

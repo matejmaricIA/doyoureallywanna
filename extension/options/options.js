@@ -11,7 +11,7 @@ import {
   requestSuggestPermission,
   syncRules,
 } from '../lib/browser.js';
-import { SUGGESTIONS_DENIED, SUGGESTIONS_NOTE, plural, summaryLines } from '../lib/copy.js';
+import { SUGGESTIONS_DENIED, plural, summaryLines } from '../lib/copy.js';
 import { dayKey, lastDays } from '../lib/dates.js';
 import { normalizeDomain } from '../lib/domains.js';
 import { LIMITS } from '../lib/settings.js';
@@ -205,8 +205,6 @@ function renderSuggestions(data, canSuggest) {
     }),
   );
 }
-
-$('suggest-note').textContent = SUGGESTIONS_NOTE;
 
 $('suggest-switch').addEventListener('change', async (event) => {
   const input = /** @type {HTMLInputElement} */ (event.target);

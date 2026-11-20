@@ -18,8 +18,8 @@ export const OPENS_PER_DAY = 8;
 export const BUSY_DAYS = 3;
 export const WINDOW_DAYS = 7;
 
-/** Days of counts we keep. Older days are dropped. */
-export const KEEP_DAYS = 14;
+/** Days of counts we keep: only the ones the check above reads. */
+export const KEEP_DAYS = WINDOW_DAYS;
 
 /** @typedef {Record<string, Record<string, number>>} Opens */
 

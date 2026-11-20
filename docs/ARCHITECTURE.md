@@ -50,7 +50,7 @@ unchanged.
   quiet: { "github.com": { added: 1763635200000 } },        // "don't ask again": never suggested
 
   // Only while suggestions are on. Turning them off deletes both. Never in a backup.
-  opens: { "2026-11-20": { "youtube.com": 9 } },            // impulse opens per local day, 14 days
+  opens: { "2026-11-20": { "youtube.com": 9 } },            // impulse opens per local day, 7 days
   suggestedOn: "2026-11-20"                                // the day the last suggestion was shown
 }
 ```
@@ -117,7 +117,7 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
 3. Private-window tabs are skipped (`tabs.get`). Then, under the storage
    lock, `recordImpulseOpen` skips sites covered by the list or the
    "don't ask again" list, adds one to today's count, drops days older
-   than 14, and checks the threshold (D-021).
+   than 7, and checks the threshold (D-021).
 
 **A suggestion** (D-021, D-022)
 

@@ -354,7 +354,9 @@ with a listed site".
   redirect (http → https, or to www.) is one commit with the
   `server_redirect` qualifier: it's the same open, counted for the site it
   lands on.
-- What's stored: `opens: { day: { host: count } }` for 14 days, plus
+- What's stored: `opens: { day: { host: count } }` for 7 days (the days the
+  threshold reads; first drafted as 14, cut before release because the
+  extra week was never read), plus
   `suggestedOn` (the day of the last suggestion, D-021). Hosts are
   normalized like the list (D-013): `www.` dropped, no Public Suffix List.
   Sites on the list, sites on the "don't ask again" list (both with their
