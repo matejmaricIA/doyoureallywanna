@@ -594,3 +594,40 @@ default change twice.
 white toolbar and 3.39:1 on Chrome's dark one, like the others. Where
 D-025 and the roadmap say a page or the toolbar falls back to Tide, it's
 now Dusk.
+
+## D-027 · Firefox from the same code and manifest
+
+*2026-11-20 · Accepted · Replaces D-003's "Firefox later"*
+
+**Context.** D-003 started with Edge and Chrome and left Firefox for later.
+Firefox users are a big part of the privacy-minded audience this extension
+is for. Firefox MV3 has every API we use (`declarativeNetRequest` with
+session rules, `tabIds` and `excludedInitiatorDomains`, `storage.session`,
+`alarms`, optional permissions, `webNavigation`) and accepts `chrome.*`
+with promises, but it runs background *pages*, not service workers.
+
+**Decision.** One `extension/` folder and one manifest for all three
+browsers. The manifest names `background.js` twice: as `service_worker`
+(Edge and Chrome use it, and ignore `scripts` from version 121) and in
+`scripts` (Firefox uses it, and ignores `service_worker`). A
+`browser_specific_settings.gecko` block gives the Firefox add-on ID
+`do-you-really-wanna@matejmaricia.github.io`, requires Firefox 140, and
+declares `data_collection_permissions: { required: ["none"] }`, which
+Firefox Add-ons requires of new extensions and which is simply true here
+(D-010). No code changes, no `browser.*` polyfill, no build step (D-011).
+A separate Firefox browser test (`tools/e2e-firefox.mjs`) speaks WebDriver
+BiDi over Node's built-in WebSocket, since Firefox has no DevTools protocol.
+
+**Why.** The prototype ran unchanged: the redirect to the pause page
+(`regexSubstitution` to a `moz-extension://` page), the per-tab grace
+rule, and links from sites we have no access to all behave as in Chromium.
+A second folder or a build step would only add ways for the two to drift.
+
+**Consequences.** Edge and Chrome now need version 121 (January 2024)
+instead of 110. In developer mode, Chromium may note the unknown gecko
+key on the extensions page; it's harmless. Firefox 140 is the current ESR,
+so older Firefoxes are out. The Firefox test covers the pausing flow, not
+suggestions: BiDi navigations report `link`, so it can't open a page "by
+typing". Suggestions in Firefox are to be checked by hand before they're
+promised there. The gecko ID can't change after the first Firefox Add-ons
+release.

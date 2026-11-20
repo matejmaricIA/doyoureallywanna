@@ -10,6 +10,21 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+### Added
+
+- **Firefox support, for testing.** The extension now also runs in
+  Firefox 140 and newer, unchanged: the pause, "Yes", "No", the grace
+  period and the counts all work the same. It isn't on Firefox Add-ons
+  yet, and suggestions haven't been tried there.
+- `npm run test:e2e:firefox`: an end-to-end test in headless Firefox over
+  WebDriver BiDi (`tools/lib/bidi.mjs`), no dependencies. Set `FIREFOX=`
+  to choose the binary.
+
+### Changed
+
+- Needs Edge or Chrome 121 or newer (was 110), so one manifest can name a
+  background script for Firefox next to the service worker.
+
 ## [0.3.0] - 2026-11-20
 
 A new icon, the fermata, and five color themes to choose from.

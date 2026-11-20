@@ -37,7 +37,7 @@ extension/                 ← load this folder in the browser; it's also what s
 assets/icon.svg            the icon source (a fermata), for 32 px and up
 assets/icon-small.svg      the same, redrawn on the 16 px grid
 tests/unit/                node:test tests for the pure modules
-tools/                     dev tooling (never shipped): e2e test, screenshots, icons, packaging
+tools/                     dev tooling (never shipped): e2e tests (Edge/Chrome, Firefox), screenshots, icons, packaging
 docs/                      decisions, roadmap, principles, this file, images
 ```
 
@@ -171,4 +171,12 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
   front, because a test can't click the browser's permission prompts.
   DevTools' `Page.navigate` takes a `transitionType`, which is how the
   test opens pages "by typing", "from a bookmark" or "from the address bar".
-- `npm run check`: both.
+- `npm run test:e2e:firefox`: the core pausing flow (pause, "Yes", grace,
+  "No", links from other sites, counts) in a temporary headless Firefox,
+  over WebDriver BiDi (`tools/lib/bidi.mjs`). Firefox runs the same
+  `background.js` as a background page (`background.scripts`), not a
+  service worker. BiDi can't open a page "by typing", so suggestions
+  aren't covered there. Firefox needs `MOZ_REMOTE_ALLOW_SYSTEM_ACCESS=1`
+  to let the test script `moz-extension://` pages; the launcher sets it.
+- `npm run check`: unit tests and the Edge/Chrome test. The Firefox test
+  is separate, since Firefox isn't a requirement.
