@@ -530,7 +530,7 @@ accent, because one PNG has to read on light and dark toolbars alike.
 
 ## D-025 · Color themes, Tide by default
 
-*2026-11-20 · Accepted*
+*2026-11-20 · Accepted; the default theme is superseded by D-026*
 
 **Context.** The orange accent (`#d9480f`) read as a warning light, the
 color of traffic cones and error messages. A pause that's meant to be kind
@@ -574,3 +574,23 @@ because the theme is read from storage asynchronously. The stores and the
 extensions page always show the Tide icon. Adding a theme takes tokens in
 `base.css`, a key and icon color in `themes.js`, a name in `copy.js` and
 `npm run icons`; a unit test checks all of them are there.
+
+## D-026 · Dusk is the default theme
+
+*2026-11-20 · Accepted · Supersedes D-025's choice of default*
+
+**Decision.** The default theme is Dusk, the soft blue-violet, instead of
+Tide. It's what new installs get, and what settings or backups without a
+theme mean. Dusk comes first in the settings page's list; the rest follow
+from cool to warm: Tide, Sage, Clay, Ember. The manifest's icons
+(extensions page, stores) are drawn in Dusk.
+
+**Why.** Dusk is the calmest of the five: the sky just after sunset,
+winding down. It's also the furthest from both the warning-light orange
+and the "well done" green. Tide was never in a release, so no one sees the
+default change twice.
+
+**Consequences.** Dusk's toolbar icon color (`#8788cf`) is 3.25:1 on a
+white toolbar and 3.39:1 on Chrome's dark one, like the others. Where
+D-025 and the roadmap say a page or the toolbar falls back to Tide, it's
+now Dusk.

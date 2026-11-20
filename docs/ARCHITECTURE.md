@@ -52,7 +52,7 @@ unchanged.
 {
   schema: 2,
   sites: { "reddit.com": { added: 1763548800000 } },        // when it was added
-  settings: { graceMinutes: 5, countdownSeconds: 5, theme: "tide", suggestions: false },
+  settings: { graceMinutes: 5, countdownSeconds: 5, theme: "dusk", suggestions: false },
   stats: { "2026-11-19": { "reddit.com": [6, 2] } },       // [paused, openedAnyway] per local day
   quiet: { "github.com": { added: 1763635200000 } },        // "don't ask again": never suggested
 

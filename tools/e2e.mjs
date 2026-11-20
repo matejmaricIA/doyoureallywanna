@@ -148,7 +148,7 @@ try {
   await step('picking a color theme recolors the page and the toolbar icon', async () => {
     /** @param {string} theme */
     const themed = (theme) => options.evaluate(`document.documentElement.dataset.theme === '${theme}'`);
-    await waitUntil(() => themed('tide'), { what: 'the default theme' });
+    await waitUntil(() => themed('dusk'), { what: 'the default theme' });
     await options.click('label[data-theme=sage] input');
     await waitUntil(
       async () => (await options.evaluate(`chrome.storage.local.get('settings')`)).settings?.theme === 'sage',
@@ -314,8 +314,8 @@ try {
     expectEqual(await options.evaluate(`document.getElementById('grace').value`), '10', 'imported setting');
     // The backup has no theme, so it's back to the default.
     await waitUntil(
-      () => options.evaluate(`document.documentElement.dataset.theme === 'tide' && document.querySelector('input[value=tide]').checked`),
-      { what: 'theme back to Tide after the import' },
+      () => options.evaluate(`document.documentElement.dataset.theme === 'dusk' && document.querySelector('input[value=dusk]').checked`),
+      { what: 'theme back to Dusk after the import' },
     );
   });
 
@@ -407,7 +407,7 @@ try {
     await waitForSuggestion(tabS, `${HABIT}/often`);
     const question = (await tabS.text('#question'))?.replace(/\s+/g, ' ');
     expectEqual(question, 'I noticed you open habit.test a lot. Do you open it out of habit?', 'question');
-    await waitUntil(() => tabS.evaluate(`document.documentElement.dataset.theme === 'tide' && !!document.querySelector('.brand .logo')`), {
+    await waitUntil(() => tabS.evaluate(`document.documentElement.dataset.theme === 'dusk' && !!document.querySelector('.brand .logo')`), {
       what: 'suggestion page in the current theme',
     });
     const sizes = await tabS.evaluate(

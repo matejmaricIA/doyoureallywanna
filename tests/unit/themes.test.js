@@ -26,6 +26,7 @@ describe('themes', () => {
 
   it('recognizes only its own keys', () => {
     assert.ok(isTheme('sage'));
+    assert.equal(DEFAULT_THEME, 'dusk');
     assert.ok(!isTheme('Sage'));
     assert.ok(!isTheme('__proto__'));
     assert.ok(!isTheme(undefined));

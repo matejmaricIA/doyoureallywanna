@@ -7,15 +7,15 @@ import { DEFAULT_SETTINGS, sanitizeSettings } from '../../extension/lib/settings
 describe('settings', () => {
   it('fills in defaults', () => {
     assert.deepEqual(sanitizeSettings(undefined), DEFAULT_SETTINGS);
-    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5, theme: 'tide', suggestions: false });
+    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5, theme: 'dusk', suggestions: false });
   });
   it('clamps and rounds', () => {
-    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30, theme: 'tide', suggestions: false });
-    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3, theme: 'tide', suggestions: false });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30, theme: 'dusk', suggestions: false });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3, theme: 'dusk', suggestions: false });
   });
   it('ignores junk', () => {
     assert.deepEqual(sanitizeSettings({ graceMinutes: 'soon', countdownSeconds: null, theme: 'neon' }), DEFAULT_SETTINGS);
-    assert.equal(sanitizeSettings({ theme: { key: 'sage' } }).theme, 'tide');
+    assert.equal(sanitizeSettings({ theme: { key: 'sage' } }).theme, 'dusk');
   });
   it('keeps a known theme', () => {
     assert.equal(sanitizeSettings({ theme: 'dusk' }).theme, 'dusk');
@@ -94,7 +94,7 @@ describe('backup', () => {
       }),
     );
     assert.ok(parsed.ok);
-    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, theme: 'tide', suggestions: false }, quiet: {} });
+    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, theme: 'dusk', suggestions: false }, quiet: {} });
   });
 
   it('rejects files that are not ours', () => {

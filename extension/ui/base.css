@@ -10,13 +10,24 @@
 }
 
 /* Color themes, picked on the settings page (lib/themes.js, ui/theme.js).
-   Every theme sets the same tokens, in light and in dark. Tide is the
+   Every theme sets the same tokens, in light and in dark. Dusk is the
    default, so it also applies before ui/theme.js has run. Accents are
-   4.8:1 on white and 7:1 on the dark background; Ember keeps the original
-   orange as it was. Greys and the dark background carry a faint tint of
-   the accent. */
+   4.8:1 on white and 7:1 on the dark background (Ember's orange is 4.3:1,
+   fine for the large text it colors). Greys and the dark background carry
+   a faint tint of the accent. */
 
 :root,
+[data-theme="dusk"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #1f2027;
+  --muted: #61626f;
+  --line: #e5e6ea;
+  --line-strong: #bcbdc5;
+  --mark-off: #d3d3db;
+  --accent: #6c6da5;
+}
+
 [data-theme="tide"] {
   --bg: #ffffff;
   --surface: #ffffff;
@@ -50,17 +61,6 @@
   --accent: #a4613e;
 }
 
-[data-theme="dusk"] {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --ink: #1f2027;
-  --muted: #61626f;
-  --line: #e5e6ea;
-  --line-strong: #bcbdc5;
-  --mark-off: #d3d3db;
-  --accent: #6c6da5;
-}
-
 [data-theme="ember"] {
   --bg: #ffffff;
   --surface: #ffffff;
@@ -79,6 +79,17 @@
   }
 
   :root,
+  [data-theme="dusk"] {
+    --bg: #121218;
+    --surface: #18191f;
+    --ink: #eaebef;
+    --muted: #a3a4af;
+    --line: #2f3036;
+    --line-strong: #4e4f56;
+    --mark-off: #494a51;
+    --accent: #989bcc;
+  }
+
   [data-theme="tide"] {
     --bg: #0d1416;
     --surface: #131b1d;
@@ -110,17 +121,6 @@
     --line-strong: #564e4a;
     --mark-off: #504945;
     --accent: #cd9172;
-  }
-
-  [data-theme="dusk"] {
-    --bg: #121218;
-    --surface: #18191f;
-    --ink: #eaebef;
-    --muted: #a3a4af;
-    --line: #2f3036;
-    --line-strong: #4e4f56;
-    --mark-off: #494a51;
-    --accent: #989bcc;
   }
 
   [data-theme="ember"] {

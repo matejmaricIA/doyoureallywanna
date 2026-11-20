@@ -11,14 +11,14 @@
 
 /** @type {readonly Theme[]} */
 export const THEMES = Object.freeze([
+  { key: 'dusk', icon: '#8788cf' },
   { key: 'tide', icon: '#409aaf' },
   { key: 'sage', icon: '#5c9c73' },
   { key: 'clay', icon: '#cd794d' },
-  { key: 'dusk', icon: '#8788cf' },
   { key: 'ember', icon: '#e8590c' },
 ]);
 
-export const DEFAULT_THEME = 'tide';
+export const DEFAULT_THEME = 'dusk';
 
 /** @param {unknown} value @returns {value is string} */
 export function isTheme(value) {

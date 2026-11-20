@@ -12,8 +12,8 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ### Added
 
-- **Color themes.** Pick one on the settings page: Tide (the new default,
-  a grey blue-green), Sage, Clay, Dusk, or Ember (the original orange).
+- **Color themes.** Pick one on the settings page: Dusk (the default, a
+  soft blue-violet), Tide, Sage, Clay, or Ember.
   Each comes in light and dark, and recolors every page, the tab icon and
   the toolbar icon. The theme is saved with your other settings and
   included in backups.
@@ -25,7 +25,8 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   flat mark on a transparent background, with its own drawing for the
   16 px toolbar size. Next to the name on every page it's drawn in the
   theme's accent.
-- The default colors are calmer: Tide instead of orange.
+- The default colors are calmer: Dusk, a soft blue-violet, instead of
+  orange.
 - The suggestion page (v0.2.0) uses the new icon and follows the theme too.
 
 ## [0.2.0] - 2026-11-20

@@ -57,8 +57,8 @@ had a second to think about *why* you were opening it.
   in**. Off by default.
 - **Moves with you without a cloud.** Export a backup file, import it on
   your other computer.
-- **Five calm color themes**, each in light and dark: Tide, Sage, Clay,
-  Dusk, and Ember (the original orange).
+- **Five calm color themes**, each in light and dark: Dusk, Tide, Sage,
+  Clay, and Ember.
 
 <table>
   <tr>
