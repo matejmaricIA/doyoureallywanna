@@ -10,6 +10,10 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-20
+
+A new icon, the fermata, and five color themes to choose from.
+
 ### Added
 
 - **Color themes.** Pick one on the settings page: Dusk (the default, a
@@ -124,6 +128,7 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/matejmaricIA/doyoureallywanna/releases/tag/v0.1.0

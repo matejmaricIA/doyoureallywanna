@@ -98,7 +98,7 @@ importing a backup. Not checked yet:
 
 ## Done
 
-- [x] Unreleased: new icon, a fermata (D-024). Five color themes, picked
+- [x] v0.3.0: new icon, a fermata (D-024). Five color themes, picked
       on the settings page (D-025), Dusk by default (D-026).
 - [x] v0.2.0: opt-in smart suggestions (D-020 to D-023): a
       switch on "Your list & stats" that asks for `webNavigation`;
