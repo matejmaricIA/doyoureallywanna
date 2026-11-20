@@ -308,10 +308,10 @@
   margin: 0;
 }
 
-/* Color themes, as a row of names. Each label carries its own
-   data-theme, so the icon next to it shows that theme's accent. */
+/* Color theme and light/dark: a row of names to pick from. Each theme's
+   label carries its own data-theme, so its icon shows that accent. */
 
-.theme-setting {
+.choice-setting {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -319,13 +319,13 @@
   line-height: 2;
 }
 
-.themes {
+.choices {
   display: flex;
   flex-wrap: wrap;
   column-gap: 18px;
 }
 
-.theme {
+.choice {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -335,22 +335,22 @@
   text-underline-offset: 7px;
 }
 
-.theme .logo {
+.choice .logo {
   width: 18px;
   height: 18px;
 }
 
-.theme:hover {
+.choice:hover {
   color: var(--ink);
 }
 
-.theme:has(input:checked) {
+.choice:has(input:checked) {
   color: var(--ink);
   font-weight: 700;
   text-decoration-color: var(--accent);
 }
 
-.theme:has(input:focus-visible) {
+.choice:has(input:focus-visible) {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;

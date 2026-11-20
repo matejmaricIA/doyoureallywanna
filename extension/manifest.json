@@ -4,7 +4,7 @@
   "short_name": "Really?",
   "version": "0.2.0",
   "description": "A gentle pause before the sites you open on autopilot. Nothing is blocked, and nothing ever leaves your computer.",
-  "minimum_chrome_version": "110",
+  "minimum_chrome_version": "123",
   "permissions": ["declarativeNetRequestWithHostAccess", "storage", "alarms", "activeTab"],
   "optional_permissions": ["webNavigation"],
   "optional_host_permissions": ["*://*/*"],

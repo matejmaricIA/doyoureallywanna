@@ -120,3 +120,10 @@ export const THEME_NAMES = Object.freeze({
   clay: 'Clay',
   ember: 'Ember',
 });
+
+/** The light/dark choices on the settings page (lib/themes.js APPEARANCES). */
+export const APPEARANCE_NAMES = Object.freeze({
+  browser: 'Same as my browser',
+  light: 'Light',
+  dark: 'Dark',
+});

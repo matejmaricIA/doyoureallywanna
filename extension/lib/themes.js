@@ -20,6 +20,14 @@ export const THEMES = Object.freeze([
 
 export const DEFAULT_THEME = 'dusk';
 
+/** Light or dark: follow the browser (the default), or always one of them. */
+export const APPEARANCES = Object.freeze(['browser', 'light', 'dark']);
+
+/** @param {unknown} value @returns {value is string} */
+export function isAppearance(value) {
+  return APPEARANCES.includes(/** @type {string} */ (value));
+}
+
 /** @param {unknown} value @returns {value is string} */
 export function isTheme(value) {
   return THEMES.some((theme) => theme.key === value);

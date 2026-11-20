@@ -594,3 +594,44 @@ default change twice.
 white toolbar and 3.39:1 on Chrome's dark one, like the others. Where
 D-025 and the roadmap say a page or the toolbar falls back to Tide, it's
 now Dusk.
+
+## D-027 · Light or dark is a setting, and pages wait for their colors
+
+*2026-11-20 · Accepted*
+
+**Context.** Dark mode only followed the browser (`prefers-color-scheme`),
+so someone with a light browser couldn't have dark pages. And pages
+painted a frame or more in the default colors before `ui/theme.js` had
+read the settings: measured, the theme landed 10 to 30 ms after the first
+paint on most loads, up to about 380 ms on the settings page. That's the
+flash D-025 lists as a consequence.
+
+**Decision.**
+
+- "Light or dark: Same as my browser / Light / Dark" on the settings page,
+  stored as `settings.appearance` (`'browser'`, `'light'`, `'dark'`;
+  default `'browser'`) and in the backup like the other settings.
+- Every color token is a `light-dark()` pair, one block per theme. `:root`
+  has `color-scheme: light dark`; `ui/theme.js` pins it by setting
+  `data-appearance="light"` or `"dark"` on `<html>`. No more
+  `prefers-color-scheme` media queries.
+- Every page loads `ui/theme.js` with `blocking="render"`, and its first
+  read of the settings is a top-level `await`, so the browser holds the
+  first paint until the colors are right. Measured on 24 loads (Ember,
+  forced dark, light browser): set before the first paint in 23, and the
+  other within the paint timer's rounding.
+- `minimum_chrome_version` goes from 110 to 123: `light-dark()` needs 123,
+  and the logo's CSS mask (D-024) already needed 120.
+
+**Why.** A switch is the only way to get dark pages without changing the
+whole browser. Holding the first paint for one local read costs a few
+milliseconds; painting first would flash white on every pause for anyone
+who picked Dark. A synchronous copy of the setting in `localStorage` would
+also have worked, but PRINCIPLES.md keeps data in `chrome.storage.local`
+only.
+
+**Consequences.** Edge and Chrome older than 123 (March 2024) can't install
+it. Pages appear a few milliseconds later than before. If reading storage
+ever fails, the page still shows, in the default theme and the browser's
+light/dark. The toolbar icon doesn't change with light/dark; it's already
+made to read on both.

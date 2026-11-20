@@ -58,7 +58,7 @@ had a second to think about *why* you were opening it.
 - **Moves with you without a cloud.** Export a backup file, import it on
   your other computer.
 - **Five calm color themes**, each in light and dark: Dusk, Tide, Sage,
-  Clay, and Ember.
+  Clay, and Ember. Light or dark follows your browser, or pick one.
 
 <table>
   <tr>

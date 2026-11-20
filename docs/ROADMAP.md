@@ -91,15 +91,14 @@ importing a backup. Not checked yet:
   start counting until the list is updated.
 - Suggestions: address-bar opens of a page the browser had already
   prerendered may not be counted (unverified, D-020).
-- With a theme other than Dusk, a page can flash Dusk's colors for a
-  moment while it loads (D-025).
 - The stores and the extensions page always show the Dusk icon; only the
   toolbar icon follows the theme.
 
 ## Done
 
 - [x] Unreleased: new icon, a fermata (D-024). Five color themes, picked
-      on the settings page (D-025), Dusk by default (D-026).
+      on the settings page (D-025), Dusk by default (D-026). Light or dark
+      as a setting, and no flash of the default colors on load (D-027).
 - [x] v0.2.0: opt-in smart suggestions (D-020 to D-023): a
       switch on "Your list & stats" that asks for `webNavigation`;
       per-day counts of impulse opens (typed, bookmark, new tab page) of

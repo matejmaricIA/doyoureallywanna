@@ -11,7 +11,7 @@ import {
   requestSuggestPermission,
   syncRules,
 } from '../lib/browser.js';
-import { SUGGESTIONS_DENIED, THEME_NAMES, plural, summaryLines } from '../lib/copy.js';
+import { APPEARANCE_NAMES, SUGGESTIONS_DENIED, THEME_NAMES, plural, summaryLines } from '../lib/copy.js';
 import { dayKey, lastDays } from '../lib/dates.js';
 import { normalizeDomain } from '../lib/domains.js';
 import { LIMITS } from '../lib/settings.js';
@@ -27,7 +27,7 @@ import {
   saveSettings,
   setSuggestions,
 } from '../lib/store.js';
-import { THEMES } from '../lib/themes.js';
+import { APPEARANCES, THEMES } from '../lib/themes.js';
 
 /** @typedef {import('../lib/backup.js').Data} Data */
 
@@ -182,20 +182,35 @@ function renderSettings(data) {
       input.value = String(saved[key]);
     };
   }
-  for (const input of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name=theme]'))) {
-    input.checked = input.value === data.settings.theme;
+  for (const name of /** @type {const} */ (['theme', 'appearance'])) {
+    for (const input of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll(`input[name=${name}]`))) {
+      input.checked = input.value === data.settings[name];
+    }
   }
 }
 
-// Color themes: each name next to the icon in that theme's colors.
-// Picking one recolors every open page (ui/theme.js) and the toolbar icon.
+/**
+ * One choice in a row of radio buttons that saves straight away.
+ * @param {'theme' | 'appearance'} name
+ * @param {string} value
+ * @param {(Node | string)[]} content
+ */
+function choice(name, value, ...content) {
+  const input = el('input', { class: 'visually-hidden', type: 'radio', name, value });
+  input.addEventListener('change', () => saveSettings({ [name]: value }));
+  return el('label', { class: 'choice' }, input, ...content);
+}
+
+// Color themes: each name next to the icon in that theme's colors. Picking
+// one, or light/dark, recolors every open page (ui/theme.js) right away.
 $('themes').append(
   ...THEMES.map(({ key }) => {
-    const input = el('input', { class: 'visually-hidden', type: 'radio', name: 'theme', value: key });
-    input.addEventListener('change', () => saveSettings({ theme: key }));
-    return el('label', { class: 'theme', 'data-theme': key }, input, el('span', { class: 'logo', 'aria-hidden': 'true' }), THEME_NAMES[key]);
+    const label = choice('theme', key, el('span', { class: 'logo', 'aria-hidden': 'true' }), THEME_NAMES[key]);
+    label.dataset.theme = key;
+    return label;
   }),
 );
+$('appearances').append(...APPEARANCES.map((key) => choice('appearance', key, APPEARANCE_NAMES[key])));
 
 /**
  * The switch, and the "don't ask again" list (shown while suggestions are

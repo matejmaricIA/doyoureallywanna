@@ -17,6 +17,10 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   Each comes in light and dark, and recolors every page, the tab icon and
   the toolbar icon. The theme is saved with your other settings and
   included in backups.
+- **Light or dark, your choice.** "Light or dark: Same as my browser /
+  Light / Dark" on the settings page. Until now the pages could only follow
+  the browser. Pages wait for your colors before they're drawn, so there's
+  no flash of the wrong ones.
 
 ### Changed
 
@@ -28,6 +32,7 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 - The default colors are calmer: Dusk, a soft blue-violet, instead of
   orange.
 - The suggestion page (v0.2.0) uses the new icon and follows the theme too.
+- Needs Edge or Chrome 123 or newer (was 110).
 
 ## [0.2.0] - 2026-11-20
 

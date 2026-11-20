@@ -10,8 +10,8 @@ computer.**
 Only in your browser's local extension storage, on your computer:
 
 - **Your list**: the sites you added (e.g. `reddit.com`) and when you added them.
-- **Your settings**: the two numbers and the color theme on the settings
-  page, and whether suggestions are on.
+- **Your settings**: the two numbers, the color theme and light or dark
+  on the settings page, and whether suggestions are on.
 - **Your numbers**: for each day and each site on your list, how many times
   it asked and how many times you opened the site anyway. Kept for about
   400 days, then deleted automatically.

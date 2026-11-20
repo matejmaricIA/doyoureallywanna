@@ -155,8 +155,8 @@ try {
       { what: 'theme saved' },
     );
     await waitUntil(() => themed('sage'), { what: 'page recolored' });
-    const accent = await options.evaluate(`getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()`);
-    expect(['#4e7c5e', '#80a88d'].includes(accent), `accent should be Sage's, is ${accent}`);
+    // The logo is filled with the accent: Sage's, light (headless follows a light browser).
+    expectEqual(await options.evaluate(`getComputedStyle(document.querySelector('.brand .logo')).backgroundColor`), 'rgb(78, 124, 94)', 'accent');
     expectEqual(await options.evaluate(`new URL(document.querySelector('link[rel=icon]').href).pathname`), '/icons/sage-32.png', 'tab icon');
     // setIcon rejects if it can't load an icon file, which would throw here.
     await options.evaluate(`Promise.all([import('${base}/lib/browser.js'), import('${base}/lib/themes.js')])
@@ -164,6 +164,19 @@ try {
         for (const { key } of THEMES) await browser.setToolbarTheme(key);
         await browser.setToolbarTheme('sage');
       })`);
+  });
+
+  await step('"Light or dark" switches the page, and "Same as my browser" switches it back', async () => {
+    const look = () =>
+      options.evaluate(`[document.documentElement.dataset.appearance ?? 'browser', getComputedStyle(document.body).backgroundColor]`);
+    expectEqual(await look(), ['browser', 'rgb(255, 255, 255)'], 'before');
+    await options.click('input[name=appearance][value=dark]');
+    await waitUntil(async () => (await look())[0] === 'dark', { what: 'dark' });
+    expectEqual(await look(), ['dark', 'rgb(15, 20, 16)'], "Sage's dark background");
+    await options.click('input[name=appearance][value=browser]');
+    await waitUntil(async () => (await look())[0] === 'browser', { what: 'back to the browser' });
+    expectEqual(await look(), ['browser', 'rgb(255, 255, 255)'], 'after');
+    expectEqual((await options.evaluate(`chrome.storage.local.get('settings')`)).settings.appearance, 'browser', 'saved');
   });
 
   const tabA = await browser.newPage();

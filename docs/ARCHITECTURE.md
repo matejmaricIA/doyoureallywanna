@@ -14,8 +14,9 @@ extension/                 ← load this folder in the browser; it's also what s
                            suggestion page (suggestion.html), sharing common.js and pause.css
   popup/                   toolbar popup: add the current site / see today's numbers
   options/                 "Your list & stats": list, numbers, settings, backup
-  ui/base.css              shared colors (five themes, each light + dark), buttons, inputs
-  ui/theme.js              loaded first by every page: applies the color theme, colors the toolbar icon
+  ui/base.css              shared colors (five themes, light-dark() pairs), buttons, inputs
+  ui/theme.js              loaded first by every page (render-blocking): applies the color theme
+                           and light/dark, colors the toolbar icon
   icons/                   rendered by `npm run icons` from assets/:
                              icon-{16,32,48,128}.png  default theme (manifest, stores)
                              <theme>-{16,32}.png      toolbar + tab icon per theme
@@ -52,7 +53,7 @@ unchanged.
 {
   schema: 2,
   sites: { "reddit.com": { added: 1763548800000 } },        // when it was added
-  settings: { graceMinutes: 5, countdownSeconds: 5, theme: "dusk", suggestions: false },
+  settings: { graceMinutes: 5, countdownSeconds: 5, theme: "dusk", appearance: "browser", suggestions: false },
   stats: { "2026-11-19": { "reddit.com": [6, 2] } },       // [paused, openedAnyway] per local day
   quiet: { "github.com": { added: 1763635200000 } },        // "don't ask again": never suggested
 
@@ -105,16 +106,19 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
 2. Ask the browser for `*://*.<site>/*`. In the popup, if you say no, the
    site is removed again.
 
-**Changing the color theme** (settings page)
+**Changing the color theme or light/dark** (settings page)
 
-1. The choice is saved to `settings.theme`.
-2. `ui/theme.js` on every open page sees the storage change, sets
-   `data-theme` on `<html>` (which switches the CSS tokens in `base.css`),
-   points the tab icon at `icons/<theme>-32.png`, and calls
+1. The choice is saved to `settings.theme` or `settings.appearance`.
+2. `ui/theme.js` on every open page sees the storage change. It sets
+   `data-theme` on `<html>` (which switches the CSS tokens in `base.css`)
+   and `data-appearance` (`light` / `dark`, or none to follow the
+   browser), points the tab icon at `icons/<theme>-32.png`, and calls
    `chrome.action.setIcon` with `icons/<theme>-{16,32}.png`.
-3. Every page does step 2 when it opens too, and `background.js` does it on
-   install/update, so the toolbar icon is right even if the browser forgets
-   it after a restart. Nothing runs at browser start (D-025).
+3. Every page does step 2 when it opens too, before its first paint
+   (`blocking="render"` and a top-level `await`, D-027), and
+   `background.js` does the toolbar icon on install/update, so it's right
+   even if the browser forgets it after a restart. Nothing runs at browser
+   start (D-025).
 
 **Turning suggestions on and off** (settings page, D-020)
 

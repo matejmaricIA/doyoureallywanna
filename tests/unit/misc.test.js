@@ -7,11 +7,11 @@ import { DEFAULT_SETTINGS, sanitizeSettings } from '../../extension/lib/settings
 describe('settings', () => {
   it('fills in defaults', () => {
     assert.deepEqual(sanitizeSettings(undefined), DEFAULT_SETTINGS);
-    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5, theme: 'dusk', suggestions: false });
+    assert.deepEqual(sanitizeSettings({}), { graceMinutes: 5, countdownSeconds: 5, theme: 'dusk', appearance: 'browser', suggestions: false });
   });
   it('clamps and rounds', () => {
-    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30, theme: 'dusk', suggestions: false });
-    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3, theme: 'dusk', suggestions: false });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: 0, countdownSeconds: 99 }), { graceMinutes: 1, countdownSeconds: 30, theme: 'dusk', appearance: 'browser', suggestions: false });
+    assert.deepEqual(sanitizeSettings({ graceMinutes: '12', countdownSeconds: 2.6 }), { graceMinutes: 12, countdownSeconds: 3, theme: 'dusk', appearance: 'browser', suggestions: false });
   });
   it('ignores junk', () => {
     assert.deepEqual(sanitizeSettings({ graceMinutes: 'soon', countdownSeconds: null, theme: 'neon' }), DEFAULT_SETTINGS);
@@ -19,6 +19,12 @@ describe('settings', () => {
   });
   it('keeps a known theme', () => {
     assert.equal(sanitizeSettings({ theme: 'dusk' }).theme, 'dusk');
+  });
+  it('keeps light or dark, and follows the browser otherwise', () => {
+    assert.equal(sanitizeSettings({ appearance: 'dark' }).appearance, 'dark');
+    assert.equal(sanitizeSettings({ appearance: 'light' }).appearance, 'light');
+    assert.equal(sanitizeSettings({ appearance: 'Dark' }).appearance, 'browser');
+    assert.equal(sanitizeSettings({ appearance: ['dark'] }).appearance, 'browser');
   });
   it('suggestions are off unless explicitly on', () => {
     assert.equal(DEFAULT_SETTINGS.suggestions, false);
@@ -61,7 +67,7 @@ describe('copy', () => {
 describe('backup', () => {
   const data = {
     sites: { 'reddit.com': { added: 1700000000000 } },
-    settings: { graceMinutes: 10, countdownSeconds: 3, theme: 'sage', suggestions: true },
+    settings: { graceMinutes: 10, countdownSeconds: 3, theme: 'sage', appearance: 'dark', suggestions: true },
     stats: { '2026-11-19': { 'reddit.com': [4, 1] } },
     quiet: { 'github.com': { added: 1700000000001 } },
   };
@@ -94,7 +100,7 @@ describe('backup', () => {
       }),
     );
     assert.ok(parsed.ok);
-    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, theme: 'dusk', suggestions: false }, quiet: {} });
+    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, theme: 'dusk', appearance: 'browser', suggestions: false }, quiet: {} });
   });
 
   it('rejects files that are not ours', () => {
