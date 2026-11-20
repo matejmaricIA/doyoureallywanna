@@ -145,6 +145,27 @@ try {
     );
   });
 
+  await step('picking a color theme recolors the page and the toolbar icon', async () => {
+    /** @param {string} theme */
+    const themed = (theme) => options.evaluate(`document.documentElement.dataset.theme === '${theme}'`);
+    await waitUntil(() => themed('tide'), { what: 'the default theme' });
+    await options.click('label[data-theme=sage] input');
+    await waitUntil(
+      async () => (await options.evaluate(`chrome.storage.local.get('settings')`)).settings?.theme === 'sage',
+      { what: 'theme saved' },
+    );
+    await waitUntil(() => themed('sage'), { what: 'page recolored' });
+    const accent = await options.evaluate(`getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()`);
+    expect(['#4e7c5e', '#80a88d'].includes(accent), `accent should be Sage's, is ${accent}`);
+    expectEqual(await options.evaluate(`new URL(document.querySelector('link[rel=icon]').href).pathname`), '/icons/sage-32.png', 'tab icon');
+    // setIcon rejects if it can't load an icon file, which would throw here.
+    await options.evaluate(`Promise.all([import('${base}/lib/browser.js'), import('${base}/lib/themes.js')])
+      .then(async ([browser, { THEMES }]) => {
+        for (const { key } of THEMES) await browser.setToolbarTheme(key);
+        await browser.setToolbarTheme('sage');
+      })`);
+  });
+
   const tabA = await browser.newPage();
   await step('opening a listed site shows the pause page instead', async () => {
     await tabA.navigate(`${SITE}/`);
@@ -152,6 +173,7 @@ try {
     const question = await tabA.text('#question');
     expect(question?.includes('distracting.test') === true, `question doesn't name the site: ${question}`);
     expectEqual(await tabA.text('#count'), 'First time today.', 'count line');
+    await waitUntil(() => tabA.evaluate(`document.documentElement.dataset.theme === 'sage'`), { what: 'pause page in Sage' });
   });
 
   await step('"Yes" opens the site', async () => {
@@ -252,6 +274,7 @@ try {
     });
     expectEqual(await popup.text('#listed-site'), 'distracting.test', 'listed site');
     expectEqual(await popup.text('#listed-today'), 'Paused 5 times today, you turned back 4.', 'today line');
+    await waitUntil(() => popup.evaluate(`document.documentElement.dataset.theme === 'sage'`), { what: 'popup in Sage' });
   });
 
   await step('removing the site from the popup stops the pausing', async () => {
@@ -289,6 +312,11 @@ try {
     expectEqual((await options.evaluate('chrome.declarativeNetRequest.getDynamicRules()')).length, 2, 'rule count');
     await waitUntil(async () => (await options.text('#sites'))?.includes('Needs access'), { what: '"Needs access" on facebook.com' });
     expectEqual(await options.evaluate(`document.getElementById('grace').value`), '10', 'imported setting');
+    // The backup has no theme, so it's back to the default.
+    await waitUntil(
+      () => options.evaluate(`document.documentElement.dataset.theme === 'tide' && document.querySelector('input[value=tide]').checked`),
+      { what: 'theme back to Tide after the import' },
+    );
   });
 
   // --- Suggestions (opt-in) ---------------------------------------------------
@@ -379,6 +407,9 @@ try {
     await waitForSuggestion(tabS, `${HABIT}/often`);
     const question = (await tabS.text('#question'))?.replace(/\s+/g, ' ');
     expectEqual(question, 'I noticed you open habit.test a lot. Do you open it out of habit?', 'question');
+    await waitUntil(() => tabS.evaluate(`document.documentElement.dataset.theme === 'tide' && !!document.querySelector('.brand .logo')`), {
+      what: 'suggestion page in the current theme',
+    });
     const sizes = await tabS.evaluate(
       `['add', 'quiet', 'let-in'].map((id) => { const b = document.getElementById(id).getBoundingClientRect(); return [Math.round(b.width), Math.round(b.height)]; })`,
     );

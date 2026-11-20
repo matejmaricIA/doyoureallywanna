@@ -32,6 +32,10 @@ importing a backup. Not checked yet:
       shows no permission warnings (ARCHITECTURE.md's table says none).
 - [ ] Hand-test on a slow machine / many tabs to confirm there's no
       noticeable cost.
+- [ ] Hand-test the toolbar icon's theme color after a browser restart, in
+      Edge and Chrome (D-025). If it falls back to Tide, decide whether
+      that's acceptable.
+- [ ] 440×280 promo tile with the fermata.
 - [ ] Publish to Edge Add-ons (free) and Chrome Web Store ($5 one-time
       developer fee).
 - [ ] Add `homepage_url` to the manifest and store links to the README.
@@ -87,9 +91,15 @@ importing a backup. Not checked yet:
   start counting until the list is updated.
 - Suggestions: address-bar opens of a page the browser had already
   prerendered may not be counted (unverified, D-020).
+- With a theme other than Tide, a page can flash Tide's colors for a
+  moment while it loads (D-025).
+- The stores and the extensions page always show the Tide icon; only the
+  toolbar icon follows the theme.
 
 ## Done
 
+- [x] Unreleased: new icon, a fermata (D-024). Five color themes, Tide by
+      default, picked on the settings page (D-025).
 - [x] v0.2.0: opt-in smart suggestions (D-020 to D-023): a
       switch on "Your list & stats" that asks for `webNavigation`;
       per-day counts of impulse opens (typed, bookmark, new tab page) of

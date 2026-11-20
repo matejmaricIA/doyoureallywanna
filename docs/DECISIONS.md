@@ -498,3 +498,79 @@ and a backup file may end up anywhere.
 
 **Consequences.** `chrome.storage.local` also says `schema: 2` now. No
 migration: the new keys are simply missing until they're used.
+
+## D-024 · The icon is a fermata
+
+*2026-11-20 · Accepted*
+
+**Context.** The first icon was a white question mark on an orange
+gradient rounded square. It looked like any help or FAQ icon, said nothing
+about pausing, and read as a stock app tile.
+
+**Decision.** The icon is a fermata: an arc over a dot, the musical sign for
+a pause that lasts as long as the player likes. One flat color on a
+transparent background, no tile. `assets/icon.svg` is the drawing for 32 px
+and up. `assets/icon-small.svg` redraws it on the 16 px grid (a 2 px arc
+with straight legs, a 4 px dot) so the toolbar icon stays sharp. Next to
+the name on every page, the logo is the same drawing used as a CSS mask
+(`icons/mark.svg`) filled with the page's accent, so it follows the theme
+(D-025) and stays sharp on any screen.
+
+**Why.** The directions tried were two tally strokes (the pause sign), a
+raised eyebrow, a comma, and three takes on the pause. The fermata is the
+one pause sign that leaves the length to you: hold, then carry on. That's
+the extension: nothing is blocked and "Yes" always works. It also looks a
+little like an eye under a raised brow, a friend asking "really?". A
+question mark says "help"; stop signs, padlocks and hourglasses say
+"blocked".
+
+**Consequences.** Most people won't know the sign's name, and don't need
+to. The toolbar icon has its own flat color per theme, not the page
+accent, because one PNG has to read on light and dark toolbars alike.
+
+## D-025 · Color themes, Tide by default
+
+*2026-11-20 · Accepted*
+
+**Context.** The orange accent (`#d9480f`) read as a warning light, the
+color of traffic cones and error messages. A pause that's meant to be kind
+should feel calmer. Five palettes were compared on the real pages: the
+orange, Clay, Sage, Tide and Dusk.
+
+**Decision.** All five are themes, picked on the settings page ("Colors:
+Tide, Sage, Clay, Dusk, Ember"). Tide, a grey blue-green, is the default.
+Ember is the original orange, unchanged.
+
+- Each theme is one set of tokens in `ui/base.css`
+  (`[data-theme="<key>"]`), light and dark. Greys and the dark background
+  carry a faint tint of the accent; light backgrounds stay white (D-019).
+- The theme is a setting (`settings.theme`), so it's in the backup.
+  `lib/themes.js` lists the themes, `lib/copy.js` names them.
+- `ui/theme.js`, loaded first by every page, sets `data-theme` on
+  `<html>`, swaps the tab icon, follows changes made in other tabs, and
+  colors the toolbar icon with `chrome.action.setIcon`.
+- Each theme has its own 16 and 32 px toolbar icons. The manifest's icons
+  (extensions page, stores) are Tide.
+- Contrast: page accents are 4.8:1 on white and 7:1 on the dark
+  background (Ember keeps its 4.3:1, fine for the large text it colors).
+  Toolbar icon colors are about 3.3:1 against both a white toolbar and
+  Chrome's dark one (`#3c3c3c`).
+
+**Why.** People find different colors calm, and a theme costs nothing at
+runtime: a few CSS rules and ten small PNGs. Tide is the default because
+it's calm without the "well done" feel green would give the tally.
+
+The manifest can't declare per-theme icons, so the toolbar color is set
+with `setIcon`. The service worker does *not* re-apply it when the browser
+starts: that would run code while you aren't using the extension, which
+PRINCIPLES.md and the README rule out. Instead every page re-applies it
+when it opens, and so does install/update.
+
+**Consequences.** If a browser forgets the `setIcon` color after a restart,
+the toolbar shows Tide until the extension next runs (opening a listed
+site, the popup or the settings page); to check by hand. With a theme
+other than Tide, a page can show Tide's colors for a moment while it loads,
+because the theme is read from storage asynchronously. The stores and the
+extensions page always show the Tide icon. Adding a theme takes tokens in
+`base.css`, a key and icon color in `themes.js`, a name in `copy.js` and
+`npm run icons`; a unit test checks all of them are there.

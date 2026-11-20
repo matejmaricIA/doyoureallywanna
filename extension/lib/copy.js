@@ -111,3 +111,12 @@ export function summaryLines({ sites, today, week, all }) {
       : `All time, you turned back ${outOfTimes(all)}.`,
   };
 }
+
+/** The color themes' names on the settings page, by key (lib/themes.js). */
+export const THEME_NAMES = Object.freeze({
+  tide: 'Tide',
+  sage: 'Sage',
+  clay: 'Clay',
+  dusk: 'Dusk',
+  ember: 'Ember',
+});

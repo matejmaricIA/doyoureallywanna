@@ -57,7 +57,8 @@ had a second to think about *why* you were opening it.
   in**. Off by default.
 - **Moves with you without a cloud.** Export a backup file, import it on
   your other computer.
-- Light and dark mode.
+- **Five calm color themes**, each in light and dark: Tide, Sage, Clay,
+  Dusk, and Ember (the original orange).
 
 <table>
   <tr>
@@ -118,7 +119,7 @@ inside the browser's network code, not in a script. The extension's code
 only runs when you're actually opening a listed site, clicking its icon, or
 looking at your stats. With suggestions on, it also wakes for a moment when
 a page opens, to count it. No timers, no polling, no scripts injected into
-pages. The whole extension is about 45 KB zipped.
+pages. The whole extension is about 50 KB zipped.
 
 ## Install
 
@@ -148,7 +149,7 @@ first via the puzzle-piece menu), click **Add**.
 - **It asks when a site opens, not while you use it.** A tab that's already
   open stays open. That's on purpose: the moment that matters is the one
   where you reach for it.
-- **Both settings are adjustable:** how long "Yes" lasts in a tab (1-120
+- **The timings are adjustable:** how long "Yes" lasts in a tab (1-120
   minutes) and how long the "closing in…" countdown is (0-30 seconds).
 
 ## How it works
@@ -170,7 +171,7 @@ npm test               # unit tests
 npm run test:e2e       # loads the real extension into headless Edge/Chrome and clicks through every flow
 npm run check          # both
 npm run screenshots    # regenerates the images in this README
-npm run icons          # renders assets/icon.svg to the PNG icons
+npm run icons          # renders the icon to PNGs, in every theme's color
 npm run package        # builds dist/do-you-really-wanna-<version>.zip for the stores
 ```
 

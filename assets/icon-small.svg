@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- The fermata from icon.svg, redrawn on the 16 px grid so the toolbar
+       icon stays sharp: a 2 px arc with straight legs and a 4 px dot. -->
+  <path d="M2 12.5V10a6 6 0 0 1 12 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="8" cy="10" r="2" fill="currentColor"/>
+</svg>
