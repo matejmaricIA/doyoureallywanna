@@ -283,11 +283,14 @@ $('add-form').addEventListener('submit', async (event) => {
     return;
   }
   error.hidden = true;
+  input.value = '';
+  // Ask for access in the same moment as the click, before anything else:
+  // Firefox refuses a permission request that comes after an await (D-030).
+  // Saving runs alongside; this page stays open whatever the prompt does.
+  const access = requestAccess([domain]).catch(() => false);
   const added = await addSite(domain);
   await syncRules();
-  input.value = '';
-  // Asking for access needs the click that's still "fresh", so do it right away.
-  const granted = await requestAccess([domain]);
+  const granted = await access;
   if (!granted && added) {
     error.textContent = `Added, but I can't pause ${domain} until you allow access.`;
     error.hidden = false;

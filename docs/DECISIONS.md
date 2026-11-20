@@ -697,3 +697,43 @@ suggestions: BiDi navigations report `link`, so it can't open a page "by
 typing". Suggestions in Firefox are to be checked by hand before they're
 promised there. The gecko ID can't change after the first Firefox Add-ons
 release.
+
+## D-030 · Ask for access in the same moment as the click
+
+*2026-11-20 · Accepted*
+
+**Context.** Adding a site saved it first, rebuilt the rules, and only then
+asked the browser for access to it. Chrome allows a permission request for
+a few seconds after a click, so that worked. Firefox only allows it while
+the click is being handled: one `await` before it and it throws
+"permissions.request may only be called from a user input handler". With a
+real mouse click in Firefox 160, "Add site" put the site on the list
+without ever asking, so it was never paused. The Firefox test (D-029)
+missed it: it pre-grants access and clicks with a script.
+
+**Decision.** Every "Add" asks for access before anything asynchronous,
+and saves alongside:
+
+- Settings page: start the request, then save and rebuild the rules while
+  the prompt is up. The page stays open, so it waits for both.
+- Popup: start the request and, in the same moment, send
+  `{ addSite: domain }` to `background.js`, which saves the site and
+  rebuilds the rules. The browser's permission prompt can close the popup
+  (Chrome does); the site was saved first before for exactly that reason,
+  and the background keeps it that way. If the answer is "no" and the
+  popup is still open, it removes the site again, as before.
+- The suggestion page's "Add it to my list" and every "Allow" button
+  already asked first; unchanged.
+
+**Why.** It's the one order that works in both browsers. Letting the popup
+save in parallel by itself would usually win the race against the prompt,
+but not always; the background has no such race. The background only
+wakes for it when you click "Add", which is using the extension
+(PRINCIPLES.md, README).
+
+**Consequences.** `background.js` has a `runtime.onMessage` listener that
+accepts only `addSite` from the extension's own pages, and normalizes the
+domain again. The Firefox test now clicks both "Add" buttons with real,
+trusted mouse input (`Tab.realClick` in `tools/lib/bidi.mjs`) on a site
+without access, and fails on the old order. The Edge/Chrome test adds a
+site back from the popup through the background.

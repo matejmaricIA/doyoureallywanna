@@ -23,7 +23,8 @@ importing a backup. Not checked yet:
 ## Firefox (D-029)
 
 The extension runs in Firefox 140+ and passes `npm run test:e2e:firefox`
-(tested in Firefox 160 on 2026-11-20). Still to do:
+(tested in Firefox 160 on 2026-11-20), including adding sites with a real
+click (D-030). Still to do:
 
 - [ ] Hand-test in a real Firefox window: the per-site permission prompt
       (Firefox shows its own doorhanger), the popup, the toolbar icon's
@@ -112,7 +113,9 @@ The extension runs in Firefox 140+ and passes `npm run test:e2e:firefox`
 
 ## Done
 
-- [x] Unreleased: the fermata drawn like a pen line (D-028). Light or dark
+- [x] Unreleased: Firefox 140+ from the same code (D-029); "Add" asks for
+      access in the same moment as the click, so Firefox shows its prompt
+      (D-030). The fermata drawn like a pen line (D-028). Light or dark
       as a setting, and no flash of the default colors on load (D-027).
 - [x] v0.3.0: new icon, a fermata (D-024). Five color themes, picked
       on the settings page (D-025), Dusk by default (D-026).

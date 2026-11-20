@@ -1,7 +1,8 @@
 // The service worker does as little as possible, on purpose. The browser's
 // own rule engine does the pausing, so for that it only wakes up when the
 // extension is installed or updated (to set up the rules and the toolbar
-// icon's color), and when a "Yes" grace period runs out.
+// icon's color), when a "Yes" grace period runs out, and when you add a
+// site from the toolbar popup (it saves it for the popup, D-030).
 //
 // Only if you turn on suggestions (opt-in, D-020) does it also wake when an
 // http(s) page opens, to count opens of sites that aren't on your list.
@@ -9,8 +10,9 @@
 // right away, without even reading storage. No polling, no timers.
 
 import { GRACE_ALARM, expireGrace, setToolbarTheme, suggestUrl, syncRules } from './lib/browser.js';
+import { normalizeDomain } from './lib/domains.js';
 import { sanitizeSettings } from './lib/settings.js';
-import { recordImpulseOpen } from './lib/store.js';
+import { addSite, recordImpulseOpen } from './lib/store.js';
 import { isImpulseOpen, siteOfUrl } from './lib/suggest.js';
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
@@ -24,6 +26,24 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === GRACE_ALARM) expireGrace();
+});
+
+// "Add" in the toolbar popup. The popup asks for access in the same moment
+// as the click, and the browser's permission prompt may close it right
+// after, so the saving happens here, where nothing closes (D-030).
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  const domain = sender.id === chrome.runtime.id ? normalizeDomain(message?.addSite) : null;
+  if (!domain) return false;
+  addSite(domain)
+    .then(async (added) => {
+      await syncRules();
+      sendResponse({ added });
+    })
+    .catch((error) => {
+      console.error('Could not add the site', error);
+      sendResponse({ added: false });
+    });
+  return true; // the answer comes later
 });
 
 // --- Suggestions --------------------------------------------------------------

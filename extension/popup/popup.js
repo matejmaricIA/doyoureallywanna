@@ -5,7 +5,7 @@ import { plural } from '../lib/copy.js';
 import { dayKey } from '../lib/dates.js';
 import { findSiteForUrl, hostOf, normalizeDomain } from '../lib/domains.js';
 import { sumCounts } from '../lib/stats.js';
-import { addSite, load, removeSite } from '../lib/store.js';
+import { load, removeSite } from '../lib/store.js';
 
 /** @param {string} id */
 const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -77,11 +77,17 @@ $('add-form').addEventListener('submit', async (event) => {
   }
   error.hidden = true;
 
-  // Save first, then ask for access: if the browser's permission prompt
-  // closes this popup, the site is still on the list.
-  const added = await addSite(domain);
-  await syncRules();
-  const granted = await requestAccess([domain]);
+  // Two things at once, in the same moment as the click (D-030): ask for
+  // access (Firefox refuses a permission request that comes after an
+  // await), and have the background save the site (the browser's permission
+  // prompt can close this popup, and the site should be on the list anyway).
+  const saving = chrome.runtime.sendMessage({ addSite: domain }).catch((reason) => {
+    console.error('Could not save the site', reason);
+    return { added: false };
+  });
+  const access = requestAccess([domain]).catch(() => false);
+  const { added } = await saving;
+  const granted = await access;
   if (!granted) {
     if (added) {
       await removeSite(domain);

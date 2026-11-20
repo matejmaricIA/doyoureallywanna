@@ -231,6 +231,50 @@ try {
     console.log(`      ${JSON.stringify(commits)}`);
   });
 
+  // A person's click, on a site we don't have access to yet: Firefox only
+  // shows its permission prompt if the request comes in the same moment as
+  // the click (D-030). The prompt then just waits; nobody answers it here.
+  /** Open an extension page in a new tab (in front, so it can be clicked) and watch for rejections. @param {string} page */
+  const openForClicks = async (page) => {
+    const tab = await firefox.newTab();
+    await tab.navigate(`${base}/${page}`);
+    await tab.settle();
+    await tab.evaluate(`(() => {
+      globalThis.rejections = [];
+      addEventListener('unhandledrejection', (e) => rejections.push(String(e.reason?.message ?? e.reason)));
+    })()`);
+    return tab;
+  };
+
+  await step('adding a site on the settings page with a real click asks for access', async () => {
+    const tab = await openForClicks('options/options.html');
+    await tab.evaluate(`document.getElementById('domain').value = 'asks.test'`);
+    await tab.realClick('#add-form button[type=submit]');
+    await waitUntil(async () => (await tab.text('#sites'))?.includes('asks.test'), { what: 'site in list' });
+    await sleep(300);
+    expectEqual(await tab.evaluate('rejections'), [], 'rejections');
+    expect(await tab.evaluate(`document.getElementById('add-error').hidden`), 'no error shown: the prompt is waiting');
+  });
+
+  await step('adding a site from the popup with a real click asks for access, and the background saves it', async () => {
+    const tab = await openForClicks('popup/popup.html');
+    // In a tab the popup sees itself as the current page, so show the form by hand.
+    await tab.evaluate(`(() => {
+      for (const s of document.querySelectorAll('.state')) s.hidden = s.id !== 'add-form';
+      document.getElementById('domain').value = 'popup.test';
+    })()`);
+    await tab.realClick('#add');
+    await waitUntil(async () => 'popup.test' in (await tab.evaluate(`chrome.storage.local.get('sites')`)).sites, {
+      what: 'site saved by the background',
+    });
+    await sleep(300);
+    expectEqual(await tab.evaluate('rejections'), [], 'rejections');
+    expect(
+      (await tab.evaluate('chrome.declarativeNetRequest.getDynamicRules()')).some((r) => r.condition.requestDomains?.includes('popup.test')),
+      'rule for popup.test',
+    );
+  });
+
   await step('no errors were thrown on any page', async () => {
     expectEqual(pageErrors, [], 'page errors');
   });

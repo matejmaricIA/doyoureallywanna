@@ -17,7 +17,7 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   the browser. Pages wait for your colors before they're drawn, so there's
   no flash of the wrong ones.
 - **Firefox support, for testing.** The extension now also runs in
-  Firefox 140 and newer, unchanged: the pause, "Yes", "No", the grace
+  Firefox 140 and newer: adding sites, the pause, "Yes", "No", the grace
   period and the counts all work the same. It isn't on Firefox Add-ons
   yet, and suggestions haven't been tried there.
 - `npm run test:e2e:firefox`: an end-to-end test in headless Firefox over
@@ -29,6 +29,11 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 - **The fermata is drawn like a pen line**: an even stroke, a little
   lopsided, with an oval dot, instead of the clean engraved arc. The 16 px
   toolbar icon keeps its sharp small drawing.
+- "Add" on the settings page and in the popup ask for access to the site
+  in the same moment as your click, so Firefox shows its permission
+  prompt (it refuses one that comes later). The popup now has the
+  background save the site, so it's still added if the prompt closes the
+  popup.
 - Needs Edge or Chrome 123 or newer (was 110): the light/dark colors use
   `light-dark()`, and one manifest now names a background script for
   Firefox next to the service worker.

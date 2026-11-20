@@ -175,6 +175,27 @@ export class Tab {
     return this.evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
   }
 
+  /**
+   * A real mouse click in the middle of the element: trusted input, the way
+   * a person clicks. Unlike click(), it counts as "handling user input" for
+   * Firefox's permission prompts. The tab must be the one in front.
+   * @param {string} selector
+   */
+  async realClick(selector) {
+    const [x, y] = await this.evaluate(`(() => {
+      const el = document.querySelector(${JSON.stringify(selector)});
+      el.scrollIntoView({ block: 'center' });
+      const r = el.getBoundingClientRect();
+      return [Math.round(r.x + r.width / 2), Math.round(r.y + r.height / 2)];
+    })()`);
+    const pointer = [{ type: 'pointerMove', x, y }, { type: 'pointerDown', button: 0 }, { type: 'pointerUp', button: 0 }];
+    await this.firefox.send('input.performActions', {
+      context: this.context,
+      actions: [{ type: 'pointer', id: 'mouse', parameters: { pointerType: 'mouse' }, actions: pointer }],
+    });
+    await this.firefox.send('input.releaseActions', { context: this.context });
+  }
+
   /** @param {string} selector */
   text(selector) {
     return this.evaluate(`document.querySelector(${JSON.stringify(selector)})?.innerText ?? null`);

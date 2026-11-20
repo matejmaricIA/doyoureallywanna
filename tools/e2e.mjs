@@ -304,6 +304,14 @@ try {
     expectEqual(await tabE.url(), `${SITE}/free`, 'URL after settling');
   });
 
+  await step('adding it back from the popup: the background saves it while the popup asks', async () => {
+    await popup.click('#add');
+    await waitUntil(() => popup.evaluate(`!document.querySelector('[data-state=listed]').hidden`), { what: 'listed state' });
+    const { sites } = await options.evaluate(`chrome.storage.local.get('sites')`);
+    expect('distracting.test' in sites, 'site saved');
+    expectEqual((await options.evaluate('chrome.declarativeNetRequest.getDynamicRules()')).length, 1, 'rule count');
+  });
+
   await step('imports a backup and flags sites that still need access', async () => {
     const backup = {
       app: 'do-you-really-wanna',

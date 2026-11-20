@@ -9,7 +9,8 @@ behind each choice is in [DECISIONS.md](DECISIONS.md).
 extension/                 ← load this folder in the browser; it's also what ships
   manifest.json
   background.js            service worker: install/update (rules, toolbar icon), grace-period
-                           alarm, and (only with suggestions on) counting impulse opens
+                           alarm, saving a site added from the popup, and (only with
+                           suggestions on) counting impulse opens
   pause/                   the page shown instead of a listed site (pause.html), and the
                            suggestion page (suggestion.html), sharing common.js and pause.css
   popup/                   toolbar popup: add the current site / see today's numbers
@@ -100,11 +101,14 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
 
 **Adding a site** (popup or settings page)
 
-1. Normalize the input (`domains.js`), save it, rebuild all redirect rules
-   (`syncRules`, one atomic update under a Web Lock). Any suggestion counts
-   for it are dropped.
-2. Ask the browser for `*://*.<site>/*`. In the popup, if you say no, the
-   site is removed again.
+1. Normalize the input (`domains.js`). In the same moment as the click,
+   ask the browser for `*://*.<site>/*` (Firefox only allows that during
+   the click, D-030) and start saving: the settings page saves itself; the
+   popup sends `{ addSite }` to `background.js`, which saves even if the
+   permission prompt closes the popup.
+2. Saving rebuilds all redirect rules (`syncRules`, one atomic update under
+   a Web Lock). Any suggestion counts for the site are dropped.
+3. In the popup, if you say no, the site is removed again.
 
 **Changing the color theme or light/dark** (settings page)
 
