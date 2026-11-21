@@ -274,6 +274,38 @@ try {
     await waitForPause(tabA, `${SITE}/after-grace`);
   });
 
+  await step('with a wait chosen, "Yes" counts down before it works (opt-in)', async () => {
+    /** @param {string} value */
+    const setWait = async (value) => {
+      await options.evaluate(`(() => {
+        const input = document.getElementById('yes-wait');
+        input.value = '${value}';
+        input.dispatchEvent(new Event('change'));
+      })()`);
+      await waitUntil(
+        async () => (await options.evaluate(`chrome.storage.local.get('settings')`)).settings?.yesWaitSeconds === Number(value),
+        { what: `wait of ${value} s saved` },
+      );
+    };
+    expectEqual(await tabA.evaluate(`document.getElementById('yes').disabled`), false, '"Yes" right away by default');
+    await setWait('2');
+    // A reload isn't a new attempt, so the counts stay as they are.
+    await tabA.send('Page.bringToFront');
+    await tabA.send('Page.reload');
+    await waitUntil(() => tabA.evaluate(`!!document.querySelector('#yes .wait')`), { what: 'the reloaded page' });
+    expectEqual(
+      await tabA.evaluate(`[document.getElementById('yes').disabled, document.querySelector('#yes .wait')?.textContent]`),
+      [true, '2'],
+      '"Yes" waiting, showing the seconds',
+    );
+    expectEqual(await tabA.evaluate(`document.getElementById('no').disabled`), false, '"No" works straight away');
+    await waitUntil(() => tabA.evaluate(`!document.getElementById('yes').disabled`), { what: '"Yes" to work', timeout: 4000 });
+    expectEqual(await tabA.text('#yes'), 'Yes, open it', 'label after the wait');
+    await setWait('0');
+    // The settings page only re-renders when it's in front, and later steps read it.
+    await options.send('Page.bringToFront');
+  });
+
   const popup = await browser.newPage();
   await step('the popup knows the current site is on the list', async () => {
     // A popup opened as a tab sees itself as the current tab, so pretend

@@ -51,6 +51,13 @@ body {
   font-size: 16px;
 }
 
+/* "Yes" while it waits (opt-in, D-034): the seconds left, quietly. */
+#yes .wait {
+  min-width: 1ch;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* The suggestion page: a longer question, and three answers stacked at the
    same width, so "Just let me in" is never the small one. */
 

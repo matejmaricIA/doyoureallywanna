@@ -169,6 +169,7 @@ function renderList(domains, missing, data) {
 /** @param {Data} data */
 function renderSettings(data) {
   const fields = /** @type {const} */ ([
+    ['yes-wait', 'yesWaitSeconds'],
     ['grace', 'graceMinutes'],
     ['countdown', 'countdownSeconds'],
   ]);

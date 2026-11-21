@@ -113,6 +113,8 @@ click (D-030). Still to do:
 
 ## Done
 
+- [x] Unreleased: an optional wait before "Yes" works, 0 to 10
+      seconds, off by default (D-034).
 - [x] Unreleased: Firefox 140+ from the same code (D-029); "Add" asks for
       access in the same moment as the click, so Firefox shows its prompt
       (D-030). The fermata drawn like a pen line (D-028). Light or dark

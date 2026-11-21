@@ -151,6 +151,9 @@ first via the puzzle-piece menu), click **Add**.
   where you reach for it.
 - **The timings are adjustable:** how long "Yes" lasts in a tab (1-120
   minutes) and how long the "closing in…" countdown is (0-30 seconds).
+- **An optional wait before "Yes".** Want more of a pause? Make "Yes"
+  count down 3 or 5 seconds (up to 10) before it can be clicked. Off by
+  default.
 
 ## How it works
 

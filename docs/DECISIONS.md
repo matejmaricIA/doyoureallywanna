@@ -15,7 +15,7 @@ Read this before changing how something works.
 
 ## D-001 · Pause, never block
 
-*2026-11-19 · Accepted*
+*2026-11-19 · Accepted · an optional wait before "Yes" since D-034*
 
 **Context.** Blockers don't work for sites you actually need sometimes
 (YouTube, Gmail, Reddit). Timers don't work either: they interrupt what
@@ -232,7 +232,7 @@ List to do right).
 
 ## D-014 · Tone and button design
 
-*2026-11-19 · Accepted*
+*2026-11-19 · Accepted · an optional wait before "Yes" since D-034*
 
 **Decision.** Questions rotate between six phrasings, all answerable with
 the same two buttons. "No, not now" is the filled button and has focus
@@ -737,3 +737,39 @@ domain again. The Firefox test now clicks both "Add" buttons with real,
 trusted mouse input (`Tab.realClick` in `tools/lib/bidi.mjs`) on a site
 without access, and fails on the old order. The Edge/Chrome test adds a
 site back from the popup through the background.
+
+## D-034 · An optional wait before "Yes"
+
+*2026-11-21 · Accepted · amends D-001, D-014 and PRINCIPLES.md*
+
+**Context.** D-001 and D-014 say "Yes" always works in one click, and
+PRINCIPLES.md said it's never delayed. Focus on "No" (D-014) adds a beat,
+but a fast hand clicks "Yes" before reading the question. Some people
+want more friction than that and asked for it: "Yes" unavailable for 3 or
+5 seconds, so you have to actually think.
+
+**Decision.**
+
+- A setting, `yesWaitSeconds`: "Before "Yes" works, wait _ seconds
+  (0 = straight away)." **0 by default**, at most 10.
+- With a wait set, "Yes, open it" stays where it is, the same size, with
+  the seconds left next to the label, and is disabled until they run
+  out. Its width is fixed while it waits, so nothing jumps when the
+  number goes. "No, not now" works straight away.
+- The seconds only count while the pause page is visible. A tab opened
+  in the background doesn't use them up.
+- It's the pause page's own one-second timer, gone with the page. Nothing
+  runs in the background.
+- A reload restarts the wait (but still doesn't count as a new pause).
+
+**Why.** It's the user's own choice of friction, not ours. Off by
+default keeps the promise for everyone else: "Yes" in one click. The cap
+of 10 seconds keeps it a pause, not a wall; longer is blocking with
+extra steps, and D-001 still holds that a site is never made unreachable.
+
+**Consequences.**
+
+- PRINCIPLES.md: "Yes" is never delayed *unless you turned that on
+  yourself*.
+- Saved with the other settings and included in backups. Older backups
+  import with 0.

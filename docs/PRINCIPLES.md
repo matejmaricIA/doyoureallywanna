@@ -7,6 +7,7 @@ one of these, the idea loses. Changing a principle needs a decision in
 ## Do
 
 - **Ask, don't block.** "Yes" always works, and always takes one click.
+  The only wait is one you choose yourself (D-034).
 - **Keep it free.** Every feature, for everyone. Donations are the only
   money involved, and they never unlock anything.
 - **Keep data on the user's computer.** `chrome.storage.local` only. Moving
@@ -41,7 +42,8 @@ one of these, the idea loses. Changing a principle needs a decision in
   people visit.
 - **No polling, intervals or timers in the background.**
 - **No guilt-tripping, shaming, streak-anxiety or dark patterns.** "Yes"
-  is never hidden, delayed, or made smaller than "No".
+  is never hidden or made smaller than "No", and never delayed unless
+  you turned that on yourself (D-034).
 - **No interrupting what's already open.** We ask when a site is opened,
   never in the middle of using it.
 - **No dependencies or build step** without a decision record.

@@ -12,6 +12,12 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ### Added
 
+- **An optional wait before "Yes".** "Before "Yes" works, wait 0 seconds"
+  on the settings page. Set it to 3 or 5 and "Yes, open it" counts down
+  those seconds before it can be clicked, so you have a moment to really
+  think. Off (0) by default, at most 10 seconds; "No" always works
+  straight away, and the seconds only count while the page is in front
+  (D-034).
 - **Light or dark, your choice.** "Light or dark: Same as my browser /
   Light / Dark" on the settings page. Until now the pages could only follow
   the browser. Pages wait for your colors before they're drawn, so there's

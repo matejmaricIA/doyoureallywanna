@@ -4,6 +4,7 @@ import { DEFAULT_THEME, isAppearance, isTheme } from './themes.js';
  * @typedef {object} Settings
  * @property {number} graceMinutes      After "Yes", don't ask again in that tab for this long.
  * @property {number} countdownSeconds  After "No", close the tab after this many seconds.
+ * @property {number} yesWaitSeconds    "Yes" only works after this many seconds. 0 = straight away (opt-in, D-034).
  * @property {string} theme             Color theme, a key from themes.js.
  * @property {string} appearance        'browser' (follow its light/dark), 'light' or 'dark'.
  * @property {boolean} suggestions      Notice sites opened out of habit and suggest them (opt-in, D-020).
@@ -13,6 +14,7 @@ import { DEFAULT_THEME, isAppearance, isTheme } from './themes.js';
 export const DEFAULT_SETTINGS = Object.freeze({
   graceMinutes: 5,
   countdownSeconds: 5,
+  yesWaitSeconds: 0,
   theme: DEFAULT_THEME,
   appearance: 'browser',
   suggestions: false,
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
 export const LIMITS = Object.freeze({
   graceMinutes: { min: 1, max: 120 },
   countdownSeconds: { min: 0, max: 30 },
+  yesWaitSeconds: { min: 0, max: 10 },
 });
 
 /**
@@ -33,6 +36,7 @@ export function sanitizeSettings(value) {
   return {
     graceMinutes: clampInt(input.graceMinutes, LIMITS.graceMinutes, DEFAULT_SETTINGS.graceMinutes),
     countdownSeconds: clampInt(input.countdownSeconds, LIMITS.countdownSeconds, DEFAULT_SETTINGS.countdownSeconds),
+    yesWaitSeconds: clampInt(input.yesWaitSeconds, LIMITS.yesWaitSeconds, DEFAULT_SETTINGS.yesWaitSeconds),
     theme: isTheme(input.theme) ? input.theme : DEFAULT_THEME,
     appearance: isAppearance(input.appearance) ? input.appearance : 'browser',
     suggestions: input.suggestions === true,

@@ -54,7 +54,7 @@ unchanged.
 {
   schema: 2,
   sites: { "reddit.com": { added: 1763548800000 } },        // when it was added
-  settings: { graceMinutes: 5, countdownSeconds: 5, theme: "dusk", appearance: "browser", suggestions: false },
+  settings: { graceMinutes: 5, countdownSeconds: 5, yesWaitSeconds: 0, theme: "dusk", appearance: "browser", suggestions: false },
   stats: { "2026-11-19": { "reddit.com": [6, 2] } },       // [paused, openedAnyway] per local day
   quiet: { "github.com": { added: 1763635200000 } },        // "don't ask again": never suggested
 
@@ -83,6 +83,8 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
 2. `pause.js` reads the URL after `#`, finds the listed site, records a
    "paused" event (unless this is a reload/back-forward/prerender), and
    shows the question with today's count.
+3. If `yesWaitSeconds` is above 0 (opt-in, D-034), "Yes" is disabled and
+   shows the seconds left, counting down only while the page is visible.
 
 **Yes**
 
