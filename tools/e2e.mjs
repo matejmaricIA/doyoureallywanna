@@ -375,17 +375,20 @@ try {
   // --- Suggestions (opt-in) ---------------------------------------------------
 
   const suggestPrefix = `${base}/pause/suggestion.html#`;
-  const [today, yesterday, twoDaysAgo] = lastDays(3);
+  const [today, yesterday] = lastDays(2);
   /** @param {string[]} keys */
   const stored = (keys) => options.evaluate(`chrome.storage.local.get(${JSON.stringify(keys)})`);
   /** @param {object} values */
   const store = (values) => options.evaluate(`chrome.storage.local.set(${JSON.stringify(values)})`);
-  /** @param {string} site */
-  const opensToday = async (site) => (await stored(['opens'])).opens?.[today]?.[site] ?? 0;
-  /** @param {string} site  seven opens today and eight on two earlier days: one more qualifies */
+  /** @param {string} site  today's number in the impulse stats */
+  const statToday = async (site) => (await stored(['impulse'])).impulse?.[today]?.[site] ?? 0;
+  /** @param {string} site  opens counted in the last 2 hours */
+  const opensOf = async (site) => (await stored(['opens'])).opens?.[site]?.length ?? 0;
+  /** @param {string} site  five opens in the last half hour: one more qualifies */
   const almostAHabit = async (site) => {
     const { opens = {} } = await stored(['opens']);
-    for (const [day, count] of [[today, 7], [yesterday, 8], [twoDaysAgo, 9]]) (opens[day] ??= {})[site] = count;
+    const now = Date.now();
+    opens[site] = [30, 20, 10, 5, 1].map((minutes) => now - minutes * 60_000);
     await store({ opens });
   };
   /**
@@ -427,7 +430,7 @@ try {
 
   await step('counts opens by typing, bookmark and address bar, but not links, reloads, back or searches', async () => {
     await open(tabS, `${HABIT}/one`);
-    await waitUntil(async () => (await opensToday('habit.test')) === 1, { what: 'first typed open counted' });
+    await waitUntil(async () => (await opensOf('habit.test')) === 1, { what: 'first typed open counted' });
     await tabS.click('#same');
     await waitForUrl(tabS, `${HABIT}/next`);
     await tabS.send('Page.reload');
@@ -437,12 +440,16 @@ try {
     await open(tabS, `${HABIT}/search?q=x`, 'generated');
     await open(tabS, `${HABIT}/form`, 'form_submit');
     await open(tabS, `${HABIT}/bookmark`, 'auto_bookmark');
-    await waitUntil(async () => (await opensToday('habit.test')) >= 2, { what: 'bookmark open counted' });
+    await waitUntil(async () => (await opensOf('habit.test')) >= 2, { what: 'bookmark open counted' });
     await open(tabS, `${HABIT}/address-bar`, 'address_bar');
-    await waitUntil(async () => (await opensToday('habit.test')) >= 3, { what: 'address-bar open counted' });
+    await waitUntil(async () => (await opensOf('habit.test')) >= 3, { what: 'address-bar open counted' });
     await sleep(300);
     const all = await options.evaluate('chrome.storage.local.get(null)');
-    expectEqual(all.opens, { [today]: { 'habit.test': 3 } }, 'counts: one number per site per day, only impulse opens');
+    expectEqual(Object.keys(all.opens), ['habit.test'], 'sites counted');
+    expectEqual(Object.keys((await stored(['impulse'])).impulse[today]), ['habit.test'], 'sites in the stats');
+    expectEqual(all.opens['habit.test'].length, 3, 'only impulse opens counted');
+    expect(all.opens['habit.test'].every((t) => typeof t === 'number' && Date.now() - t < 120 * 60_000), 'times of the last 2 hours');
+    expectEqual(all.impulse, { [today]: { 'habit.test': 3 } }, 'stats: one number per site per day');
     expectEqual(all.suggestedOn, undefined, 'suggestedOn');
   });
 
@@ -450,8 +457,8 @@ try {
     await open(tabS, `${SITE}/listed`);
     await waitForPause(tabS, `${SITE}/listed`);
     await open(tabS, `${HABIT}/after-listed`);
-    await waitUntil(async () => (await opensToday('habit.test')) === 4, { what: 'next open counted' });
-    expectEqual(Object.keys((await stored(['opens'])).opens[today]), ['habit.test'], 'sites counted today');
+    await waitUntil(async () => (await opensOf('habit.test')) === 4, { what: 'next open counted' });
+    expectEqual(Object.keys((await stored(['opens'])).opens), ['habit.test'], 'sites counted');
   });
 
   await step('a site opened a lot gets the suggestion, which resets its counts', async () => {
@@ -470,6 +477,7 @@ try {
     const { opens, suggestedOn } = await stored(['opens', 'suggestedOn']);
     expectEqual(suggestedOn, today, 'suggestedOn');
     expect(!JSON.stringify(opens ?? {}).includes('habit.test'), `habit.test counts should be gone: ${JSON.stringify(opens)}`);
+    expectEqual(await statToday('habit.test'), 5, 'the stats keep every open');
   });
 
   await step('"Just let me in" goes back to the site, without counting or asking again', async () => {
@@ -477,14 +485,14 @@ try {
     await waitForUrl(tabS, `${HABIT}/often`);
     await sleep(500);
     expectEqual(await tabS.url(), `${HABIT}/often`, 'URL after settling');
-    expectEqual(await opensToday('habit.test'), 0, 'opens after going back');
+    expectEqual(await opensOf('habit.test'), 0, 'opens after going back');
   });
 
   const tabO = await browser.newPage();
   await step('shows at most one suggestion a day', async () => {
     await almostAHabit('often.test');
     await open(tabO, `${OFTEN}/a`);
-    await waitUntil(async () => (await opensToday('often.test')) === 8, { what: 'open counted' });
+    await waitUntil(async () => (await opensOf('often.test')) === 6, { what: 'open counted' });
     await sleep(300);
     expectEqual(await tabO.url(), `${OFTEN}/a`, 'no second suggestion today');
     // Pretend the last suggestion was yesterday.
@@ -493,13 +501,14 @@ try {
     await waitForSuggestion(tabO, `${OFTEN}/b`);
   });
 
-  await step('"It\'s fine, don\'t ask again" lets you in and never counts the site again', async () => {
+  await step('"It\'s fine, don\'t ask again" lets you in and never suggests it again, but the stats still count it', async () => {
     await tabO.click('#quiet');
     await waitForUrl(tabO, `${OFTEN}/b`);
     expectEqual(Object.keys((await stored(['quiet'])).quiet ?? {}), ['often.test'], '"don\'t ask again" list');
     await open(tabO, `${OFTEN}/c`);
     await sleep(400);
-    expectEqual(await opensToday('often.test'), 0, 'opens of a site on the "don\'t ask again" list');
+    expectEqual(await opensOf('often.test'), 0, 'opens of a site on the "don\'t ask again" list');
+    await waitUntil(async () => (await statToday('often.test')) === 3, { what: 'often.test still in the stats' });
     expectEqual(await tabO.url(), `${OFTEN}/c`, 'URL');
   });
 
@@ -531,7 +540,21 @@ try {
     await waitUntil(async () => (await options.text('#quiet-list'))?.includes('example.org'), { what: 'example.org shown' });
   });
 
-  await step('the backup carries the switch and the "don\'t ask again" list, never the counts', async () => {
+  await step("the settings page shows the sites that aren't on the list, and deletes one site's numbers", async () => {
+    await options.send('Page.bringToFront');
+    await waitUntil(() => options.evaluate(`!document.getElementById('impulse-section').hidden`), { what: 'the section' });
+    const rows = await options.evaluate(
+      `[...document.querySelectorAll('#impulse-sites .site')].map((row) => [row.querySelector('.site-name').textContent, row.querySelector('.site-today .num').firstChild.textContent])`,
+    );
+    expectEqual(rows, [['often.test', '3']], 'rows: listed sites are left out');
+    await options.evaluate('window.confirm = () => true');
+    await options.click('#impulse-sites .site-remove');
+    await waitUntil(async () => (await statToday('often.test')) === 0, { what: 'often.test numbers deleted' });
+    expectEqual(await statToday('habit.test'), 6, 'other sites keep their numbers');
+    await waitUntil(() => options.evaluate(`!document.getElementById('impulse-empty').hidden`), { what: '"Nothing counted yet"' });
+  });
+
+  await step('the backup carries the switch and the "don\'t ask again" list, and the stats, never the recent opens', async () => {
     await almostAHabit('counted.test');
     const text = await options.evaluate(`new Promise((resolve) => {
       const click = HTMLAnchorElement.prototype.click;
@@ -542,10 +565,11 @@ try {
       document.getElementById('export').click();
     })`);
     const backup = JSON.parse(text);
-    expectEqual(backup.schema, 2, 'schema');
+    expectEqual(backup.schema, 3, 'schema');
     expectEqual(backup.settings.suggestions, true, 'switch in the backup');
     expectEqual(Object.keys(backup.quiet), ['example.org'], '"don\'t ask again" list in the backup');
-    expect(!('opens' in backup) && !('suggestedOn' in backup) && !text.includes('counted.test'), 'counts must not be in the backup');
+    expect(!('opens' in backup) && !('suggestedOn' in backup) && !text.includes('counted.test'), 'the recent opens must not be in the backup');
+    expectEqual(backup.impulse, { [today]: { 'habit.test': 6 } }, 'impulse stats in the backup');
 
     await options.evaluate(`(() => {
       const file = new File([${JSON.stringify(text)}], 'backup.json', { type: 'application/json' });
@@ -556,23 +580,38 @@ try {
       input.dispatchEvent(new Event('change'));
     })()`);
     await waitUntil(async () => (await stored(['opens'])).opens === undefined, { what: 'counts cleared by the import' });
-    const after = await stored(['settings', 'quiet']);
+    const after = await stored(['settings', 'quiet', 'impulse']);
+    expectEqual(after.impulse, { [today]: { 'habit.test': 6 } }, 'impulse stats after import');
     expectEqual(after.settings.suggestions, true, 'switch after import');
     expectEqual(Object.keys(after.quiet), ['example.org'], '"don\'t ask again" list after import');
   });
 
-  await step('turning suggestions off deletes every count and stops counting', async () => {
+  await step('turning suggestions off stops counting and forgets the recent opens, but keeps the stats', async () => {
     await almostAHabit('counted.test');
     await store({ suggestedOn: today });
     await options.click('#suggest-switch');
     await waitUntil(async () => (await stored(['settings'])).settings.suggestions === false, { what: 'switch off' });
-    const after = await stored(['opens', 'suggestedOn', 'quiet']);
-    expectEqual(after.opens, undefined, 'counts');
+    const after = await stored(['opens', 'suggestedOn', 'quiet', 'impulse']);
+    expectEqual(after.opens, undefined, 'the recent opens');
+    expectEqual(after.impulse, { [today]: { 'habit.test': 6 } }, 'stats stay');
     expectEqual(after.suggestedOn, undefined, 'suggestedOn');
     expectEqual(Object.keys(after.quiet), ['example.org'], 'the "don\'t ask again" list stays');
     await open(tabO, `${OFTEN}/off`);
     await sleep(400);
     expectEqual((await stored(['opens'])).opens, undefined, 'counts after an open while off');
+    expectEqual(await statToday('often.test'), 0, 'not counted while off');
+    // Only habit.test has numbers, and it's on the list now: nothing to show while off.
+    await waitUntil(() => options.evaluate(`document.getElementById('impulse-section').hidden`), { what: 'section hidden' });
+    await store({ impulse: { [today]: { 'habit.test': 6, 'seen.test': 2 } } });
+    await waitUntil(() => options.evaluate(`!document.getElementById('impulse-paused').hidden`), { what: '"Not counting right now"' });
+  });
+
+  await step(`"Delete all stats" deletes the stats of sites that aren't on the list too`, async () => {
+    await options.evaluate('window.confirm = () => true');
+    await options.click('#clear-stats');
+    await waitUntil(async () => JSON.stringify((await stored(['impulse'])).impulse) === '{}', { what: 'impulse stats deleted' });
+    expectEqual((await stored(['stats'])).stats, {}, 'stats');
+    await waitUntil(() => options.evaluate(`document.getElementById('impulse-section').hidden`), { what: 'section hidden' });
   });
 
   await step('no errors were thrown on any page', async () => {

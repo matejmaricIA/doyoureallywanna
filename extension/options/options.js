@@ -14,12 +14,14 @@ import {
 import { APPEARANCE_NAMES, SUGGESTIONS_DENIED, THEME_NAMES, plural, summaryLines } from '../lib/copy.js';
 import { dayKey, lastDays } from '../lib/dates.js';
 import { normalizeDomain } from '../lib/domains.js';
+import { impulseRows } from '../lib/impulse.js';
 import { LIMITS } from '../lib/settings.js';
 import { sumCounts, tallyMarks } from '../lib/stats.js';
 import {
   addQuiet,
   addSite,
   clearStats,
+  forgetImpulseSite,
   load,
   removeQuiet,
   removeSite,
@@ -70,6 +72,7 @@ async function render() {
   if (generation !== renders) return;
   renderSummary(domains, data);
   renderList(domains, missing, data);
+  renderImpulse(domains, data);
   renderSettings(data);
   renderSuggestions(data, canSuggest);
   firstRender = false;
@@ -166,6 +169,57 @@ function renderList(domains, missing, data) {
   $('grant-all').onclick = () => requestAccess(missing).then(render);
 }
 
+/** Rows shown before "Show all". */
+const IMPULSE_ROWS = 10;
+let showAllImpulse = false;
+
+/**
+ * Sites that aren't on the list, and how often they were opened on
+ * impulse (D-032). Shown while suggestions are on, or while there are
+ * numbers to show.
+ * @param {string[]} domains  the list
+ * @param {Data} data
+ */
+function renderImpulse(domains, data) {
+  const rows = impulseRows(data.impulse, { today: dayKey(), week: lastDays(7), skip: domains });
+  const on = data.settings.suggestions;
+  $('impulse-section').hidden = !on && rows.length === 0;
+  $('impulse-paused').hidden = on || rows.length === 0;
+  $('impulse-lede').hidden = rows.length === 0;
+  $('impulse-grid').hidden = rows.length === 0;
+  $('impulse-empty').hidden = rows.length > 0;
+
+  const shown = showAllImpulse ? rows : rows.slice(0, IMPULSE_ROWS);
+  /** @param {number} n @param {string} label */
+  const count = (n, label) =>
+    el('span', { class: n ? 'num' : 'num is-zero' }, String(n), el('span', { class: 'cell-label' }, ` ${label}`));
+  $('impulse-sites').replaceChildren(
+    ...shown.map(({ site, today, week, all }) => {
+      const remove = el('button', { class: 'btn btn-link site-remove', type: 'button', 'aria-label': `Delete the numbers for ${site}` }, 'Delete');
+      remove.addEventListener('click', async () => {
+        if (!confirm(`Delete the numbers for ${site}? This can't be undone.`)) return;
+        await forgetImpulseSite(site);
+      });
+      return el(
+        'li',
+        { class: 'site' },
+        el('div', { class: 'site-main' }, el('span', { class: 'site-name' }, site)),
+        el('div', { class: 'site-today' }, count(today, 'today')),
+        el('div', { class: 'site-week' }, count(week, 'in the last 7 days')),
+        el('div', { class: 'site-all' }, count(all, 'all time')),
+        remove,
+      );
+    }),
+  );
+  $('impulse-more').hidden = rows.length <= IMPULSE_ROWS;
+  $('impulse-more').textContent = showAllImpulse ? 'Show fewer' : `Show all ${rows.length}`;
+}
+
+$('impulse-more').addEventListener('click', () => {
+  showAllImpulse = !showAllImpulse;
+  render();
+});
+
 /** @param {Data} data */
 function renderSettings(data) {
   const fields = /** @type {const} */ ([
@@ -250,7 +304,7 @@ $('suggest-switch').addEventListener('change', async (event) => {
     }
     await setSuggestions(true);
   } else {
-    // Deletes every count, then gives the permission back.
+    // Stops counting (the stats stay), then gives the permission back.
     await setSuggestions(false);
     await releaseSuggestPermission();
   }
@@ -328,7 +382,7 @@ $('import-file').addEventListener('change', async (event) => {
 });
 
 $('clear-stats').addEventListener('click', async () => {
-  if (!confirm('Delete all your stats? Your list and settings stay. This can\'t be undone.')) return;
+  if (!confirm("Delete all your stats, including the sites that aren't on your list? Your list and settings stay. This can't be undone.")) return;
   await clearStats();
   setStatus('Stats deleted.');
 });

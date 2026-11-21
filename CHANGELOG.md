@@ -18,6 +18,11 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   think. Off (0) by default, at most 10 seconds; "No" always works
   straight away, and the seconds only count while the page is in front
   (D-034).
+- **Stats for sites that aren't on your list.** While suggestions are on,
+  "Your list & stats" shows how often you opened other sites by typing,
+  from a bookmark or from the new tab page: today, the last 7 days and all
+  time. Kept like the rest of your stats; "Delete" next to a site removes
+  its numbers (D-032).
 - **Light or dark, your choice.** "Light or dark: Same as my browser /
   Light / Dark" on the settings page. Until now the pages could only follow
   the browser. Pages wait for your colors before they're drawn, so there's
@@ -31,6 +36,14 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   to choose the binary.
 
 ### Changed
+
+- **Suggestions show up the same day.** A site is suggested once you've
+  opened it 6 times within 2 hours (typed, bookmark or new tab page),
+  instead of 8 times a day on 3 of the last 7 days (D-031).
+- **Turning suggestions off keeps your numbers.** It stops counting; only
+  "Delete all stats" or "Delete" next to a site deletes them.
+- **Backups are schema 3.** They now include the numbers of sites that
+  aren't on your list. Schema 1 and 2 backups still import.
 
 - **The fermata is drawn like a pen line**: an even stroke, a little
   lopsided, with an oval dot, instead of the clean engraved arc. The 16 px

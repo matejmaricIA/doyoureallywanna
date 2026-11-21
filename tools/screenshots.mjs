@@ -47,6 +47,24 @@ function demoStats() {
   return stats;
 }
 
+/** A month of impulse opens of sites that aren't on the list (D-032), the same every run. */
+function demoImpulse() {
+  const typical = { 'github.com': 6, 'imdb.com': 2, 'news.ycombinator.com': 4, 'wikipedia.org': 1 };
+  /** @type {Record<string, Record<string, number>>} */
+  const impulse = {};
+  const now = new Date();
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const day = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    impulse[day] = {};
+    for (const [site, n] of Object.entries(typical)) {
+      const count = (n * (i % 5 + 2) + i) % (n * 2 + 1);
+      if (count) impulse[day][site] = count;
+    }
+  }
+  return impulse;
+}
+
 /** Make Math.random return these values in order, so the copy is the same every run. @param {number[]} values */
 const fixedRandom = (values) =>
   `(() => { const v = ${JSON.stringify(values)}; let i = 0; Math.random = () => v[Math.min(i++, v.length - 1)]; })();`;
@@ -64,11 +82,12 @@ try {
   await options.settle();
   const added = Date.now() - 12 * 86_400_000;
   await options.evaluate(`chrome.storage.local.set(${JSON.stringify({
-    schema: 2,
+    schema: 3,
     sites: Object.fromEntries(DEMO_SITES.map((site, i) => [site, { added: added + i * 1000 }])),
     settings: { graceMinutes: 5, countdownSeconds: 5, suggestions: true },
     stats: demoStats(),
     quiet: { 'github.com': { added: added + 5000 }, 'wikipedia.org': { added: added + 6000 } },
+    impulse: demoImpulse(),
   })})`);
 
   /**

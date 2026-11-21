@@ -54,6 +54,29 @@
         </p>
       </section>
 
+      <section class="section" id="impulse-section" aria-labelledby="impulse-heading" hidden>
+        <h2 id="impulse-heading">Not on your list</h2>
+        <p class="muted" id="impulse-lede">
+          How often you opened these by typing the address, from a bookmark or from the new tab page.
+        </p>
+        <p class="muted" id="impulse-paused" hidden>Not counting right now: suggestions are off.</p>
+
+        <div class="sites-grid impulse-grid" id="impulse-grid">
+          <div class="sites-head" aria-hidden="true">
+            <span>Site</span>
+            <span>Today</span>
+            <span>Last 7 days</span>
+            <span>All time</span>
+            <span></span>
+          </div>
+          <ul class="sites" id="impulse-sites"></ul>
+        </div>
+        <button class="btn btn-link impulse-more" id="impulse-more" type="button" hidden></button>
+        <p class="empty muted" id="impulse-empty" hidden>
+          Nothing counted yet. Sites you open by typing, from a bookmark or from the new tab page show up here.
+        </p>
+      </section>
+
       <section class="section" aria-labelledby="settings-heading">
         <h2 id="settings-heading">Settings</h2>
         <div class="settings">
@@ -88,8 +111,9 @@
           <span>Tell me when a site that isn't on my list looks like a habit.</span>
         </label>
         <p class="muted suggest-note">
-          Your browser will warn that this can "read your browsing history". All that is stored (locally) is how many
-          times a day you open each site.
+          Your browser will warn that this can "read your browsing history". While it's on, I count how many times a
+          day you open sites that aren't on your list (shown above). The numbers stay in this browser until you
+          delete them.
         </p>
         <p class="error" id="suggest-error" role="alert" hidden></p>
         <p class="warn" id="suggest-permission" hidden>

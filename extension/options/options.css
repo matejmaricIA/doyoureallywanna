@@ -249,6 +249,16 @@
   justify-self: end;
 }
 
+/* Sites that aren't on the list: one more column, plain numbers */
+
+.impulse-grid {
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+}
+
+.impulse-more {
+  margin-top: 16px;
+}
+
 /* Spoken everywhere, shown only when the columns stack on narrow screens. */
 .cell-label {
   position: absolute;
@@ -526,8 +536,21 @@
     grid-area: week;
   }
 
+  .impulse-grid .site {
+    grid-template-areas:
+      'main remove'
+      'today today'
+      'week week'
+      'all all';
+  }
+
+  .site-all {
+    grid-area: all;
+  }
+
   .site-today,
-  .site-week {
+  .site-week,
+  .site-all {
     font-size: 14px;
     color: var(--muted);
   }

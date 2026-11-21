@@ -98,6 +98,9 @@ click (D-030). Still to do:
   the suggestion replaces it, because there's no access to sites that
   aren't on the list (D-022). It only happens on the open that shows a
   suggestion, at most once a day.
+- Suggestions only notice bursts: a site opened often but spread out
+  (once every couple of hours, all day) is never suggested (D-031). It
+  still shows up in the stats of sites that aren't on the list (D-032).
 - Suggestions count each subdomain on its own (`music.youtube.com` and
   `youtube.com` are two sites), because there's no Public Suffix List
   (D-013).
@@ -115,6 +118,11 @@ click (D-030). Still to do:
 
 - [x] Unreleased: an optional wait before "Yes" works, 0 to 10
       seconds, off by default (D-034).
+- [x] Unreleased: suggestions look at the last 2 hours (6 opens within
+      2 hours) instead of 3 of the last 7 days, so they can show up the
+      same day (D-031). Stats for sites that aren't on the list on "Your
+      list & stats", kept until you delete them, all at once or per site;
+      backup schema 3 (D-032).
 - [x] Unreleased: Firefox 140+ from the same code (D-029); "Add" asks for
       access in the same moment as the click, so Firefox shows its prompt
       (D-030). The fermata drawn like a pen line (D-028). Light or dark

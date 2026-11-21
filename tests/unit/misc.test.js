@@ -47,7 +47,7 @@ describe('copy', () => {
   });
   it('the suggestion names the site once, and gives the real threshold', () => {
     for (const key of ['title', 'noticed', 'noAccess']) assert.equal(SUGGESTION[key].split('{site}').length, 2, key);
-    assert.equal(SUGGESTION.why, 'You opened it 8 or more times a day on 3 of the last 7 days.');
+    assert.equal(SUGGESTION.why, 'You opened it 6 times in the last 2 hours.');
   });
   it('every turned-back message has a title and body', () => {
     for (const message of TURNED_BACK) assert.ok(message.title && message.body);
@@ -77,6 +77,7 @@ describe('backup', () => {
     settings: { graceMinutes: 10, countdownSeconds: 3, yesWaitSeconds: 4, theme: 'sage', appearance: 'dark', suggestions: true },
     stats: { '2026-11-19': { 'reddit.com': [4, 1] } },
     quiet: { 'github.com': { added: 1700000000001 } },
+    impulse: { '2026-11-19': { 'youtube.com': 9, 'github.com': 3 } },
   };
 
   it('round-trips', () => {
@@ -89,13 +90,20 @@ describe('backup', () => {
     assert.deepEqual(parsed.data, data);
   });
 
-  it('never includes the suggestion counts', () => {
-    const backup = buildBackup({ ...data, opens: { '2026-11-19': { 'youtube.com': 9 } }, suggestedOn: '2026-11-19' }, '0.2.0');
-    assert.deepEqual(Object.keys(backup).sort(), ['app', 'exportedAt', 'quiet', 'schema', 'settings', 'sites', 'stats', 'version']);
+  it("includes the impulse stats, never the suggestion check's recent opens", () => {
+    const backup = buildBackup({ ...data, opens: { 'youtube.com': [1763672400000] }, suggestedOn: '2026-11-19' }, '0.4.0');
+    assert.deepEqual(Object.keys(backup).sort(), ['app', 'exportedAt', 'impulse', 'quiet', 'schema', 'settings', 'sites', 'stats', 'version']);
+  });
+
+  it('still imports schema 2 backups (no impulse stats)', () => {
+    const { impulse: _, ...older } = buildBackup(data, '0.3.0');
+    const parsed = parseBackup(JSON.stringify({ ...older, schema: 2 }));
+    assert.ok(parsed.ok);
+    assert.deepEqual(parsed.data, { ...data, impulse: {} });
   });
 
   it('still imports schema 1 backups (no "don\'t ask again" list, suggestions off)', () => {
-    assert.equal(SCHEMA, 2);
+    assert.equal(SCHEMA, 3);
     const parsed = parseBackup(
       JSON.stringify({
         app: BACKUP_APP,
@@ -107,7 +115,7 @@ describe('backup', () => {
       }),
     );
     assert.ok(parsed.ok);
-    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, yesWaitSeconds: 0, theme: 'dusk', appearance: 'browser', suggestions: false }, quiet: {} });
+    assert.deepEqual(parsed.data, { ...data, settings: { ...data.settings, yesWaitSeconds: 0, theme: 'dusk', appearance: 'browser', suggestions: false }, quiet: {}, impulse: {} });
   });
 
   it('rejects files that are not ours', () => {
@@ -132,6 +140,10 @@ describe('backup', () => {
           '2026-11-19': { 'youtube.com': [3, 7], 'bad host': [1, 0], 'facebook.com': [-1, 0] },
           yesterday: { 'reddit.com': [1, 0] },
         },
+        impulse: {
+          '2026-11-19': { 'https://www.YouTube.com/': 4, 'bad host': 2, 'reddit.com': -3, 'imdb.com': 1.5, 'x.com': '7' },
+          soon: { 'reddit.com': 1 },
+        },
       }),
     );
     assert.ok(parsed.ok);
@@ -141,6 +153,7 @@ describe('backup', () => {
     assert.deepEqual(Object.keys(parsed.data.quiet), ['github.com']);
     assert.ok(parsed.data.quiet['github.com'].added > 0);
     assert.deepEqual(parsed.data.stats, { '2026-11-19': { 'youtube.com': [3, 3] } });
+    assert.deepEqual(parsed.data.impulse, { '2026-11-19': { 'youtube.com': 4 } });
   });
 });
 

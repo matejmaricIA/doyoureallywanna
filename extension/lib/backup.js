@@ -3,20 +3,22 @@
 // anything that doesn't look right is dropped or rejected, never trusted.
 //
 // Schema 2 (v0.2) added the "don't ask again" list (`quiet`) and the
-// suggestions switch (in `settings`). Schema 1 backups still import.
-// The suggestion counts are never in a backup (D-023).
+// suggestions switch (in `settings`). Schema 3 added the impulse-open
+// stats (`impulse`, D-032). Older backups still import. The suggestion
+// check's last 2 hours of opens is never in a backup (D-023).
 
 import { normalizeDomain } from './domains.js';
 import { sanitizeSettings } from './settings.js';
 
 export const BACKUP_APP = 'do-you-really-wanna';
-export const SCHEMA = 2;
-const READABLE = [1, 2];
+export const SCHEMA = 3;
+const READABLE = [1, 2, 3];
 
 /** @typedef {import('./settings.js').Settings} Settings */
 /** @typedef {import('./stats.js').Stats} Stats */
+/** @typedef {import('./impulse.js').Impulse} Impulse */
 /** @typedef {Record<string, { added: number }>} Sites */
-/** @typedef {{ sites: Sites, settings: Settings, stats: Stats, quiet: Sites }} Data */
+/** @typedef {{ sites: Sites, settings: Settings, stats: Stats, quiet: Sites, impulse: Impulse }} Data */
 
 /**
  * @param {Data} data
@@ -33,6 +35,7 @@ export function buildBackup(data, version, now = new Date()) {
     settings: data.settings,
     stats: data.stats,
     quiet: data.quiet,
+    impulse: data.impulse,
   };
 }
 
@@ -72,9 +75,21 @@ export function parseBackup(text) {
     }
   }
 
+  /** @type {Impulse} */
+  const impulse = {};
+  if (raw.impulse && typeof raw.impulse === 'object') {
+    for (const [day, perSite] of Object.entries(raw.impulse)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !perSite || typeof perSite !== 'object') continue;
+      for (const [key, count] of Object.entries(perSite)) {
+        const domain = normalizeDomain(key);
+        if (domain && toCount(count)) (impulse[day] ??= {})[domain] = toCount(count);
+      }
+    }
+  }
+
   return {
     ok: true,
-    data: { sites: toSites(raw.sites), settings: sanitizeSettings(raw.settings), stats, quiet: toSites(raw.quiet) },
+    data: { sites: toSites(raw.sites), settings: sanitizeSettings(raw.settings), stats, quiet: toSites(raw.quiet), impulse },
   };
 }
 

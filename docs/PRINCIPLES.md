@@ -35,9 +35,11 @@ one of these, the idea loses. Changing a principle needs a decision in
 - **No telemetry of any kind**, even anonymous, even opt-in.
 - **No `chrome.storage.sync`.** It goes through Google's/Microsoft's servers.
 - **No browsing history.** Never store URLs, page titles or times of
-  individual visits. Per-day counts per listed site, that's it. With
-  suggestions on, also per-day counts of impulse opens per site, kept for
-  7 days, never in a backup, and deleted when suggestions are turned off.
+  individual visits. Per-day counts per site, that's it: for listed
+  sites, times paused and opened anyway; with suggestions on, also how
+  often sites that aren't on the list were opened on impulse (D-032). The
+  suggestion check needs the times of the last 2 hours' opens (D-031); it
+  keeps nothing older.
 - **No content scripts on every site.** No code of ours inside the pages
   people visit.
 - **No polling, intervals or timers in the background.**

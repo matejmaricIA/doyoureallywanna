@@ -3,23 +3,17 @@
 // Pure: no `chrome.*` here, so it runs in unit tests as-is.
 //
 // What's kept, and only while suggestions are on:
-//   opens:       { "2026-11-20": { "youtube.com": 9 } }   impulse opens per local day
+//   opens:       { "youtube.com": [1763650000000, ...] }  times of impulse opens, last 2 hours only
 //   suggestedOn: "2026-11-20"                             the last day a suggestion was shown
-// No URLs, no page titles, no times of day.
+// No URLs, no page titles, nothing older than 2 hours (D-031).
 
-import { dateOfKey, lastDays } from './dates.js';
 import { hostMatches, hostOf, normalizeDomain } from './domains.js';
-import { pruneStats } from './stats.js';
 
-// The threshold, in one place: a site is suggested once it was opened at
-// least OPENS_PER_DAY times a day on at least BUSY_DAYS of the last
-// WINDOW_DAYS days (today included).
-export const OPENS_PER_DAY = 8;
-export const BUSY_DAYS = 3;
-export const WINDOW_DAYS = 7;
-
-/** Days of counts we keep: only the ones the check above reads. */
-export const KEEP_DAYS = WINDOW_DAYS;
+// The threshold, in one place: a site is suggested on the open that makes
+// it OPENS_PER_WINDOW opens within the last WINDOW_MINUTES minutes.
+export const OPENS_PER_WINDOW = 6;
+export const WINDOW_MINUTES = 120;
+const WINDOW_MS = WINDOW_MINUTES * 60 * 1000;
 
 /**
  * The browser's own pages that happen to be websites. Edge's new tab page
@@ -29,7 +23,7 @@ export const KEEP_DAYS = WINDOW_DAYS;
  */
 export const BROWSER_PAGES = ['ntp.msn.com', 'ntp.msn.cn'];
 
-/** @typedef {Record<string, Record<string, number>>} Opens */
+/** @typedef {Record<string, number[]>} Opens  site -> times of its opens (ms) */
 
 /**
  * The parts of `webNavigation.onCommitted` details we look at.
@@ -81,57 +75,67 @@ export function isCovered(site, domains) {
 }
 
 /**
- * New counts with one open added.
- * @param {Opens} opens
- * @param {string} site
- * @param {string} day
+ * Only the opens of the last WINDOW_MINUTES minutes (and nothing that isn't
+ * a list of times, such as counts stored by an older version).
+ * @param {unknown} opens
+ * @param {number} now  ms
  * @returns {Opens}
  */
-export function countOpen(opens, site, day) {
-  const perSite = { ...(opens[day] ?? {}) };
-  perSite[site] = (perSite[site] ?? 0) + 1;
-  return { ...opens, [day]: perSite };
-}
-
-/**
- * New counts without `domain` and its subdomains, on every day.
- * @param {Opens} opens
- * @param {string} domain
- * @returns {Opens}
- */
-export function forgetSite(opens, domain) {
+export function pruneOpens(opens, now) {
   /** @type {Opens} */
   const next = {};
-  for (const [day, perSite] of Object.entries(opens)) {
-    const kept = Object.entries(perSite).filter(([site]) => !hostMatches(site, domain));
-    if (kept.length) next[day] = Object.fromEntries(kept);
+  if (!opens || typeof opens !== 'object') return next;
+  for (const [site, times] of Object.entries(opens)) {
+    if (!Array.isArray(times)) continue;
+    const recent = times.filter((t) => typeof t === 'number' && t > now - WINDOW_MS && t <= now);
+    if (recent.length) next[site] = recent;
   }
   return next;
 }
 
 /**
- * Does `site` open often enough to be worth a suggestion?
+ * New opens with one more open of `site` at `now`.
  * @param {Opens} opens
  * @param {string} site
- * @param {string} today
+ * @param {number} now  ms
+ * @returns {Opens}
  */
-export function qualifies(opens, site, today) {
-  const busy = lastDays(WINDOW_DAYS, dateOfKey(today)).filter((day) => (opens[day]?.[site] ?? 0) >= OPENS_PER_DAY);
-  return busy.length >= BUSY_DAYS;
+export function countOpen(opens, site, now) {
+  return { ...opens, [site]: [...(opens[site] ?? []), now] };
+}
+
+/**
+ * New opens without `domain` and its subdomains.
+ * @param {Opens} opens
+ * @param {string} domain
+ * @returns {Opens}
+ */
+export function forgetSite(opens, domain) {
+  return Object.fromEntries(Object.entries(opens).filter(([site]) => !hostMatches(site, domain)));
+}
+
+/**
+ * Was `site` opened often enough, lately, to be worth a suggestion?
+ * @param {Opens} opens  already pruned to the window
+ * @param {string} site
+ */
+export function qualifies(opens, site) {
+  return (opens[site]?.length ?? 0) >= OPENS_PER_WINDOW;
 }
 
 /**
  * Count one impulse open of a site that isn't on either list, and decide
  * whether to show a suggestion now. At most one suggestion a day, for all
- * sites together. Showing one resets that site's counts, so it can only
- * come back once fresh opens qualify again (BUSY_DAYS days at the earliest).
- * @param {{ opens: Opens, suggestedOn?: string | null }} state
+ * sites together. Showing one resets that site's opens, so it can only
+ * come back once fresh opens qualify again.
+ * @param {{ opens: unknown, suggestedOn?: string | null }} state
  * @param {string} site
- * @param {string} today
+ * @param {number} now  ms
+ * @param {string} today  the local day of `now`
  * @returns {{ opens: Opens, suggest: boolean }}
  */
-export function recordOpen({ opens, suggestedOn = null }, site, today) {
-  const next = pruneStats(countOpen(opens, site, today), today, KEEP_DAYS);
-  if (suggestedOn === today || !qualifies(next, site, today)) return { opens: next, suggest: false };
+export function recordOpen({ opens, suggestedOn = null }, site, now, today) {
+  const next = countOpen(pruneOpens(opens, now), site, now);
+  if (suggestedOn === today || !qualifies(next, site)) return { opens: next, suggest: false };
   return { opens: forgetSite(next, site), suggest: true };
 }

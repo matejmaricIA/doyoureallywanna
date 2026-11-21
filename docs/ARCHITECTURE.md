@@ -28,7 +28,8 @@ extension/                 ← load this folder in the browser; it's also what s
     stats.js       pure   add events, prune, sum counts, tally marks
     dates.js       pure   local day keys
     settings.js    pure   defaults, limits, sanitizing
-    suggest.js     pure   suggestions: which opens count, counting, the threshold
+    suggest.js     pure   suggestions: which opens count, the last 2 hours, the threshold
+    impulse.js     pure   stats of impulse opens of sites not on the list: count, rows, delete
     themes.js      pure   the color themes, their toolbar icon colors and files
     backup.js      pure   build / validate the JSON backup
     copy.js        pure   every question and message the extension shows,
@@ -52,20 +53,26 @@ unchanged.
 
 ```js
 {
-  schema: 2,
+  schema: 3,
   sites: { "reddit.com": { added: 1763548800000 } },        // when it was added
   settings: { graceMinutes: 5, countdownSeconds: 5, yesWaitSeconds: 0, theme: "dusk", appearance: "browser", suggestions: false },
   stats: { "2026-11-19": { "reddit.com": [6, 2] } },       // [paused, openedAnyway] per local day
   quiet: { "github.com": { added: 1763635200000 } },        // "don't ask again": never suggested
 
-  // Only while suggestions are on. Turning them off deletes both. Never in a backup.
-  opens: { "2026-11-20": { "youtube.com": 9 } },            // impulse opens per local day, 7 days
+  impulse: { "2026-11-21": { "youtube.com": 9 } },         // impulse opens of sites not on the list, per local day (D-032)
+
+  // The suggestion check. Turning suggestions off deletes both. Never in a backup.
+  opens: { "youtube.com": [1763672400000, …] },            // times of impulse opens in the last 2 hours (D-031)
   suggestedOn: "2026-11-20"                                // the day the last suggestion was shown
 }
 ```
 
 Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
-(D-023). Nothing is migrated: missing keys mean empty / off.
+(D-023). Schema 3 added `impulse` (D-032), which is in backups like
+`stats` and pruned the same way (400 days); only "Delete all stats" or
+"Delete" next to a site removes it. Nothing is migrated: missing keys
+mean empty / off, and `opens` in the old per-day shape is dropped on the
+next open.
 
 `chrome.storage.session` (gone when the browser restarts):
 
@@ -144,13 +151,14 @@ Schema 2 added `quiet`, `settings.suggestions`, `opens` and `suggestedOn`
    client redirects, prerenders, and never Edge's new tab page itself). No
    storage is read for those.
 3. Private-window tabs are skipped (`tabs.get`). Then, under the storage
-   lock, `recordImpulseOpen` skips sites covered by the list or the
-   "don't ask again" list, adds one to today's count, drops days older
-   than 7, and checks the threshold (D-021).
+   lock, `recordImpulseOpen` skips sites covered by the list, adds one
+   to today's number in `impulse` (D-032), and, unless the site is on the
+   "don't ask again" list, drops opens older than 2 hours, adds this
+   one's time to `opens` and checks the threshold (D-031).
 
 **A suggestion** (D-021, D-022)
 
-1. The open that makes a site qualify (8+ opens on 3 of the last 7 days),
+1. The open that makes a site qualify (6 opens within the last 2 hours, D-031),
    if no suggestion was shown today: its counts are reset, `suggestedOn`
    is set to today, and the worker sends the tab to
    `pause/suggestion.html#<url>` with `tabs.update`. That page isn't

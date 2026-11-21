@@ -72,7 +72,7 @@ had a second to think about *why* you were opening it.
 </table>
 
 <p align="center">
-  <img src="docs/images/suggestion.png" alt="The suggestion page: I noticed you open facebook.com a lot. Do you open it out of habit? You opened it 8 or more times a day on 3 of the last 7 days. Three buttons of the same size: Add it to my list / It's fine, don't ask again / Just let me in." width="620" /><br />
+  <img src="docs/images/suggestion.png" alt="The suggestion page: I noticed you open facebook.com a lot. Do you open it out of habit? You opened it 6 times in the last 2 hours. Three buttons of the same size: Add it to my list / It's fine, don't ask again / Just let me in." width="620" /><br />
   <sub>With suggestions on: a site you keep opening that isn't on your list yet</sub>
 </p>
 
@@ -100,8 +100,9 @@ This is the point, not a footnote.
   No web addresses, no page titles, no times of day.
 - **Suggestions are opt-in.** Only if you turn them on does it see which
   pages open (your browser will warn about "browsing history"). Even then
-  it keeps one number per site per day, for 7 days, never in a backup, and
-  turning them off deletes it all.
+  it keeps one number per site per day (how often you opened sites that
+  aren't on your list), which you can see and delete on "Your list &
+  stats".
 - **It only asks for access to the sites you add**, one at a time, when you
   add them, and gives the access back when you remove them. It never runs
   code inside the pages you visit.

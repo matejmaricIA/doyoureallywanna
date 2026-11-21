@@ -327,7 +327,7 @@ The big tally draws itself once on load (off with reduced motion). Past
 
 ## D-020 · Suggestions notice impulse opens with `webNavigation` (opt-in)
 
-*2026-11-20 · Accepted*
+*2026-11-20 · Accepted · stored counts superseded by D-031 and D-032*
 
 **Context.** D-015 planned opt-in suggestions: "I noticed you open
 youtube.com a lot." Noticing means seeing which sites open, including the
@@ -414,7 +414,7 @@ something; typing a site's name is reaching for it.
 
 ## D-021 · When a site is suggested, and what each answer does
 
-*2026-11-20 · Accepted*
+*2026-11-20 · Accepted · threshold superseded by D-031*
 
 **Decision.**
 
@@ -481,7 +481,7 @@ the page commits anyway.
 
 ## D-023 · Backup schema 2
 
-*2026-11-20 · Accepted*
+*2026-11-20 · Accepted · the stats of sites not on the list are in backups since D-032*
 
 **Decision.** The backup's `schema` goes from 1 to 2. Schema 2 adds the
 "don't ask again" list (`quiet`) and the suggestions switch
@@ -737,6 +737,84 @@ domain again. The Firefox test now clicks both "Add" buttons with real,
 trusted mouse input (`Tab.realClick` in `tools/lib/bidi.mjs`) on a site
 without access, and fails on the old order. The Edge/Chrome test adds a
 site back from the popup through the background.
+
+## D-031 · Suggestions look at the last 2 hours, not the last week
+
+*2026-11-21 · Accepted · supersedes the threshold of D-021 and the stored counts of D-020*
+
+**Context.** A site was suggested once it had 8+ impulse opens a day on 3
+of the last 7 days. That means at least three days from turning
+suggestions on to the first suggestion, so it looks like it doesn't work.
+The multi-day rule also didn't filter what it seemed to: work tools are
+opened every day and qualify just as easily. It only filtered one-off busy
+days, which are rare, and a wrong suggestion costs one kind question
+(at most once a day) and a "don't ask again". Midnight also split a late
+evening into two half-busy days.
+
+**Decision.**
+
+- A site is suggested on the open that makes it **6 impulse opens within
+  the last 2 hours** (`OPENS_PER_WINDOW`, `WINDOW_MINUTES` = 120 in
+  `lib/suggest.js`). What counts as an impulse open is unchanged (D-020).
+- The check keeps `opens: { site: [ms, …] }`, the times of each site's
+  opens in the last 2 hours. It never reads anything older, so every counted
+  open drops what's older, for every site. Turning suggestions off and
+  importing a backup delete it; it's never in a backup.
+- Unchanged: at most one suggestion a day for all sites together
+  (`suggestedOn`), and showing one resets that site's opens (D-021).
+- Counts stored by v0.2/v0.3 (`{ day: { site: n } }`) aren't lists of
+  times, so they're dropped on the next open. No migration.
+
+**Why.** Opening something on impulse looks like a burst: type it, close
+it, type it again a little later. Two hours catch that, including a
+slower evening of checking, and it can answer the same day. Six in two
+hours is far more than looking something up twice; it's checking. (First
+drafted as one hour; widened before release so slower checking counts
+too.)
+
+**Consequences.**
+
+- A site opened often but spread out over the day is never suggested
+  (ROADMAP known limitations). The stats of D-032 still show it.
+- The suggestion page says "You opened it 6 times in the last 2 hours."
+
+## D-032 · Stats for sites that aren't on the list
+
+*2026-11-21 · Accepted · supersedes D-023 for these numbers*
+
+**Context.** With suggestions on, the extension already sees every
+impulse open, but until now it only used them to decide when to ask, and
+threw them away. You couldn't see which sites you open on autopilot
+without waiting to be asked. Everything is local (PRINCIPLES.md), so
+keeping the numbers costs nothing in privacy; they're the same kind of
+numbers as the list's own stats.
+
+**Decision.**
+
+- `impulse: { day: { site: n } }`: impulse opens (D-020) per local day of
+  every site that isn't on the list, "don't ask again" sites included
+  (that list means "don't suggest it", not "don't count it"). Counted
+  while suggestions are on, since that's when the browser lets us see
+  opens. Pruned like `stats` (400 days).
+- "Your list & stats" has a "Not on your list" section: site, today, last
+  7 days, all time, busiest this week first, ten rows and "Show all".
+  Sites currently on the list are left out (their numbers stay, and come
+  back if the site leaves the list). Shown while suggestions are on, or
+  while there are numbers; with suggestions off it says "Not counting
+  right now".
+- Only you delete them: "Delete" next to a site (that site exactly, not
+  its subdomains, and its recent opens with it) or "Delete all
+  stats". Turning suggestions off keeps them.
+- Backups are schema 3 and include `impulse`, cleaned on import like
+  `stats`. Schema 1 and 2 still import, with no impulse numbers.
+
+**Why.** The numbers are useful on their own, and they were already
+being seen. Deleting them when suggestions go off would throw away
+something you may want to look at later, for no one's benefit.
+
+**Consequences.** PRINCIPLES.md, PRIVACY.md and the README say so. The
+settings page note under the switch says what's counted and that it
+stays until you delete it.
 
 ## D-034 · An optional wait before "Yes"
 

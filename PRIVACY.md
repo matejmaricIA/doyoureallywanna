@@ -32,18 +32,23 @@ stats". Then, and only then:
   which ones you opened by typing the address, from a bookmark or from the
   new tab page. That's why your browser warns that it can "read your
   browsing history" when you turn this on.
-- It keeps **one number per site per day**: how many times you opened that
-  site that way (for example `youtube.com: 9` for today). Not the address
-  of the page, not its title, not the time. Links you click, reloads and
-  searches aren't counted at all, and neither is anything in private
-  (InPrivate / Incognito) windows.
-- The numbers are kept for 7 days, then deleted automatically. When a
-  suggestion is shown, that site's numbers are deleted.
-- Sites on your list and on your "don't ask again" list are never counted.
-- These numbers are never put in a backup and never leave your computer.
+- It keeps **one number per site per day**: how many times you opened a
+  site that isn't on your list that way (for example `youtube.com: 9` for
+  today). "Your list & stats" shows them. Not the address of the page,
+  not its title. Links you click, reloads and searches aren't counted at
+  all, and neither is anything in private (InPrivate / Incognito)
+  windows. Sites on your list are never counted here; they have their own
+  numbers.
+- To decide when to ask, it also keeps the times of the last 2 hours' opens
+  per site (not for sites on your "don't ask again" list). Anything older
+  than 2 hours is dropped.
+- The numbers are kept like the rest of your stats, and are in your
+  backups. "Delete all stats" deletes them, and "Delete" next to a site
+  deletes that site's numbers.
 
-Turning suggestions off deletes all of these numbers right away and gives
-the permission back to the browser.
+Turning suggestions off stops the counting, forgets those recent times and
+gives the permission back to the browser. The numbers already counted
+stay until you delete them.
 
 ## What the extension sends
 

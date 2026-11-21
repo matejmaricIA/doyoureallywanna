@@ -2,7 +2,11 @@
 // who scolds. Every prompt must be answerable with the two buttons
 // ("No, not now" / "Yes, open it").
 
-import { BUSY_DAYS, OPENS_PER_DAY, WINDOW_DAYS } from './suggest.js';
+import { OPENS_PER_WINDOW, WINDOW_MINUTES } from './suggest.js';
+
+/** "hour", "2 hours" or "90 minutes": the suggestion window, as said in a sentence. */
+const WINDOW_TEXT =
+  WINDOW_MINUTES % 60 ? `${WINDOW_MINUTES} minutes` : WINDOW_MINUTES === 60 ? 'hour' : `${WINDOW_MINUTES / 60} hours`;
 
 export const PROMPTS = [
   'Do you really wanna open {site} right now?',
@@ -31,7 +35,7 @@ export const SUGGESTION = Object.freeze({
   title: 'Out of habit? · {site}',
   noticed: 'I noticed you open {site} a lot.',
   question: 'Do you open it out of habit?',
-  why: `You opened it ${OPENS_PER_DAY} or more times a day on ${BUSY_DAYS} of the last ${WINDOW_DAYS} days.`,
+  why: `You opened it ${OPENS_PER_WINDOW} times in the last ${WINDOW_TEXT}.`,
   add: 'Add it to my list',
   quiet: "It's fine, don't ask again",
   letIn: 'Just let me in',
