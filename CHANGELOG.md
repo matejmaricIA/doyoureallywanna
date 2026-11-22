@@ -10,6 +10,22 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+### Added
+
+- **Ready for the stores.** `store/LISTING.md` holds everything to paste
+  into the Chrome Web Store and Edge Add-ons forms: the description, the
+  single-purpose text, why each permission is needed, the data-use
+  answers, search terms and notes for the reviewers. `npm run screenshots`
+  now also makes the store screenshots (1280×800) and promo tiles
+  (440×280, 1400×560), and `npm run icons` a 300 px logo, in
+  `store/images/` (D-035).
+- The extensions page links to the project on GitHub (`homepage_url`).
+
+### Changed
+
+- The name is final: **Do You Really Wanna?**, with no keyword suffix in
+  the stores (D-035).
+
 ## [0.4.0] - 2026-11-22
 
 Suggestions that show up the same day, stats for the sites that aren't on

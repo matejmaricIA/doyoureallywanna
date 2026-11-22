@@ -1,7 +1,12 @@
-// Regenerate the README screenshots from the real extension pages, filled
-// with made-up demo data. Usage: npm run screenshots
+// Regenerate the README screenshots, and the store images, from the real
+// extension pages, filled with made-up demo data. Usage: npm run screenshots
+//
+// docs/images/   README screenshots, at 2× for sharp text
+// store/images/  store screenshots (1280×800) and promo tiles (440×280,
+//                1400×560), at exactly those pixel sizes, as the stores
+//                want them (D-035)
 
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +14,8 @@ import { launch, sleep, waitUntil } from './lib/cdp.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const out = path.join(root, 'docs', 'images');
+const storeOut = path.join(root, 'store', 'images');
+mkdirSync(storeOut, { recursive: true });
 
 const DEMO_SITES = ['youtube.com', 'reddit.com', 'instagram.com', 'mail.google.com'];
 
@@ -23,6 +30,31 @@ manifest.host_permissions = DEMO_SITES.map((site) => `*://*.${site}/*`);
 manifest.permissions = [...manifest.permissions, ...manifest.optional_permissions];
 delete manifest.optional_permissions;
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+// The promo tiles: the fermata, the name and the tagline on the Dusk dark
+// background. Pages of the copied extension, so they use its own styles.
+const mark = readFileSync(path.join(root, 'assets', 'icon.svg'), 'utf8').replace(/<!--[\s\S]*?-->\s*/g, '');
+/** @param {{ mark: number, title: number, tag: number, gap: number }} size */
+const tile = (size) => `<!doctype html>
+<html lang="en" data-appearance="dark">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="ui/base.css" />
+    <style>
+      html, body { height: 100%; margin: 0; }
+      body { display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--ink); font-family: var(--font); }
+      .tile { display: flex; align-items: center; gap: ${size.gap}px; }
+      svg { width: ${size.mark}px; height: ${size.mark}px; color: #8788cf; flex: none; }
+      h1 { margin: 0; font-size: ${size.title}px; line-height: 1.08; font-weight: 700; letter-spacing: -0.025em; }
+      p { margin: 0.45em 0 0; font-size: ${size.tag}px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="tile">${mark}<div><h1>Do You Really<br />Wanna?</h1><p>Give it a second thought.</p></div></div>
+  </body>
+</html>`;
+writeFileSync(path.join(extDir, 'store-tile-small.html'), tile({ mark: 92, title: 31, tag: 15, gap: 22 }));
+writeFileSync(path.join(extDir, 'store-tile-marquee.html'), tile({ mark: 210, title: 74, tag: 30, gap: 60 }));
 
 /** Deterministic demo stats for the last 30 days. */
 function demoStats() {
@@ -92,12 +124,14 @@ try {
 
   /**
    * @param {string} name
-   * @param {{ url: string, width: number, height: number, dark?: boolean, random?: number[],
+   * @param {{ url: string, width: number, height: number, dark?: boolean, random?: number[], store?: boolean,
    *           before?: string, after?: (page: import('./lib/cdp.mjs').Page) => Promise<void>, fullPage?: boolean }} shot
    */
   async function capture(name, shot) {
     const page = await browser.newPage();
-    await page.setViewport({ width: shot.width, height: shot.height, scale: 2, dark: shot.dark });
+    // Store images are exactly width × height pixels; README ones are 2×.
+    await page.setViewport({ width: shot.width, height: shot.height, scale: shot.store ? 1 : 2, dark: shot.dark });
+    if (shot.store) await page.send('Emulation.setScrollbarsHidden', { hidden: true });
     await page.send('Emulation.setEmulatedMedia', {
       features: [
         { name: 'prefers-color-scheme', value: shot.dark ? 'dark' : 'light' },
@@ -110,10 +144,15 @@ try {
     await page.settle();
     await sleep(250);
     if (shot.after) await shot.after(page);
-    await page.screenshot(path.join(out, name), { fullPage: shot.fullPage });
-    console.log(`wrote docs/images/${name}`);
+    await page.screenshot(path.join(shot.store ? storeOut : out, name), { fullPage: shot.fullPage });
+    console.log(`wrote ${shot.store ? 'store' : 'docs'}/images/${name}`);
     return page;
   }
+
+  /** Switch the demo profile's color theme. @param {string} theme */
+  const setTheme = (theme) =>
+    options.evaluate(`chrome.storage.local.get('settings').then(({ settings }) =>
+      chrome.storage.local.set({ settings: { ...settings, theme: ${JSON.stringify(theme)} } }))`);
 
   await capture('settings.png', {
     url: `${base}/options/options.html`,
@@ -161,6 +200,37 @@ try {
     fullPage: true,
     before: `Object.defineProperty(chrome.tabs, 'query', { value: async () => [{ id: 1, url: 'https://www.facebook.com/' }] });`,
   });
+
+  // Store screenshots, in the order the listing shows them.
+  const store = { width: 1280, height: 800, store: true };
+
+  await capture('1-pause.png', { ...store, url: `${base}/pause/pause.html#https://www.youtube.com/`, random: [0] });
+
+  await capture('2-turned-back.png', {
+    ...store,
+    url: `${base}/pause/pause.html#https://instagram.com/`,
+    random: [0, 0.2],
+    after: async (page) => {
+      await page.click('#no');
+      await sleep(150);
+    },
+  });
+
+  await capture('3-stats.png', { ...store, url: `${base}/options/options.html` });
+
+  await capture('4-suggestion.png', { ...store, url: `${base}/pause/suggestion.html#https://www.facebook.com/` });
+
+  await setTheme('tide');
+  await capture('5-dark-tide.png', {
+    ...store,
+    url: `${base}/pause/pause.html#https://www.reddit.com/r/AskReddit/`,
+    dark: true,
+    random: [0.34],
+  });
+  await setTheme('dusk');
+
+  await capture('promo-small-440x280.png', { width: 440, height: 280, store: true, url: `${base}/store-tile-small.html` });
+  await capture('promo-marquee-1400x560.png', { width: 1400, height: 560, store: true, url: `${base}/store-tile-marquee.html` });
 } finally {
   await browser.close();
   rmSync(extDir, { recursive: true, force: true });

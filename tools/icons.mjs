@@ -9,8 +9,10 @@
 //   icon-{16,32,48,128}.png  default theme: manifest, extensions page, stores
 //   <theme>-{16,32}.png      toolbar icon and tab icon for each theme
 //   mark.svg                 icon.svg as is; the pages use it as a CSS mask
+// and store/images/logo-300.png, the 300 px logo Edge Add-ons asks for (D-035).
 
-import { copyFileSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_THEME, THEMES } from '../extension/lib/themes.js';
 import { launch } from './lib/cdp.mjs';
@@ -20,8 +22,8 @@ const large = readFileSync(`${root}/assets/icon.svg`, 'utf8');
 const small = readFileSync(`${root}/assets/icon-small.svg`, 'utf8');
 
 // [size, transparent padding]. Toolbar sizes use the whole square; the
-// 48 and 128 px icons get a little breathing room.
-const PADDING = { 16: 0, 32: 0, 48: 2, 128: 8 };
+// 48, 128 and 300 px icons get a little breathing room.
+const PADDING = { 16: 0, 32: 0, 48: 2, 128: 8, 300: 19 };
 
 /** @type {{ file: string, size: number, color: string }[]} */
 const jobs = [];
@@ -30,13 +32,15 @@ for (const size of [16, 32, 48, 128]) jobs.push({ file: `icon-${size}.png`, size
 for (const theme of THEMES) {
   for (const size of [16, 32]) jobs.push({ file: `${theme.key}-${size}.png`, size, color: theme.icon });
 }
+jobs.push({ file: '../../store/images/logo-300.png', size: 300, color: defaultColor });
+mkdirSync(`${root}/store/images`, { recursive: true });
 
 const browser = await launch({ name: 'icons' });
 try {
   const page = await browser.newPage();
   await page.send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
   for (const { file, size, color } of jobs) {
-    const pad = PADDING[/** @type {16 | 32 | 48 | 128} */ (size)];
+    const pad = PADDING[/** @type {16 | 32 | 48 | 128 | 300} */ (size)];
     const inner = size - pad * 2;
     const svg = size === 16 ? small : large;
     await page.setViewport({ width: size, height: size });
@@ -48,7 +52,7 @@ try {
       new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     `);
     await page.screenshot(`${root}/extension/icons/${file}`, { clip: { x: 0, y: 0, width: size, height: size } });
-    console.log(`wrote extension/icons/${file}`);
+    console.log(`wrote ${path.posix.normalize(`extension/icons/${file}`)}`);
   }
 } finally {
   await browser.close();

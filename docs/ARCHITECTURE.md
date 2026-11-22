@@ -19,7 +19,7 @@ extension/                 ← load this folder in the browser; it's also what s
   ui/theme.js              loaded first by every page (render-blocking): applies the color theme
                            and light/dark, colors the toolbar icon
   icons/                   rendered by `npm run icons` from assets/:
-                             icon-{16,32,48,128}.png  default theme (manifest, stores)
+                             icon-{16,32,48,128}.png  default theme (manifest, Chrome store icon)
                              <theme>-{16,32}.png      toolbar + tab icon per theme
                              mark.svg                 the drawing, used as a CSS mask for the page logo
   lib/
@@ -42,6 +42,9 @@ assets/icon-small.svg      the same, redrawn on the 16 px grid
 tests/unit/                node:test tests for the pure modules
 tools/                     dev tooling (never shipped): e2e tests (Edge/Chrome, Firefox), screenshots, icons, packaging
 docs/                      decisions, roadmap, principles, this file, images
+store/LISTING.md           what to paste into the store forms (never shipped, D-035)
+store/images/              store screenshots and promo tiles (`npm run screenshots`),
+                           300 px logo (`npm run icons`)
 ```
 
 "Pure" modules don't touch `chrome.*`, so they run in Node unit tests

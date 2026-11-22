@@ -4,6 +4,7 @@
   "short_name": "Really?",
   "version": "0.4.0",
   "description": "A gentle pause before the sites you open on autopilot. Nothing is blocked, and nothing ever leaves your computer.",
+  "homepage_url": "https://github.com/matejmaricIA/doyoureallywanna",
   "minimum_chrome_version": "123",
   "browser_specific_settings": {
     "gecko": {

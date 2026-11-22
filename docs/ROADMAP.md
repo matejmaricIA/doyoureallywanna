@@ -41,11 +41,9 @@ including adding sites with a real click (D-030). Still to do:
 
 ## Before the first store release
 
-- [ ] Final name check (D-002): search Chrome Web Store and Edge Add-ons.
-- [ ] Store listing: title, short description (≤132 chars), long
-      description, 1280×800 screenshots, 440×280 promo tile.
-- [ ] Privacy policy URL (PRIVACY.md on GitHub works) and the stores'
-      data-use forms ("does not collect or transmit user data").
+Paste-ready text and images are in `store/LISTING.md` and `store/images/`
+(D-035).
+
 - [ ] Hand-test the real permission prompt flow in Edge and Chrome (popup
       and settings page), on a fresh profile. Confirm the install dialog
       shows no permission warnings (ARCHITECTURE.md's table says none).
@@ -54,10 +52,9 @@ including adding sites with a real click (D-030). Still to do:
 - [ ] Hand-test the toolbar icon's theme color after a browser restart, in
       Edge and Chrome (D-025). If it falls back to Dusk, decide whether
       that's acceptable.
-- [ ] 440×280 promo tile with the fermata.
 - [ ] Publish to Edge Add-ons (free) and Chrome Web Store ($5 one-time
       developer fee).
-- [ ] Add `homepage_url` to the manifest and store links to the README.
+- [ ] Add the store links to the README once the listings are live.
 - [ ] Donation link (GitHub Sponsors or Ko-fi) in the README and on the
       settings page footer.
 
@@ -115,6 +112,11 @@ including adding sites with a real click (D-030). Still to do:
   toolbar icon follows the theme.
 
 ## Done
+
+- [x] Unreleased: name made final, no suffix; `store/LISTING.md` with the
+      description, permission justifications and data-use answers; store
+      screenshots, promo tiles and a 300 px logo, generated;
+      `homepage_url` (D-035).
 
 - [x] v0.4.0: an optional wait before "Yes" works, 0 to 10
       seconds, off by default (D-034).

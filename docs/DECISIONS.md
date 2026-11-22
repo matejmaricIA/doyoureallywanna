@@ -35,7 +35,7 @@ extension). That's by design. This is accountability, not enforcement.
 
 ## D-002 · Name: "Do You Really Wanna?", tagline "Give it a second thought."
 
-*2026-11-19 · Provisional (final call before the first store submission)*
+*2026-11-19 · Accepted · made final by D-035*
 
 **Context.** Two favorites: "Do You Really Wanna?" and "Give It a Second
 Thought".
@@ -851,3 +851,45 @@ extra steps, and D-001 still holds that a site is never made unreachable.
   yourself*.
 - Saved with the other settings and included in backups. Older backups
   import with 0.
+
+## D-035 · Store listings: plain name, copy and images kept in the repo
+
+*2026-11-22 · Accepted · makes D-002 final*
+
+**Context.** D-002 left the name provisional until a check of the stores,
+and suggested a keyword suffix ("– Mindful Site Pause") might help
+search. Each store also wants its own text, permission justifications,
+data-use answers and images at exact pixel sizes.
+
+**Decision.**
+
+- The name is final: **Do You Really Wanna?**, the same in the manifest
+  and every store, with no suffix. A search of the Chrome Web Store, Edge
+  Add-ons and Firefox Add-ons on 2026-11-22 found no extension with that
+  name (the closest: "Are you sure?", "Pause – Stop Mindless Browsing",
+  "Mindful Pause").
+- Search words go in the summary (the manifest description), the long
+  description and Edge's search terms, not the title.
+- Everything the store forms ask for lives in `store/LISTING.md`, in the
+  repo, next to the README and PRIVACY.md it has to agree with.
+- The store images are made by the existing tools from the real pages,
+  like the README images: `npm run screenshots` writes five 1280×800
+  screenshots and the 440×280 and 1400×560 promo tiles at exactly those
+  pixel sizes (1×, scrollbars hidden); `npm run icons` writes a 300 px
+  logo for Edge. The promo tiles are the fermata, the name and the
+  tagline on the Dusk dark background: no mockups, no badges.
+- `homepage_url` in the manifest points to the GitHub repository.
+
+**Why.** The name is the question the extension asks; a suffix makes it
+longer and reads like keyword stuffing, which Chrome's policy discourages.
+Keeping the listing in the repo means it changes with the code and gets
+reviewed like it. Generating the images means they never drift from what
+the pages actually look like.
+
+**Consequences.**
+
+- When a page's look or the README's claims change, `npm run screenshots`
+  and `store/LISTING.md` change with them.
+- `store/` is never shipped: `npm run package` zips only `extension/`.
+- The images are at 1×, so they're less crisp than the README's 2× ones.
+  The stores ask for those exact sizes.
