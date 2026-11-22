@@ -176,7 +176,7 @@ npm run test:e2e       # loads the real extension into headless Edge/Chrome and 
 npm run check          # both
 npm run screenshots    # regenerates the images in this README
 npm run icons          # renders the icon to PNGs, in every theme's color
-npm run package        # builds dist/do-you-really-wanna-<version>.zip for the stores
+npm run package        # builds the store zips in dist/: -chromium.zip (Edge, Chrome) and -firefox.zip
 ```
 
 Set `BROWSER=/path/to/browser` to choose which browser the tools use.

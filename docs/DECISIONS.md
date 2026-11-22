@@ -662,7 +662,7 @@ when `npm run icons` runs.
 
 ## D-029 · Firefox from the same code and manifest
 
-*2026-11-20 · Accepted · Replaces D-003's "Firefox later"*
+*2026-11-20 · Accepted · Replaces D-003's "Firefox later" · store zips per browser since D-036*
 
 **Context.** D-003 started with Edge and Chrome and left Firefox for later.
 Firefox users are a big part of the privacy-minded audience this extension
@@ -893,3 +893,40 @@ the pages actually look like.
 - `store/` is never shipped: `npm run package` zips only `extension/`.
 - The images are at 1×, so they're less crisp than the README's 2× ones.
   The stores ask for those exact sizes.
+
+## D-036 · One manifest in the repo, one zip per store
+
+*2026-11-22 · Accepted · amends D-029*
+
+**Context.** D-029 put Edge/Chrome and Firefox in one manifest: the
+background script is named as `service_worker` and in `scripts`, and a
+`browser_specific_settings.gecko` block is for Firefox. The browsers
+ignore what isn't theirs, but Edge Add-ons refused the v0.4.1 package:
+"The background.scripts field cannot be used with manifest version 3".
+
+**Decision.**
+
+- `extension/` and its manifest stay as they are: one folder, loadable
+  as is in every browser (D-011, D-029).
+- `npm run package` writes two zips with the same files:
+  `do-you-really-wanna-<version>-chromium.zip` for Edge Add-ons and the
+  Chrome Web Store, whose manifest leaves out `background.scripts` and
+  `browser_specific_settings`, and `...-firefox.zip` with the manifest
+  unchanged. The one transformation lives in `tools/lib/manifests.mjs`.
+- The Edge/Chrome browser test (`npm run test:e2e`) loads the extension
+  with that same Chromium manifest, so what's tested is what's uploaded.
+
+**Why.** The store, not the browser, is what objects, so the fix belongs
+in packaging. Taking keys *out* of a copy of the manifest is not a build
+step: no code is generated or changed, and every file a user runs is
+still byte for byte the one on GitHub, apart from the two keys their
+browser would ignore anyway.
+
+**Consequences.**
+
+- Upload the `-chromium` zip to Edge and Chrome, the `-firefox` zip to
+  Firefox Add-ons. `store/LISTING.md` says so.
+- "What's on GitHub is exactly what runs" still holds for the code; the
+  Edge/Chrome manifest is the repo's minus Firefox's keys.
+- If a store objects to another key some day, it goes in the same
+  function.

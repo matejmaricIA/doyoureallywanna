@@ -41,6 +41,7 @@ assets/icon.svg            the icon source (a fermata, drawn like a pen line), f
 assets/icon-small.svg      the same, redrawn on the 16 px grid
 tests/unit/                node:test tests for the pure modules
 tools/                     dev tooling (never shipped): e2e tests (Edge/Chrome, Firefox), screenshots, icons, packaging
+tools/lib/manifests.mjs    the Edge/Chrome store manifest: the repo's minus Firefox's keys (D-036)
 docs/                      decisions, roadmap, principles, this file, images
 store/LISTING.md           what to paste into the store forms (never shipped, D-035)
 store/images/              store screenshots and promo tiles (`npm run screenshots`),

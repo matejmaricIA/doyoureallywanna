@@ -10,6 +10,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { chromiumManifest } from './lib/manifests.mjs';
 import { lastDays } from '../extension/lib/dates.js';
 import { launch, sleep, waitUntil } from './lib/cdp.mjs';
 
@@ -42,12 +43,13 @@ const OFTEN = `http://often.test:${port}`; // the same, but you say "don't ask a
 // --- A copy of the extension with its permissions pre-granted ---------------
 // (In real use the browser asks you when you add a site, and when you turn
 // on suggestions. A test can't click those browser prompts, so the copy
-// declares the access to the test sites, and webNavigation, up front.)
+// declares the access to the test sites, and webNavigation, up front. It
+// uses the manifest the Edge/Chrome zip ships, without Firefox's keys, D-036.)
 
 const extDir = mkdtempSync(path.join(os.tmpdir(), 'dyrw-ext-'));
 cpSync(path.join(root, 'extension'), extDir, { recursive: true });
 const manifestPath = path.join(extDir, 'manifest.json');
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+const manifest = chromiumManifest(JSON.parse(readFileSync(manifestPath, 'utf8')));
 manifest.host_permissions = ['*://*.distracting.test/*', '*://*.habit.test/*'];
 manifest.permissions = [...manifest.permissions, ...manifest.optional_permissions];
 delete manifest.optional_permissions;

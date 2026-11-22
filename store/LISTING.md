@@ -77,7 +77,7 @@ https://github.com/matejmaricIA/doyoureallywanna
 
 ## Chrome Web Store
 
-Developer dashboard → new item → upload `dist/do-you-really-wanna-<version>.zip`.
+Developer dashboard → new item → upload `dist/do-you-really-wanna-<version>-chromium.zip`.
 
 **Store listing tab:** description above, category Productivity, language
 English, the five screenshots, the small promo tile (and the marquee, if
@@ -113,7 +113,8 @@ for unrelated purposes, not used for creditworthiness).
 
 ## Edge Add-ons
 
-Partner Center → Microsoft Edge → create new extension → upload the same zip.
+Partner Center → Microsoft Edge → create new extension → upload the same
+`-chromium.zip`. (Edge refuses the manifest with Firefox's keys, D-036.)
 
 **Availability:** public, all markets.
 
@@ -150,11 +151,11 @@ Not yet: see ROADMAP.md (hand-testing in a real Firefox window first).
 When it's time: same description and screenshots; summary ≤250 chars (the
 manifest one fits); categories "Productivity" (or "Other"); license
 GPL-3.0-or-later; the manifest already declares
-`data_collection_permissions: none`. Run Mozilla's add-ons linter on the
-zip before uploading.
+`data_collection_permissions: none`. Upload the `-firefox.zip`. Run
+Mozilla's add-ons linter on it before uploading.
 
 ## Before you press Submit
 
-- [ ] `npm run check` passes, `npm run package` built the zip, versions match.
+- [ ] `npm run check` passes, `npm run package` built the zips, versions match.
 - [ ] The install dialog shows no permission warnings (fresh profile, load the zip).
 - [ ] Hand-tests in ROADMAP.md "Before the first store release" are ticked.

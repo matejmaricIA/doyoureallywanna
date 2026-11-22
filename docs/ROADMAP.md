@@ -35,8 +35,8 @@ including adding sites with a real click (D-030). Still to do:
       so it's never counted. If it doesn't fit, hide suggestions there.
 - [ ] Firefox for Android: try it (DNR and popups work there).
 - [ ] Publish to Firefox Add-ons (free). The gecko ID in the manifest is
-      permanent once published. Run Mozilla's add-ons linter on the zip
-      first (AMO runs it on upload anyway).
+      permanent once published. Upload the `-firefox.zip` (D-036). Run
+      Mozilla's add-ons linter on it first (AMO runs it on upload anyway).
 - [ ] Say "and Firefox" in the README and store links once it's listed.
 
 ## Before the first store release
@@ -112,6 +112,9 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
   toolbar icon follows the theme.
 
 ## Done
+
+- [x] v0.4.2: separate store zips for Edge/Chrome and Firefox, because
+      Edge Add-ons refuses `background.scripts` (D-036).
 
 - [x] v0.4.1: name made final, no suffix; `store/LISTING.md` with the
       description, permission justifications and data-use answers; store

@@ -35,7 +35,7 @@ dependencies, no background work, …).
 npm run check          # unit tests + end-to-end test in headless Edge/Chrome
 npm run test:e2e:firefox  # if Firefox is installed (FIREFOX= to choose it)
 npm run screenshots    # if any page's look changed (README images)
-npm run package        # builds dist/do-you-really-wanna-<version>.zip
+npm run package        # builds dist/do-you-really-wanna-<version>-{chromium,firefox}.zip
 ```
 
 Node 22+ and Edge or Chrome are the only requirements. Set `BROWSER=` to

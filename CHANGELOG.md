@@ -10,6 +10,19 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-22
+
+A store package Edge Add-ons accepts.
+
+### Fixed
+
+- **Edge Add-ons refused the package** because the manifest also names
+  the background script the way Firefox wants it (`background.scripts`).
+  `npm run package` now builds two zips from the same files:
+  `-chromium.zip` for Edge and Chrome, without the keys only Firefox
+  reads, and `-firefox.zip` for Firefox, with the manifest as it is. The
+  browser test runs the Edge/Chrome manifest (D-036).
+
 ## [0.4.1] - 2026-11-22
 
 Ready for the stores: listing text and images, and the name made final.
@@ -200,7 +213,8 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...v0.3.0
