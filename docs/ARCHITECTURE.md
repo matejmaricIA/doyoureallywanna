@@ -28,7 +28,7 @@ extension/                 ← load this folder in the browser; it's also what s
     stats.js       pure   add events, prune, sum counts, tally marks
     dates.js       pure   local day keys
     settings.js    pure   defaults, limits, sanitizing
-    suggest.js     pure   suggestions: which opens count, the last 2 hours, the threshold
+    suggest.js     pure   suggestions: which opens count, the last 2 hours, the two thresholds
     impulse.js     pure   stats of impulse opens of sites not on the list: count, rows, delete
     themes.js      pure   the color themes, their toolbar icon colors and files
     backup.js      pure   build / validate the JSON backup
@@ -158,15 +158,16 @@ next open.
    lock, `recordImpulseOpen` skips sites covered by the list, adds one
    to today's number in `impulse` (D-032), and, unless the site is on the
    "don't ask again" list, drops opens older than 2 hours, adds this
-   one's time to `opens` and checks the threshold (D-031).
+   one's time to `opens` and checks the thresholds: its opens in the
+   last 2 hours, and today's number from `impulse` (D-031, D-037).
 
 **A suggestion** (D-021, D-022)
 
-1. The open that makes a site qualify (6 opens within the last 2 hours, D-031),
-   if no suggestion was shown today: its counts are reset, `suggestedOn`
-   is set to today, and the worker sends the tab to
-   `pause/suggestion.html#<url>` with `tabs.update`. That page isn't
-   web-accessible.
+1. The open that makes a site qualify (6 opens within the last 2 hours,
+   or 8 today, D-037), if no suggestion was shown today: its recent opens
+   are reset, `suggestedOn` is set to today, and the worker sends the tab
+   to `pause/suggestion.html?why=<window|day>&n=<count>#<url>` with
+   `tabs.update`, so the page can say why. That page isn't web-accessible.
 2. **Add it to my list**: ask for access to the site, add it like the popup,
    add a grace rule for this tab, go back to the site.
 3. **It's fine, don't ask again**: add it to `quiet`, go back.

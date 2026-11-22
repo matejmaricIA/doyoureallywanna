@@ -740,7 +740,7 @@ site back from the popup through the background.
 
 ## D-031 · Suggestions look at the last 2 hours, not the last week
 
-*2026-11-21 · Accepted · supersedes the threshold of D-021 and the stored counts of D-020*
+*2026-11-21 · Accepted · supersedes the threshold of D-021 and the stored counts of D-020 · a second, per-day threshold since D-037*
 
 **Context.** A site was suggested once it had 8+ impulse opens a day on 3
 of the last 7 days. That means at least three days from turning
@@ -930,3 +930,47 @@ browser would ignore anyway.
   Edge/Chrome manifest is the repo's minus Firefox's keys.
 - If a store objects to another key some day, it goes in the same
   function.
+
+## D-037 · Suggestions: 6 within 2 hours, or 8 in a day
+
+*2026-11-22 · Accepted · amends D-031*
+
+**Context.** D-031 suggests a site only on a burst: 6 impulse opens
+within 2 hours. That misses the most common habit, checking a site every
+half hour or so all day (ROADMAP known limitations). Six in two hours on
+its own is also an odd bar: it waits for a binge before it notices.
+
+**Decision.**
+
+- A site is suggested on the open that makes it **6 opens within the
+  last 2 hours, or 8 opens today**, whichever comes first
+  (`OPENS_PER_WINDOW`, `WINDOW_MINUTES`, `OPENS_PER_DAY` in
+  `lib/suggest.js`). Either rule, not both: both would be stricter than
+  before.
+- Today's count is the number already kept for the stats of sites that
+  aren't on the list (`impulse`, D-032). Nothing new is stored.
+- The suggestion page says which rule it was, with the real count: "You
+  opened it 6 times in the last 2 hours." or "You opened it 8 times
+  today." The worker passes it in the page's query string
+  (`?why=window&n=6`); the page isn't web-accessible (D-022), so no site
+  can put words in its mouth. A burst wins when both are met. Without a
+  valid reason the line is left out.
+- Unchanged: at most one suggestion a day for all sites together, and
+  showing one resets the site's recent opens. Its count for today stays
+  (it's the stats), and the one-a-day rule keeps it from asking again
+  today; tomorrow it starts at 0.
+
+**Why.** Typing a site or picking its bookmark 8 times in a day is
+checking, whether it happens in a burst or spread out.
+Links and reloads don't count (D-020), so normal use of a site doesn't
+add up to 8. A wrong suggestion still costs one kind question at most
+once a day, and "It's fine, don't ask again" ends it for that site.
+
+**Consequences.**
+
+- Work tools opened by typing 8 times a day (a mail client, an issue
+  tracker) will be suggested once; "don't ask again" handles that.
+- The count shown is real, so it can be above the threshold (a site taken
+  off the "don't ask again" list in the middle of a busy day).
+- A site opened a few times every day, below both rules, is still never
+  suggested.

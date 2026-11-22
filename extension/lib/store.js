@@ -161,9 +161,9 @@ export function removeQuiet(domain) {
 /**
  * Count one impulse open of `site`, unless suggestions are off or the site
  * is on the list: in the stats (D-032), and, unless it's on the "don't ask
- * again" list, toward a suggestion (D-031).
+ * again" list, toward a suggestion (D-031, D-037).
  * @param {string} site
- * @returns {Promise<boolean>} true if this open should show a suggestion
+ * @returns {Promise<import('./suggest.js').Reason | null>} why this open should show a suggestion, if it should
  */
 export function recordImpulseOpen(site) {
   return withLock(async () => {
@@ -177,7 +177,9 @@ export function recordImpulseOpen(site) {
       await chrome.storage.local.set({ impulse });
       return false;
     }
-    const { opens, suggest } = recordOpen({ opens: raw.opens, suggestedOn: raw.suggestedOn }, site, now.getTime(), today);
+    const todayCount = impulse[today]?.[site] ?? 0;
+    const state = { opens: raw.opens, suggestedOn: raw.suggestedOn };
+    const { opens, suggest } = recordOpen(state, site, now.getTime(), today, todayCount);
     await chrome.storage.local.set({ impulse, opens, ...(suggest ? { suggestedOn: today } : {}) });
     return suggest;
   });

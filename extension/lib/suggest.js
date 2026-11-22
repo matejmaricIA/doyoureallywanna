@@ -5,15 +5,23 @@
 // What's kept, and only while suggestions are on:
 //   opens:       { "youtube.com": [1763650000000, ...] }  times of impulse opens, last 2 hours only
 //   suggestedOn: "2026-11-20"                             the last day a suggestion was shown
-// No URLs, no page titles, nothing older than 2 hours (D-031).
+// No URLs, no page titles, nothing older than 2 hours (D-031). Today's
+// count per site comes from the impulse stats (D-032, lib/impulse.js).
 
 import { hostMatches, hostOf, normalizeDomain } from './domains.js';
 
-// The threshold, in one place: a site is suggested on the open that makes
-// it OPENS_PER_WINDOW opens within the last WINDOW_MINUTES minutes.
+// The thresholds, in one place (D-037). A site is suggested on the open
+// that makes it OPENS_PER_WINDOW opens within the last WINDOW_MINUTES
+// minutes (a burst), or OPENS_PER_DAY opens today (checking it all day).
 export const OPENS_PER_WINDOW = 6;
 export const WINDOW_MINUTES = 120;
+export const OPENS_PER_DAY = 8;
 const WINDOW_MS = WINDOW_MINUTES * 60 * 1000;
+
+/**
+ * Why a suggestion is shown: which rule, and the count that met it.
+ * @typedef {{ rule: 'window' | 'day', count: number }} Reason
+ */
 
 /**
  * The browser's own pages that happen to be websites. Edge's new tab page
@@ -115,27 +123,55 @@ export function forgetSite(opens, domain) {
 }
 
 /**
- * Was `site` opened often enough, lately, to be worth a suggestion?
- * @param {Opens} opens  already pruned to the window
- * @param {string} site
+ * Was a site opened often enough to be worth a suggestion? A burst wins
+ * when both rules are met: it's the more telling of the two.
+ * @param {number} recent  its opens in the last WINDOW_MINUTES minutes
+ * @param {number} today   its opens today
+ * @returns {Reason | null}
  */
-export function qualifies(opens, site) {
-  return (opens[site]?.length ?? 0) >= OPENS_PER_WINDOW;
+export function reasonFor(recent, today) {
+  if (recent >= OPENS_PER_WINDOW) return { rule: 'window', count: recent };
+  if (today >= OPENS_PER_DAY) return { rule: 'day', count: today };
+  return null;
 }
 
 /**
  * Count one impulse open of a site that isn't on either list, and decide
  * whether to show a suggestion now. At most one suggestion a day, for all
- * sites together. Showing one resets that site's opens, so it can only
- * come back once fresh opens qualify again.
+ * sites together. Showing one resets that site's recent opens; today's
+ * count starts over the next day, so the site can only come back once
+ * fresh opens qualify again.
  * @param {{ opens: unknown, suggestedOn?: string | null }} state
  * @param {string} site
  * @param {number} now  ms
  * @param {string} today  the local day of `now`
- * @returns {{ opens: Opens, suggest: boolean }}
+ * @param {number} [todayCount]  the site's opens today, this one included
+ * @returns {{ opens: Opens, suggest: Reason | null }}
  */
-export function recordOpen({ opens, suggestedOn = null }, site, now, today) {
+export function recordOpen({ opens, suggestedOn = null }, site, now, today, todayCount = 0) {
   const next = countOpen(pruneOpens(opens, now), site, now);
-  if (suggestedOn === today || !qualifies(next, site)) return { opens: next, suggest: false };
-  return { opens: forgetSite(next, site), suggest: true };
+  const reason = suggestedOn === today ? null : reasonFor(next[site].length, todayCount);
+  if (!reason) return { opens: next, suggest: null };
+  return { opens: forgetSite(next, site), suggest: reason };
+}
+
+/**
+ * The reason as the suggestion page's query string, and back. The page
+ * isn't web-accessible (D-022), so only the extension can open it.
+ * @param {Reason} reason
+ */
+export function reasonToQuery({ rule, count }) {
+  return new URLSearchParams({ why: rule, n: String(count) }).toString();
+}
+
+/**
+ * @param {string} query  e.g. location.search
+ * @returns {Reason | null}
+ */
+export function reasonFromQuery(query) {
+  const params = new URLSearchParams(query);
+  const rule = params.get('why');
+  const count = Number(params.get('n'));
+  if ((rule !== 'window' && rule !== 'day') || !Number.isInteger(count) || count < 1) return null;
+  return { rule, count };
 }

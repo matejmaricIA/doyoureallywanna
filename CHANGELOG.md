@@ -10,6 +10,19 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-22
+
+Suggestions notice a site you check all day, not only in bursts.
+
+### Changed
+
+- **Suggestions also show up for a site you open 8 times in one day**,
+  however spread out, not only for 6 opens within 2 hours. Whichever
+  comes first. The suggestion says which it was, with the real number:
+  "You opened it 8 times today." or "You opened it 6 times in the last
+  2 hours." It uses today's number it already keeps for the stats, so
+  nothing new is stored. Still at most one suggestion a day (D-037).
+
 ## [0.4.2] - 2026-11-22
 
 A store package Edge Add-ons accepts.
@@ -213,7 +226,8 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...v0.4.0

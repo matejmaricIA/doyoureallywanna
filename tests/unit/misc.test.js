@@ -45,9 +45,10 @@ describe('copy', () => {
   it('every prompt names the site exactly once', () => {
     for (const prompt of PROMPTS) assert.equal(prompt.split('{site}').length, 2, prompt);
   });
-  it('the suggestion names the site once, and gives the real threshold', () => {
+  it('the suggestion names the site once, and says why with the real window', () => {
     for (const key of ['title', 'noticed', 'noAccess']) assert.equal(SUGGESTION[key].split('{site}').length, 2, key);
-    assert.equal(SUGGESTION.why, 'You opened it 6 times in the last 2 hours.');
+    assert.equal(SUGGESTION.whyWindow, 'You opened it {n} times in the last 2 hours.');
+    assert.equal(SUGGESTION.whyDay, 'You opened it {n} times today.');
   });
   it('every turned-back message has a title and body', () => {
     for (const message of TURNED_BACK) assert.ok(message.title && message.body);

@@ -188,7 +188,7 @@ try {
   });
 
   await capture('suggestion.png', {
-    url: `${base}/pause/suggestion.html#https://www.facebook.com/`,
+    url: `${base}/pause/suggestion.html?why=window&n=6#https://www.facebook.com/`,
     width: 960,
     height: 680,
   });
@@ -218,7 +218,7 @@ try {
 
   await capture('3-stats.png', { ...store, url: `${base}/options/options.html` });
 
-  await capture('4-suggestion.png', { ...store, url: `${base}/pause/suggestion.html#https://www.facebook.com/` });
+  await capture('4-suggestion.png', { ...store, url: `${base}/pause/suggestion.html?why=day&n=8#https://www.facebook.com/` });
 
   await setTheme('tide');
   await capture('5-dark-tide.png', {

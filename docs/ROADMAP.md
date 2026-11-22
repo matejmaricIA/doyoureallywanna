@@ -95,9 +95,9 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
   the suggestion replaces it, because there's no access to sites that
   aren't on the list (D-022). It only happens on the open that shows a
   suggestion, at most once a day.
-- Suggestions only notice bursts: a site opened often but spread out
-  (once every couple of hours, all day) is never suggested (D-031). It
-  still shows up in the stats of sites that aren't on the list (D-032).
+- Suggestions need 6 opens within 2 hours or 8 in one day (D-037). A site
+  opened a few times every day, below both, is never suggested; it still
+  shows up in the stats of sites that aren't on the list (D-032).
 - Suggestions count each subdomain on its own (`music.youtube.com` and
   `youtube.com` are two sites), because there's no Public Suffix List
   (D-013).
@@ -112,6 +112,9 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
   toolbar icon follows the theme.
 
 ## Done
+
+- [x] v0.5.0: suggestions also show up at 8 opens in a day, not only at
+      6 within 2 hours, and say which it was (D-037).
 
 - [x] v0.4.2: separate store zips for Edge/Chrome and Firefox, because
       Edge Add-ons refuses `background.scripts` (D-036).

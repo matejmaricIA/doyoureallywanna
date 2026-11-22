@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  OPENS_PER_DAY,
   OPENS_PER_WINDOW,
   WINDOW_MINUTES,
   countOpen,
@@ -8,7 +9,9 @@ import {
   isCovered,
   isImpulseOpen,
   pruneOpens,
-  qualifies,
+  reasonFor,
+  reasonFromQuery,
+  reasonToQuery,
   recordOpen,
   siteOfUrl,
 } from '../../extension/lib/suggest.js';
@@ -115,12 +118,30 @@ describe('pruneOpens', () => {
   });
 });
 
-describe('qualifies', () => {
-  it(`needs ${OPENS_PER_WINDOW} opens of the same site`, () => {
+describe('reasonFor', () => {
+  it(`needs ${OPENS_PER_WINDOW} opens within ${WINDOW_MINUTES} minutes, or ${OPENS_PER_DAY} today`, () => {
     assert.equal(OPENS_PER_WINDOW, 6);
     assert.equal(WINDOW_MINUTES, 120);
-    assert.equal(qualifies({ 'a.com': times(6) }, 'a.com'), true);
-    assert.equal(qualifies({ 'a.com': times(5), 'b.com': times(6) }, 'a.com'), false);
+    assert.equal(OPENS_PER_DAY, 8);
+    assert.deepEqual(reasonFor(6, 6), { rule: 'window', count: 6 });
+    assert.deepEqual(reasonFor(2, 8), { rule: 'day', count: 8 });
+    assert.equal(reasonFor(5, 7), null);
+  });
+  it('a burst wins when both are met', () => {
+    assert.deepEqual(reasonFor(6, 9), { rule: 'window', count: 6 });
+  });
+});
+
+describe('reason in the page URL', () => {
+  it('goes there and back', () => {
+    for (const reason of [{ rule: 'window', count: 6 }, { rule: 'day', count: 8 }]) {
+      assert.deepEqual(reasonFromQuery(`?${reasonToQuery(/** @type {any} */ (reason))}`), reason);
+    }
+  });
+  it('anything else is no reason', () => {
+    for (const query of ['', '?why=day', '?why=week&n=3', '?why=day&n=0', '?why=day&n=2.5', '?why=day&n=x']) {
+      assert.equal(reasonFromQuery(query), null, query);
+    }
   });
 });
 
@@ -129,25 +150,31 @@ describe('recordOpen', () => {
   const site = 'youtube.com';
 
   it('counts and does not suggest below the threshold', () => {
-    assert.deepEqual(recordOpen({ opens: {} }, site, now, today), { opens: { [site]: [now] }, suggest: false });
-    assert.deepEqual(recordOpen({ opens: undefined }, site, now, today), { opens: { [site]: [now] }, suggest: false });
+    assert.deepEqual(recordOpen({ opens: {} }, site, now, today, 1), { opens: { [site]: [now] }, suggest: null });
+    assert.deepEqual(recordOpen({ opens: undefined }, site, now, today), { opens: { [site]: [now] }, suggest: null });
   });
   it('suggests on the sixth open within 2 hours, and resets that site', () => {
-    const result = recordOpen({ opens: { [site]: times(5, 29, 1), 'other.com': [now] } }, site, now, today);
-    assert.equal(result.suggest, true);
+    const result = recordOpen({ opens: { [site]: times(5, 29, 1), 'other.com': [now] } }, site, now, today, 6);
+    assert.deepEqual(result.suggest, { rule: 'window', count: 6 });
     assert.deepEqual(result.opens, { 'other.com': [now] });
   });
-  it('does not suggest when the opens are spread over more than 2 hours', () => {
-    const result = recordOpen({ opens: { [site]: times(5, 30, 1) } }, site, now, today);
-    assert.equal(result.suggest, false);
+  it('does not suggest when the opens are spread over more than 2 hours, below 8 today', () => {
+    const result = recordOpen({ opens: { [site]: times(5, 30, 1) } }, site, now, today, 7);
+    assert.equal(result.suggest, null);
     assert.equal(result.opens[site].length, 5, 'the oldest open has dropped out');
+  });
+  it('suggests on the eighth open of the day, however spread out, and resets that site', () => {
+    const result = recordOpen({ opens: { [site]: times(1, 60, 1) } }, site, now, today, 8);
+    assert.deepEqual(result.suggest, { rule: 'day', count: 8 });
+    assert.deepEqual(result.opens, {});
   });
   it('shows at most one suggestion a day, but keeps counting', () => {
     const almost = { [site]: times(5) };
-    const result = recordOpen({ opens: almost, suggestedOn: today }, site, now, today);
-    assert.equal(result.suggest, false);
+    const result = recordOpen({ opens: almost, suggestedOn: today }, site, now, today, 9);
+    assert.equal(result.suggest, null);
     assert.equal(result.opens[site].length, 6);
-    assert.equal(recordOpen({ opens: almost, suggestedOn: '2026-11-19' }, site, now, today).suggest, true);
+    assert.equal(recordOpen({ opens: { 'a.com': [now] }, suggestedOn: today }, 'a.com', now, today, 12).suggest, null);
+    assert.ok(recordOpen({ opens: almost, suggestedOn: '2026-11-19' }, site, now, today).suggest);
   });
   it('forgets opens of every site once they are older than 2 hours', () => {
     const result = recordOpen({ opens: { 'old.com': [now - 150 * MIN] } }, site, now, today);

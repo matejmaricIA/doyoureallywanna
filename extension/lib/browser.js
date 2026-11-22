@@ -3,6 +3,7 @@
 
 import { hostMatches, originPatternFor } from './domains.js';
 import { buildGraceRule, buildRedirectRules } from './rules.js';
+import { reasonToQuery } from './suggest.js';
 import { toolbarIconPaths } from './themes.js';
 
 export const PAUSE_PAGE = 'pause/pause.html';
@@ -19,11 +20,13 @@ export function pauseUrl() {
 
 /**
  * The suggestion page for an open of `url`. Unlike the pause page it isn't
- * web-accessible, so only the extension itself can open it.
+ * web-accessible, so only the extension itself can open it. The query
+ * says why it's shown (D-037); the site's URL goes after the "#".
  * @param {string} url
+ * @param {import('./suggest.js').Reason} reason
  */
-export function suggestUrl(url) {
-  return `${chrome.runtime.getURL(SUGGEST_PAGE)}#${url}`;
+export function suggestUrl(url, reason) {
+  return `${chrome.runtime.getURL(SUGGEST_PAGE)}?${reasonToQuery(reason)}#${url}`;
 }
 
 /**

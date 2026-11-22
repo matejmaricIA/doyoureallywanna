@@ -1,6 +1,6 @@
 # Privacy policy
 
-*Do You Really Wanna?* · last updated 2026-11-20
+*Do You Really Wanna?* · last updated 2026-11-22
 
 **Short version: nothing you do with this extension ever leaves your
 computer.**
@@ -39,9 +39,11 @@ stats". Then, and only then:
   all, and neither is anything in private (InPrivate / Incognito)
   windows. Sites on your list are never counted here; they have their own
   numbers.
-- To decide when to ask, it also keeps the times of the last 2 hours' opens
-  per site (not for sites on your "don't ask again" list). Anything older
-  than 2 hours is dropped.
+- To decide when to ask, it looks at two things: how often you opened a
+  site today (the number above), and how often in the last 2 hours. For
+  that, it keeps the times of the last 2 hours' opens per site (not for
+  sites on your "don't ask again" list). Anything older than 2 hours is
+  dropped.
 - The numbers are kept like the rest of your stats, and are in your
   backups. "Delete all stats" deletes them, and "Delete" next to a site
   deletes that site's numbers.

@@ -39,6 +39,7 @@ const SITE = `http://distracting.test:${port}`;
 const WORK = `http://work.test:${port}`;
 const HABIT = `http://habit.test:${port}`; // not on the list, opened a lot
 const OFTEN = `http://often.test:${port}`; // the same, but you say "don't ask again"
+const DAILY = `http://daily.test:${port}`; // not on the list, opened all day long
 
 // --- A copy of the extension with its permissions pre-granted ---------------
 // (In real use the browser asks you when you add a site, and when you turn
@@ -376,7 +377,7 @@ try {
 
   // --- Suggestions (opt-in) ---------------------------------------------------
 
-  const suggestPrefix = `${base}/pause/suggestion.html#`;
+  const suggestPage = `${base}/pause/suggestion.html`;
   const [today, yesterday] = lastDays(2);
   /** @param {string[]} keys */
   const stored = (keys) => options.evaluate(`chrome.storage.local.get(${JSON.stringify(keys)})`);
@@ -406,9 +407,12 @@ try {
       if (!/navigated or closed/.test(error.message)) throw error;
     });
   };
-  /** @param {import('./lib/cdp.mjs').Page} page @param {string} target */
-  const waitForSuggestion = async (page, target) => {
-    await waitForUrl(page, `${suggestPrefix}${target}`);
+  /**
+   * @param {import('./lib/cdp.mjs').Page} page @param {string} target
+   * @param {string} [why]  the reason in the URL (D-037): six opens in 2 hours, unless said otherwise
+   */
+  const waitForSuggestion = async (page, target, why = 'why=window&n=6') => {
+    await waitForUrl(page, `${suggestPage}?${why}#${target}`);
     await waitUntil(() => page.evaluate(`!!document.querySelector('[data-state=suggest]:not([hidden])')`), {
       what: 'the suggestion',
     });
@@ -469,6 +473,7 @@ try {
     await waitForSuggestion(tabS, `${HABIT}/often`);
     const question = (await tabS.text('#question'))?.replace(/\s+/g, ' ');
     expectEqual(question, 'I noticed you open habit.test a lot. Do you open it out of habit?', 'question');
+    expectEqual(await tabS.text('#why'), 'You opened it 6 times in the last 2 hours.', 'why');
     await waitUntil(() => tabS.evaluate(`document.documentElement.dataset.theme === 'dusk' && !!document.querySelector('.brand .logo')`), {
       what: 'suggestion page in the current theme',
     });
@@ -500,7 +505,7 @@ try {
     // Pretend the last suggestion was yesterday.
     await store({ suggestedOn: yesterday });
     await open(tabO, `${OFTEN}/b`);
-    await waitForSuggestion(tabO, `${OFTEN}/b`);
+    await waitForSuggestion(tabO, `${OFTEN}/b`, 'why=window&n=7');
   });
 
   await step('"It\'s fine, don\'t ask again" lets you in and never suggests it again, but the stats still count it', async () => {
@@ -529,6 +534,23 @@ try {
     const tabH = await browser.newPage();
     await open(tabH, `${HABIT}/next-time`);
     await waitForPause(tabH, `${HABIT}/next-time`);
+  });
+
+  await step('a site opened 8 times today gets the suggestion, however spread out', async () => {
+    // Seven opens earlier today, none of them in the last 2 hours.
+    const { impulse = {} } = await stored(['impulse']);
+    await store({ impulse: { ...impulse, [today]: { ...impulse[today], 'daily.test': 7 } }, suggestedOn: yesterday });
+    const tabD = await browser.newPage();
+    await open(tabD, `${DAILY}/eighth`);
+    await waitForSuggestion(tabD, `${DAILY}/eighth`, 'why=day&n=8');
+    expectEqual(await tabD.text('#why'), 'You opened it 8 times today.', 'why');
+    expectEqual(await opensOf('daily.test'), 0, 'its recent opens are reset');
+    await tabD.click('#let-in');
+    await waitForUrl(tabD, `${DAILY}/eighth`);
+    // Leave the stats the way the next steps expect them.
+    const after = await stored(['impulse']);
+    delete after.impulse[today]['daily.test'];
+    await store({ impulse: after.impulse });
   });
 
   await step('the "don\'t ask again" list can be edited on the settings page', async () => {

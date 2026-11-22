@@ -61,7 +61,8 @@ async function onCommitted(details) {
     const tab = await chrome.tabs.get(details.tabId);
     if (tab.incognito) return;
     // The page has already started to show; the suggestion replaces it (D-022).
-    if (await recordImpulseOpen(site)) await chrome.tabs.update(details.tabId, { url: suggestUrl(details.url) });
+    const reason = await recordImpulseOpen(site);
+    if (reason) await chrome.tabs.update(details.tabId, { url: suggestUrl(details.url, reason) });
   } catch {
     // The tab was closed in the meantime. Nothing to do.
   }

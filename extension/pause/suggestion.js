@@ -9,7 +9,7 @@ import { allowTemporarily, requestAccess, syncRules } from '../lib/browser.js';
 import { SUGGESTION } from '../lib/copy.js';
 import { displayUrl } from '../lib/domains.js';
 import { addQuiet, addSite, load } from '../lib/store.js';
-import { siteOfUrl } from '../lib/suggest.js';
+import { reasonFromQuery, siteOfUrl } from '../lib/suggest.js';
 import { $, fillSentence, readTarget, show, showUnknown, wireFooter } from './common.js';
 
 const BUTTONS = ['add', 'quiet', 'let-in'];
@@ -34,7 +34,12 @@ function start() {
   question.className = 'line';
   question.textContent = SUGGESTION.question;
   $('question').append(' ', question);
-  $('why').textContent = SUGGESTION.why;
+  const reason = reasonFromQuery(location.search);
+  $('why').hidden = !reason;
+  if (reason) {
+    const why = reason.rule === 'window' ? SUGGESTION.whyWindow : SUGGESTION.whyDay;
+    $('why').textContent = why.replace('{n}', String(reason.count));
+  }
   $('add').textContent = SUGGESTION.add;
   $('quiet').textContent = SUGGESTION.quiet;
   $('let-in').textContent = SUGGESTION.letIn;
