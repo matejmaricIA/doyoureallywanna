@@ -113,7 +113,7 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
 
 ## Done
 
-- [x] Unreleased: name made final, no suffix; `store/LISTING.md` with the
+- [x] v0.4.1: name made final, no suffix; `store/LISTING.md` with the
       description, permission justifications and data-use answers; store
       screenshots, promo tiles and a 300 px logo, generated;
       `homepage_url` (D-035).

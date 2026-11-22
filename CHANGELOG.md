@@ -10,6 +10,10 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-22
+
+Ready for the stores: listing text and images, and the name made final.
+
 ### Added
 
 - **Ready for the stores.** `store/LISTING.md` holds everything to paste
@@ -196,7 +200,8 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.1.0...v0.2.0
