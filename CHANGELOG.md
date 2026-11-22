@@ -10,6 +10,12 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-22
+
+Suggestions that show up the same day, stats for the sites that aren't on
+your list, an optional wait before "Yes", light or dark as a setting, and
+Firefox support for testing.
+
 ### Added
 
 - **An optional wait before "Yes".** "Before "Yes" works, wait 0 seconds"
@@ -44,7 +50,6 @@ under a new version heading and gets a `vX.Y.Z` git tag.
   "Delete all stats" or "Delete" next to a site deletes them.
 - **Backups are schema 3.** They now include the numbers of sites that
   aren't on your list. Schema 1 and 2 backups still import.
-
 - **The fermata is drawn like a pen line**: an even stroke, a little
   lopsided, with an oval dot, instead of the clean engraved arc. The 16 px
   toolbar icon keeps its sharp small drawing.
@@ -175,7 +180,8 @@ The first version: the core "pause, don't block" loop, for daily use.
 - Project docs: README, decision log, roadmap, principles, architecture,
   privacy policy.
 
-[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/matejmaricIA/doyoureallywanna/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/matejmaricIA/doyoureallywanna/releases/tag/v0.1.0

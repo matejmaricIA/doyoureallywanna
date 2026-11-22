@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Do You Really Wanna?",
   "short_name": "Really?",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A gentle pause before the sites you open on autopilot. Nothing is blocked, and nothing ever leaves your computer.",
   "minimum_chrome_version": "123",
   "browser_specific_settings": {
