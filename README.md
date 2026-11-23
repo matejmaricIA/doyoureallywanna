@@ -124,7 +124,9 @@ pages. The whole extension is about 50 KB zipped.
 
 ## Install
 
-**From the stores:** coming soon (Edge Add-ons and Chrome Web Store).
+**Microsoft Edge:** [get it from Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ipkfihmdlloodiomkfebjnlpllgaihjm).
+
+**Chrome and Firefox:** coming soon. Until then, install from source.
 
 **From source** (takes two minutes):
 

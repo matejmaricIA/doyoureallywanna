@@ -10,6 +10,16 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ## [Unreleased]
 
+### Added
+
+- On Edge Add-ons: the README links to the listing.
+
+### Fixed
+
+- Privacy policy: it now lists all three timing settings, and says
+  consistently that backups include the daily numbers of suggestions but
+  never the last 2 hours' opens, which turning suggestions off forgets.
+
 ## [0.5.0] - 2026-11-22
 
 Suggestions notice a site you check all day, not only in bursts.

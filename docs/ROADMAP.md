@@ -52,9 +52,8 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
 - [ ] Hand-test the toolbar icon's theme color after a browser restart, in
       Edge and Chrome (D-025). If it falls back to Dusk, decide whether
       that's acceptable.
-- [ ] Publish to Edge Add-ons (free) and Chrome Web Store ($5 one-time
-      developer fee).
-- [ ] Add the store links to the README once the listings are live.
+- [ ] Publish to the Chrome Web Store ($5 one-time developer fee), and
+      add its link to the README.
 - [ ] Donation link (GitHub Sponsors or Ko-fi) in the README and on the
       settings page footer.
 
@@ -112,6 +111,9 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
   toolbar icon follows the theme.
 
 ## Done
+
+- [x] v0.5.0: published on Edge Add-ons (2026-11-23), linked from the
+      README: https://microsoftedge.microsoft.com/addons/detail/ipkfihmdlloodiomkfebjnlpllgaihjm
 
 - [x] v0.5.0: suggestions also show up at 8 opens in a day, not only at
       6 within 2 hours, and say which it was (D-037).

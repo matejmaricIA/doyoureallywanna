@@ -1,6 +1,6 @@
 # Privacy policy
 
-*Do You Really Wanna?* · last updated 2026-11-22
+*Do You Really Wanna?* · last updated 2026-11-23
 
 **Short version: nothing you do with this extension ever leaves your
 computer.**
@@ -10,8 +10,9 @@ computer.**
 Only in your browser's local extension storage, on your computer:
 
 - **Your list**: the sites you added (e.g. `reddit.com`) and when you added them.
-- **Your settings**: the two numbers, the color theme and light or dark
-  on the settings page, and whether suggestions are on.
+- **Your settings**: how long "Yes" lasts, the "closing in" countdown,
+  the wait before "Yes", the color theme, light or dark, and whether
+  suggestions are on.
 - **Your numbers**: for each day and each site on your list, how many times
   it asked and how many times you opened the site anyway. Kept for about
   400 days, then deleted automatically.
@@ -70,14 +71,16 @@ website: they only see which pages open, and only while they're on.
 ## Backups
 
 "Export backup" saves a JSON file to your computer: your list, settings,
-numbers and "don't ask again" list, but never the suggestion counts.
+numbers (including the daily numbers of suggestions) and "don't ask
+again" list, but never the times of the last 2 hours' opens.
 Where it goes from there is up to you. "Import backup" reads a file you
 choose. Nothing is uploaded anywhere.
 
 ## Deleting your data
 
-"Delete all stats" on the settings page deletes your numbers. Turning
-suggestions off deletes the suggestion counts. Removing the extension
+"Delete all stats" on the settings page deletes all your numbers, and
+"Delete" next to a site deletes that site's. Turning suggestions off
+forgets the times of the last 2 hours' opens. Removing the extension
 deletes everything it stored.
 
 ## Changes

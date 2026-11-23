@@ -79,8 +79,8 @@ https://github.com/matejmaricIA/doyoureallywanna
 
 Developer dashboard → new item → upload `dist/do-you-really-wanna-<version>-chromium.zip`.
 
-**Store listing tab:** description above, category Productivity, language
-English, the five screenshots, the small promo tile (and the marquee, if
+**Store listing tab:** description above, category Productivity →
+Workflow & Planning, language English, the five screenshots, the small promo tile (and the marquee, if
 you like), homepage and support URLs.
 
 **Privacy tab:**
@@ -112,6 +112,11 @@ for unrelated purposes, not used for creditworthiness).
 *Privacy policy URL:* the one in the table above.
 
 ## Edge Add-ons
+
+Live since 2026-11-23:
+https://microsoftedge.microsoft.com/addons/detail/ipkfihmdlloodiomkfebjnlpllgaihjm
+(Store ID 0RDCKBRBHTL1). Updates: Partner Center → the extension →
+Update → upload the new `-chromium.zip`.
 
 Partner Center → Microsoft Edge → create new extension → upload the same
 `-chromium.zip`. (Edge refuses the manifest with Firefox's keys, D-036.)
@@ -147,12 +152,30 @@ No account or setup needed. To test: open the extension's options page ("Your li
 
 ## Firefox Add-ons
 
-Not yet: see ROADMAP.md (hand-testing in a real Firefox window first).
-When it's time: same description and screenshots; summary ≤250 chars (the
-manifest one fits); categories "Productivity" (or "Other"); license
-GPL-3.0-or-later; the manifest already declares
-`data_collection_permissions: none`. Upload the `-firefox.zip`. Run
-Mozilla's add-ons linter on it before uploading.
+Before submitting: `npm run test:e2e:firefox` passes on the version you
+upload, and the hand-tests in ROADMAP.md's Firefox section are done.
+
+Developer Hub (addons.mozilla.org/developers) → Submit a New Add-on → "On
+this site" → upload the `-firefox.zip`. Firefox desktop only: leave
+Android unticked until it's been tried there. AMO runs its linter on
+upload; warnings are fine, errors aren't.
+
+- **Source code:** not needed. Nothing is minified, bundled or generated;
+  the zip is the source.
+- **Summary** (≤250 chars): the manifest description fits.
+- **Description:** the one above. AMO keeps line breaks.
+- **Categories:** AMO has no Productivity. Use "Tabs" and "Other".
+- **License:** GNU General Public License v3.0 (the project is
+  GPL-3.0-or-later).
+- **Privacy policy:** AMO wants the text, not a link. Paste PRIVACY.md.
+- **Support:** website = the issues URL above.
+- **Notes to reviewer:** the Edge certification notes, with "Firefox shows
+  its own access prompt (a doorhanger by the address bar)" for the access
+  step.
+- **Data collection:** the manifest declares
+  `data_collection_permissions: none`, which AMO shows on the listing.
+- **After submitting:** Edit Product Page → Images: the icon is taken
+  from the package; add the five screenshots there.
 
 ## Before you press Submit
 
