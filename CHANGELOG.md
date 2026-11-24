@@ -12,7 +12,8 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 
 ### Added
 
-- On Edge Add-ons: the README links to the listing.
+- On Edge Add-ons and the Chrome Web Store: the README links to both
+  listings.
 - A demo GIF at the top of the README: a new tab, youtube.com typed, the
   pause page, "No, not now", the countdown, and back to work. Also as an
   MP4, both in `store/gifs/`, for launch posts.

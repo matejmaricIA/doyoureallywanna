@@ -77,6 +77,11 @@ https://github.com/matejmaricIA/doyoureallywanna
 
 ## Chrome Web Store
 
+Live since 2026-11-24:
+https://chromewebstore.google.com/detail/do-you-really-wanna/khlkajllkekliocfbhfbbdhkocllghca
+(item ID khlkajllkekliocfbhfbbdhkocllghca). Updates: developer dashboard →
+the item → Package → upload the new `-chromium.zip` → submit for review.
+
 Developer dashboard → new item → upload `dist/do-you-really-wanna-<version>-chromium.zip`.
 
 **Store listing tab:** description above, category Productivity →

@@ -52,8 +52,6 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
 - [ ] Hand-test the toolbar icon's theme color after a browser restart, in
       Edge and Chrome (D-025). If it falls back to Dusk, decide whether
       that's acceptable.
-- [ ] Publish to the Chrome Web Store ($5 one-time developer fee), and
-      add its link to the README.
 - [ ] Donation link (GitHub Sponsors or Ko-fi) in the README and on the
       settings page footer.
 
@@ -131,6 +129,9 @@ one place at a time.
   toolbar icon follows the theme.
 
 ## Done
+
+- [x] v0.5.0: published on the Chrome Web Store (2026-11-24), linked
+      from the README: https://chromewebstore.google.com/detail/do-you-really-wanna/khlkajllkekliocfbhfbbdhkocllghca
 
 - [x] Unreleased: a demo GIF and MP4 (`npm run demo`), recorded from the
       real pause page; the GIF heads the README (D-038).
