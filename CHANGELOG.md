@@ -13,6 +13,11 @@ under a new version heading and gets a `vX.Y.Z` git tag.
 ### Added
 
 - On Edge Add-ons: the README links to the listing.
+- A demo GIF at the top of the README: a new tab, youtube.com typed, the
+  pause page, "No, not now", the countdown, and back to work. Also as an
+  MP4, both in `store/gifs/`, for launch posts.
+- `npm run demo` records them from the real pause page in headless
+  Edge/Chrome and encodes them with ffmpeg, the same every run (D-038).
 
 ### Fixed
 

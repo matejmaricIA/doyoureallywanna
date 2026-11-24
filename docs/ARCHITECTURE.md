@@ -40,12 +40,13 @@ extension/                 ← load this folder in the browser; it's also what s
 assets/icon.svg            the icon source (a fermata, drawn like a pen line), for 32 px and up
 assets/icon-small.svg      the same, redrawn on the 16 px grid
 tests/unit/                node:test tests for the pure modules
-tools/                     dev tooling (never shipped): e2e tests (Edge/Chrome, Firefox), screenshots, icons, packaging
+tools/                     dev tooling (never shipped): e2e tests (Edge/Chrome, Firefox), screenshots, demo GIF, icons, packaging
 tools/lib/manifests.mjs    the Edge/Chrome store manifest: the repo's minus Firefox's keys (D-036)
 docs/                      decisions, roadmap, principles, this file, images
 store/LISTING.md           what to paste into the store forms (never shipped, D-035)
 store/images/              store screenshots and promo tiles (`npm run screenshots`),
                            300 px logo (`npm run icons`)
+store/gifs/                the demo GIF (README, launch posts) and an MP4 of it (`npm run demo`, D-038)
 ```
 
 "Pure" modules don't touch `chrome.*`, so they run in Node unit tests

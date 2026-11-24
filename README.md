@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/pause.png" alt="The pause page asking: Do you really wanna open youtube.com right now? That's the 6th time today. Buttons: No, not now / Yes, open it." width="820" />
+  <img src="store/gifs/do-you-really-wanna-demo.gif" alt="A short loop. Someone writing a thesis chapter opens a new tab and types youtube.com. Instead of YouTube, the pause page asks: Do you really wanna open youtube.com right now? That's the 6th time today. They click No, not now. Okay, no worries, closing in 4, 3, 2, 1, and the tab closes, back to the chapter." width="820" />
 </p>
 
 ---
@@ -177,6 +177,7 @@ npm test               # unit tests
 npm run test:e2e       # loads the real extension into headless Edge/Chrome and clicks through every flow
 npm run check          # both
 npm run screenshots    # regenerates the images in this README
+npm run demo           # records the demo GIF at the top of this README (needs ffmpeg)
 npm run icons          # renders the icon to PNGs, in every theme's color
 npm run package        # builds the store zips in dist/: -chromium.zip (Edge, Chrome) and -firefox.zip
 ```

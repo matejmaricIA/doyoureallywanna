@@ -57,6 +57,26 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
 - [ ] Donation link (GitHub Sponsors or Ko-fi) in the README and on the
       settings page footer.
 
+## Launch
+
+Spread the word once Chrome (and ideally Firefox) are listed too, so
+readers can install with one click. Lead with the demo GIF/MP4 in
+`store/gifs/` (D-038). Say plainly that you're the developer, and post
+one place at a time.
+
+- [ ] r/nosurf, then r/digitalminimalism a few days later (personal
+      story first, the extension second; check each sidebar's rules).
+- [ ] Show HN, with a first comment on the declarativeNetRequest approach
+      and the no-network principle.
+- [ ] r/SideProject, r/chrome_extensions, r/opensource, r/webdev
+      (Showoff Saturday); r/firefox once it's on Firefox Add-ons.
+- [ ] AlternativeTo listing, as an alternative to one sec, LeechBlock,
+      StayFocusd, Freedom and Intention.
+- [ ] PRs to awesome lists (digital wellbeing, productivity, privacy) and
+      GitHub topics on the repo.
+- [ ] Measure with what's already there, no analytics: store install
+      counts, stars, and GitHub's Insights → Traffic referrers.
+
 ## Later
 
 - [ ] "Why?" one-tap reasons after "Yes" (optional): "need something
@@ -111,6 +131,9 @@ Paste-ready text and images are in `store/LISTING.md` and `store/images/`
   toolbar icon follows the theme.
 
 ## Done
+
+- [x] Unreleased: a demo GIF and MP4 (`npm run demo`), recorded from the
+      real pause page; the GIF heads the README (D-038).
 
 - [x] v0.5.0: published on Edge Add-ons (2026-11-23), linked from the
       README: https://microsoftedge.microsoft.com/addons/detail/ipkfihmdlloodiomkfebjnlpllgaihjm

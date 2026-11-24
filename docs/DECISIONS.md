@@ -974,3 +974,56 @@ once a day, and "It's fine, don't ask again" ends it for that site.
   off the "don't ask again" list in the middle of a busy day).
 - A site opened a few times every day, below both rules, is still never
   suggested.
+
+## D-038 · A demo GIF, recorded by a tool, encoded with ffmpeg
+
+*2026-11-23 · Accepted · extends D-035*
+
+**Context.** Launch posts (Reddit, Show HN) and the top of the README
+need to show the extension *working*: the moment you reach for a site,
+the question, and the tab closing. Still screenshots show one page at a
+time. A screen recording of a real browser would show real browser
+chrome and real sites, can't be remade when a page changes, and comes
+out a little different every time.
+
+**Decision.**
+
+- `npm run demo` (`tools/demo.mjs`) records a 13-second loop: someone
+  writing, a new tab, `youtube.com` typed letter by letter, the pause
+  page ("That's the 6th time today."), a cursor clicking "No, not now",
+  the countdown, and the tab gone, back to the writing.
+- The pause page and the countdown are the real extension pages, in
+  headless Edge/Chrome over `tools/lib/cdp.mjs`, like `npm run
+  screenshots`. They sit in an iframe inside a mock browser window that
+  is itself a page of the copied extension (same origin, so the tool can
+  read the countdown and click "No"). The mock is plain and generic:
+  no Edge or Chrome branding, no real site's content. The address bar
+  shows `extension://…/pause.html`, roughly what the browser really
+  shows, not a fake `youtube.com`.
+- Frames are screenshots taken one by one at 2×, each with its own
+  duration, so the result is the same every run. `Math.random` is
+  fixed for the question and message. In the iframe,
+  `chrome.tabs.getCurrent` returns nothing, so "No" can't close the tab
+  the recording runs in; the mock window "closes" its own tab.
+- ffmpeg turns the frames into `store/gifs/do-you-really-wanna-demo.gif`
+  (960 px wide, 128 colors, about 130 KB) and `.mp4` (1560 px wide,
+  H.264). The tool finds it on the PATH or in `FFMPEG=`, and says how to
+  install it if it's missing.
+- The GIF replaces the still pause page at the top of the README.
+  `docs/images/pause.png` is still generated, for places that want a
+  still.
+
+**Why.** Same reasons as D-035: generated from the real pages, it never
+drifts from what the extension looks like. ffmpeg is an external program
+for one dev tool, not an npm dependency, and nothing in `extension/` or
+the tests needs it (D-011 still holds). Writing a GIF encoder by hand to
+avoid it would be more code to maintain than the tool itself.
+
+**Consequences.**
+
+- When the pause page's look, copy or flow changes, `npm run demo` is
+  rerun with `npm run screenshots`.
+- Making the demo needs ffmpeg installed; `npm run check` and
+  `npm run package` don't.
+- `store/` is still never shipped. The GIF and MP4 are binary files in
+  git (`.gitattributes`), about 400 KB together.

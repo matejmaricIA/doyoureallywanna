@@ -15,6 +15,7 @@
     "check": "npm test && npm run test:e2e",
     "icons": "node tools/icons.mjs",
     "screenshots": "node tools/screenshots.mjs",
+    "demo": "node tools/demo.mjs",
     "package": "node tools/package.mjs"
   }
 }
